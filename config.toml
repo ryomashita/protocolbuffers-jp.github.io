@@ -2,6 +2,23 @@ baseURL = 'https://protobuf.dev'
 languageCode = 'en-us'
 title = 'Protocol Buffers Documentation'
 
+# Language configuration
+# section [language] must be declared before [module].
+
+[languages]
+[languages.en]
+title = "Protocol Buffers Documentation"
+languageName ="English"
+languageCode ="en"
+# Weight used for sorting.
+weight = 1
+[languages.ja]
+contentDir="content.ja"
+title = "Protocol Buffers Documentation"
+languageName ="日本語"
+languageCode ="ja"
+weight = 2
+
 # Theme
 [module]
   [module.hugoVersion]
@@ -61,14 +78,6 @@ anchor = "smart"
 [services.googleAnalytics]
 id = "G-5L8P8GRN4Y"
 
-# Language configuration
-
-[languages]
-[languages.en]
-title = "Protocol Buffers Documentation"
-languageName ="English"
-# Weight used for sorting.
-weight = 1
 
 
 [markup]
