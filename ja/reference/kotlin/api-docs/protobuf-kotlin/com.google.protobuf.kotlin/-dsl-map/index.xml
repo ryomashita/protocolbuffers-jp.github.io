@@ -1,0 +1,48 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Protocol Buffers Documentation –</title><link>https://protobuf.dev/ja/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/-dsl-map/</link><description>Recent content on Protocol Buffers Documentation</description><generator>Hugo -- gohugo.io</generator><language>ja</language><atom:link href="https://protobuf.dev/ja/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/-dsl-map/index.xml" rel="self" type="application/rss+xml"/><item><title>Reference:</title><link>https://protobuf.dev/ja/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/-dsl-map/-dsl-map/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/-dsl-map/-dsl-map/</guid><description>
+&lt;h1 id="dslmap--examples-">DslMap { /&lt;em>examples&lt;/em>/ }&lt;/h1>
+&lt;p>[JVM] &lt;br>
+コンテンツ &lt;br>
+fun &amp;lt;&lt;a href="">K&lt;/a>, &lt;a href="">V&lt;/a>&amp;gt; &lt;a href="">DslMap&lt;/a>(delegate:
+&lt;a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html">Map&lt;/a>&amp;lt;&lt;a href="">K&lt;/a>,
+&lt;a href="">V&lt;/a>&amp;gt;)&lt;/p></description></item><item><title>Reference:</title><link>https://protobuf.dev/ja/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/-dsl-map/entries/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/-dsl-map/entries/</guid><description>
+&lt;p>//&lt;a href="https://protobuf.dev/reference/kotlin/api-docs/">protobuf-kotlin&lt;/a>/&lt;a href="https://protobuf.dev/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/">com.google.protobuf.kotlin&lt;/a>/&lt;a href="">DslMap&lt;/a>/entries&lt;/p>
+&lt;h1 id="entries">entries&lt;/h1>
+&lt;p>[JVM] &lt;br>
+Content &lt;br>
+open override val &lt;a href="">entries&lt;/a>:
+&lt;a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set&lt;/a>&amp;lt;&lt;a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/-entry/index.html">Map.Entry&lt;/a>&amp;lt;&lt;a href="">K&lt;/a>,
+&lt;a href="">V&lt;/a>&amp;raquo;&lt;/p></description></item><item><title>Reference:</title><link>https://protobuf.dev/ja/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/-dsl-map/equals/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/-dsl-map/equals/</guid><description>
+&lt;p>//&lt;a href="https://protobuf.dev/reference/kotlin/api-docs/">protobuf-kotlin&lt;/a>/&lt;a href="https://protobuf.dev/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/">com.google.protobuf.kotlin&lt;/a>/&lt;a href="">DslMap&lt;/a>/equals&lt;/p>
+&lt;h1 id="equals-examples">equals {/examples/}&lt;/h1>
+&lt;p>[JVM] &lt;br>
+Content &lt;br>
+open operator override fun &lt;a href="">equals&lt;/a>(other:
+&lt;a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any&lt;/a>?):
+&lt;a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean&lt;/a>&lt;/p></description></item><item><title>Reference:</title><link>https://protobuf.dev/ja/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/-dsl-map/hash-code/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/-dsl-map/hash-code/</guid><description>
+&lt;p>//&lt;a href="https://protobuf.dev/reference/kotlin/api-docs/">protobuf-kotlin&lt;/a>/&lt;a href="https://protobuf.dev/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/">com.google.protobuf.kotlin&lt;/a>/&lt;a href="">DslMap&lt;/a>/hashCode&lt;/p>
+&lt;h1 id="hashcode">hashCode&lt;/h1>
+&lt;p>[JVM] &lt;br>
+Content &lt;br>
+open override fun &lt;a href="">hashCode&lt;/a>():
+&lt;a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int&lt;/a>&lt;/p></description></item><item><title>Reference:</title><link>https://protobuf.dev/ja/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/-dsl-map/keys/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/-dsl-map/keys/</guid><description>
+&lt;p>//&lt;a href="https://protobuf.dev/reference/kotlin/api-docs/">protobuf-kotlin&lt;/a>/&lt;a href="https://protobuf.dev/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/">com.google.protobuf.kotlin&lt;/a>/&lt;a href="">DslMap&lt;/a>/keys&lt;/p>
+&lt;h1 id="キー">キー&lt;/h1>
+&lt;p>[JVM] &lt;br>
+コンテンツ &lt;br>
+open override val &lt;a href="">keys&lt;/a>:
+&lt;a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set&lt;/a>&amp;lt;&lt;a href="">K&lt;/a>&amp;gt;&lt;/p></description></item><item><title>Reference:</title><link>https://protobuf.dev/ja/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/-dsl-map/to-string/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/-dsl-map/to-string/</guid><description>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-markdown" data-lang="markdown">&lt;span style="display:flex;">&lt;span>//[protobuf-kotlin](/reference/kotlin/api-docs/)/[com.google.protobuf.kotlin](/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/)/[DslMap]()/toString
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000080;font-weight:bold"># toString
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000080;font-weight:bold">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>[JVM] \
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>コンテンツ \
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>open override fun [toString]()():
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>[&lt;span style="color:#204a87;font-weight:bold">String&lt;/span>](&lt;span style="color:#c4a000">https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html&lt;/span>)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Reference:</title><link>https://protobuf.dev/ja/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/-dsl-map/values/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/-dsl-map/values/</guid><description>
+&lt;p>//&lt;a href="https://protobuf.dev/reference/kotlin/api-docs/">protobuf-kotlin&lt;/a>/&lt;a href="https://protobuf.dev/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/">com.google.protobuf.kotlin&lt;/a>/&lt;a href="">DslMap&lt;/a>/values&lt;/p>
+&lt;h1 id="値">値&lt;/h1>
+&lt;p>[JVM] &lt;br>
+コンテンツ &lt;br>
+open override val &lt;a href="">values&lt;/a>:
+&lt;a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-collection/index.html">Collection&lt;/a>&amp;lt;&lt;a href="">V&lt;/a>&amp;gt;&lt;/p></description></item></channel></rss>

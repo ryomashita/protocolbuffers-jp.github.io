@@ -1,0 +1,641 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Protocol Buffers Documentation – Java リファレンス</title><link>https://protobuf.dev/ja/reference/java/</link><description>Recent content in Java リファレンス on Protocol Buffers Documentation</description><generator>Hugo -- gohugo.io</generator><language>ja</language><atom:link href="https://protobuf.dev/ja/reference/java/index.xml" rel="self" type="application/rss+xml"/><item><title>Reference: Java生成コードガイド</title><link>https://protobuf.dev/ja/reference/java/java-generated/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/reference/java/java-generated/</guid><description>
+&lt;p>proto2とproto3で生成されるコードの違いは強調されます。これらの違いは、このドキュメントで説明されている生成されたコードにありますが、基本メッセージクラス/インターフェースは両バージョンで同じです。このドキュメントを読む前に、&lt;a href="https://protobuf.dev/programming-guides/proto2">proto2言語ガイド&lt;/a>および/または&lt;a href="https://protobuf.dev/programming-guides/proto3">proto3言語ガイド&lt;/a>を読む必要があります。&lt;/p>
+&lt;p>Javaのプロトコルバッファメソッドは、明示的に指定されていない限り、nullを受け入れたり返したりしません。&lt;/p>
+&lt;h2 id="invocation">コンパイラの呼び出し&lt;/h2>
+&lt;p>プロトコルバッファコンパイラは、&lt;code>--java_out=&lt;/code>コマンドラインフラグを使用して呼び出されると、Java出力を生成します。&lt;code>--java_out=&lt;/code>オプションのパラメータは、コンパイラがJava出力を書き込むディレクトリです。各&lt;code>.proto&lt;/code>ファイルの入力に対して、コンパイラは、&lt;code>.proto&lt;/code>ファイル自体を表すJavaクラスを含むラッパー&lt;code>.java&lt;/code>ファイルを作成します。&lt;/p>
+&lt;p>&lt;code>.proto&lt;/code>ファイルに次のような行が含まれている場合：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">option&lt;/span> &lt;span style="color:#000">java_multiple_files&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#204a87;font-weight:bold">true&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>その場合、コンパイラは、&lt;code>.proto&lt;/code>ファイルで宣言された各トップレベルメッセージ、列挙型、およびサービスに対して生成されるクラス/列挙型ごとに個別の&lt;code>.java&lt;/code>ファイルも作成します。&lt;/p>
+&lt;p>それ以外の場合（つまり、&lt;code>java_multiple_files&lt;/code>オプションが無効になっている場合；これがデフォルトです）、前述のラッパークラスも外部クラスとして使用され、&lt;code>.proto&lt;/code>ファイルで宣言された各トップレベルメッセージ、列挙型、およびサービスに対して生成されるクラス/列挙型はすべて外部ラッパークラス内にネストされます。したがって、コンパイラは&lt;code>.proto&lt;/code>ファイル全体に対して単一の&lt;code>.java&lt;/code>ファイルのみを生成します。&lt;/p>
+&lt;p>ラッパークラスの名前は次のように選択されます：&lt;code>.proto&lt;/code>ファイルに次のような行が含まれている場合：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">option&lt;/span> &lt;span style="color:#000">java_outer_classname&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;Foo&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>その場合、ラッパークラスの名前は&lt;code>Foo&lt;/code>になります。それ以外の場合、ラッパークラスの名前は&lt;code>.proto&lt;/code>ファイルのベース名をキャメルケースに変換して決定されます。例えば、&lt;code>foo_bar.proto&lt;/code>は&lt;code>FooBar&lt;/code>というクラス名を生成します。ファイル内に同じ名前のサービス、列挙型、またはメッセージ（ネストされた型を含む）がある場合、ラッパークラスの名前に&amp;quot;OuterClass&amp;quot;が追加されます。例：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;code>foo_bar.proto&lt;/code> に &lt;code>FooBar&lt;/code> というメッセージが含まれている場合、ラッパークラスは &lt;code>FooBarOuterClass&lt;/code> というクラス名を生成します。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>foo_bar.proto&lt;/code> に &lt;code>FooService&lt;/code> というサービスが含まれており、&lt;code>java_outer_classname&lt;/code> が &lt;code>FooService&lt;/code> という文字列に設定されている場合、ラッパークラスは &lt;code>FooServiceOuterClass&lt;/code> というクラス名を生成します。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>注意:&lt;/strong> プロトコルバッファ API の非推奨バージョン v1 を使用している場合、メッセージ名との衝突に関係なく &lt;code>OuterClass&lt;/code> が追加されます。&lt;/p>
+&lt;p>ネストされたクラスに加えて、ラッパークラス自体には以下の API があります（ラッパークラスが &lt;code>Foo&lt;/code> という名前であり、&lt;code>foo.proto&lt;/code> から生成されたと仮定します）:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">public&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">final&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">class&lt;/span> &lt;span style="color:#000">Foo&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">private&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">Foo&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000;font-weight:bold">{}&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#8f5902;font-style:italic">// Not instantiable.&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#8f5902;font-style:italic">/** Returns a FileDescriptor message describing the contents of {@code foo.proto}. */&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">public&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">static&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">com&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">google&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">protobuf&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">Descriptors&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">FileDescriptor&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">getDescriptor&lt;/span>&lt;span style="color:#000;font-weight:bold">();&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#8f5902;font-style:italic">/** Adds all extensions defined in {@code foo.proto} to the given registry. */&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">public&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">static&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">void&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">registerAllExtensions&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">com&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">google&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">protobuf&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">ExtensionRegistry&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">registry&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">public&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">static&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">void&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">registerAllExtensions&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">com&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">google&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">protobuf&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">ExtensionRegistryLite&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">registry&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#8f5902;font-style:italic">// (Nested classes omitted)&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Java パッケージ名は、以下の &lt;a href="#package">Packages&lt;/a> で説明されている方法で選択されます。&lt;/p>
+&lt;p>出力ファイルは、&lt;code>--java_out=&lt;/code> に連結されたパラメータ、パッケージ名（&lt;code>.&lt;/code> が &lt;code>/&lt;/code> に置き換えられたもの）、および &lt;code>.java&lt;/code> ファイル名によって選択されます。&lt;/p>
+&lt;p>たとえば、次のようにコンパイラを呼び出したとします:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>protoc --proto_path&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>src --java_out&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>build/gen src/foo.proto
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>foo.proto&lt;/code> の Java パッケージが &lt;code>com.example&lt;/code> であり、&lt;code>java_multiple_files&lt;/code> を有効にせず、外部クラス名が &lt;code>FooProtos&lt;/code> の場合、プロトコルバッファコンパイラはファイル &lt;code>build/gen/com/example/FooProtos.java&lt;/code> を生成します。プロトコルバッファコンパイラは、必要に応じて &lt;code>build/gen/com&lt;/code> および &lt;code>build/gen/com/example&lt;/code> ディレクトリを自動的に作成します。ただし、&lt;code>build/gen&lt;/code> または &lt;code>build&lt;/code> は作成されません。複数の &lt;code>.proto&lt;/code> ファイルを単一の呼び出しで指定できます。すべての出力ファイルが一度に生成されます。&lt;/p>
+&lt;p>Java コードを出力する際、プロトコルバッファコンパイラが JAR アーカイブに直接出力できる能力は特に便利です。多くの Java ツールがソースコードを JAR ファイルから直接読み取ることができます。JAR ファイルに出力するには、単に &lt;code>.jar&lt;/code> で終わる出力場所を指定します。注意点として、アーカイブには Java ソースコードのみが配置されます。それを Java クラスファイルに変換するためには、引き続き別途コンパイルする必要があります。&lt;/p>
+&lt;p>たとえば、&lt;code>.proto&lt;/code> ファイルに次のような内容が含まれている場合:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">package&lt;/span> &lt;span style="color:#000">foo&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">bar&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>その後、生成されるJavaクラスはJavaパッケージ&lt;code>foo.bar&lt;/code>に配置されます。ただし、&lt;code>.proto&lt;/code>ファイルに&lt;code>java_package&lt;/code>オプションも含まれている場合、次のようになります：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">package&lt;/span> &lt;span style="color:#000">foo&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">bar&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">option&lt;/span> &lt;span style="color:#000">java_package&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;com.example.foo.bar&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>その場合、クラスは代わりに&lt;code>com.example.foo.bar&lt;/code>パッケージに配置されます。&lt;code>java_package&lt;/code>オプションは、通常の&lt;code>.proto&lt;/code> &lt;code>package&lt;/code>宣言が逆ドメイン名で始まることは想定されていないため提供されています。&lt;/p>
+&lt;h2 id="message">メッセージ&lt;/h2>
+&lt;p>単純なメッセージ宣言が与えられた場合：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">{}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>プロトコルバッファコンパイラは&lt;code>Foo&lt;/code>というクラスを生成し、&lt;code>Message&lt;/code>インターフェースを実装します。クラスは&lt;code>final&lt;/code>で宣言されており、さらなるサブクラス化は許可されません。&lt;code>Foo&lt;/code>は&lt;code>GeneratedMessage&lt;/code>を拡張していますが、これは実装の詳細と見なすべきです。デフォルトでは、&lt;code>Foo&lt;/code>は最大の速度向上のために多くの&lt;code>GeneratedMessage&lt;/code>のメソッドを特殊なバージョンでオーバーライドします。ただし、&lt;code>.proto&lt;/code>ファイルに次の行が含まれている場合：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">option&lt;/span> &lt;span style="color:#000">optimize_for&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">CODE_SIZE&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>その場合、&lt;code>Foo&lt;/code>は機能するために必要な最小限のメソッドのみをオーバーライドし、残りのメソッドは&lt;code>GeneratedMessage&lt;/code>のリフレクションベースの実装に依存します。これにより生成されるコードのサイズが大幅に削減されますが、パフォーマンスも低下します。また、&lt;code>.proto&lt;/code>ファイルに次の行が含まれている場合：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">option&lt;/span> &lt;span style="color:#000">optimize_for&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">LITE_RUNTIME&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>その場合、&lt;code>Foo&lt;/code>にはすべてのメソッドの高速な実装が含まれますが、&lt;code>MessageLite&lt;/code>インターフェースを実装し、&lt;code>Message&lt;/code>のメソッドのサブセットを含みます。特に、記述子、ネストしたビルダー、またはリフレクションをサポートしません。ただし、このモードでは、生成されたコードは&lt;code>libprotobuf.jar&lt;/code>の代わりに&lt;code>libprotobuf-lite.jar&lt;/code>にリンクする必要があります。&amp;ldquo;lite&amp;quot;ライブラリはフルライブラリよりもはるかに小さく、モバイル電話などのリソースに制約のあるシステムに適しています。&lt;/p>
+&lt;p>&lt;code>Message&lt;/code>インターフェースは、メッセージ全体をチェック、操作、読み取り、書き込みするためのメソッドを定義します。これらのメソッドに加えて、&lt;code>Foo&lt;/code>クラスは次の静的メソッドを定義します：```&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;code>static Foo getDefaultInstance()&lt;/code>: &lt;code>Foo&lt;/code>の&lt;em>シングルトン&lt;/em>インスタンスを返します。このインスタンスの内容は、&lt;code>Foo.newBuilder().build()&lt;/code>を呼び出した場合と同じです（つまり、すべての単数フィールドが未設定で、すべての繰り返しフィールドが空です）。メッセージのデフォルトインスタンスは、その&lt;code>newBuilderForType()&lt;/code>メソッドを呼び出すことでファクトリとして使用できます。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>static Descriptor getDescriptor()&lt;/code>: タイプの記述子を返します。これには、フィールドの情報やそのタイプなど、タイプに関する情報が含まれています。これは、&lt;code>Message&lt;/code>のリフレクションメソッドと一緒に使用できます。例えば、&lt;code>getField()&lt;/code>です。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>static Foo parseFrom(...)&lt;/code>: 指定されたソースから&lt;code>Foo&lt;/code>タイプのメッセージを解析して返します。&lt;code>Message.Builder&lt;/code>インターフェースの&lt;code>mergeFrom()&lt;/code>の各バリアントに対応する1つの&lt;code>parseFrom&lt;/code>メソッドがあります。&lt;code>parseFrom()&lt;/code>は決して&lt;code>UninitializedMessageException&lt;/code>をスローしません。必要なフィールドが欠落している場合は、&lt;code>InvalidProtocolBufferException&lt;/code>をスローします。これにより、&lt;code>Foo.newBuilder().mergeFrom(...).build()&lt;/code>を呼び出すのと微妙に異なることに注意してください。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>static Parser parser()&lt;/code>: &lt;code>Parser&lt;/code>のインスタンスを返します。さまざまな&lt;code>parseFrom()&lt;/code>メソッドを実装しています。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>Foo.Builder newBuilder()&lt;/code>: 新しいビルダーを作成します（後述）。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>Foo.Builder newBuilder(Foo prototype)&lt;/code>: すべてのフィールドが&lt;code>prototype&lt;/code>で持つ値と同じ値で初期化された新しいビルダーを作成します。埋め込みメッセージや文字列オブジェクトは不変なため、オリジナルとコピーの間で共有されます。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="builders">ビルダー&lt;/h3>
+&lt;p>メッセージオブジェクト—上記で説明した&lt;code>Foo&lt;/code>クラスのインスタンスなど—は、Javaの&lt;code>String&lt;/code>と同様に不変です。メッセージオブジェクトを構築するには、&lt;em>ビルダー&lt;/em>を使用する必要があります。各メッセージクラスには、独自のビルダークラスがあります。したがって、&lt;code>Foo&lt;/code>の例では、プロトコルバッファコンパイラは&lt;code>Foo&lt;/code>を構築するために使用できるネストされたクラス&lt;code>Foo.Builder&lt;/code>を生成します。&lt;code>Foo.Builder&lt;/code>は&lt;code>Message.Builder&lt;/code>インターフェースを実装しています。&lt;code>GeneratedMessage.Builder&lt;/code>クラスを拡張していますが、これも実装の詳細と見なすべきです。&lt;code>Foo&lt;/code>と同様に、&lt;code>Foo.Builder&lt;/code>は、&lt;code>GeneratedMessage.Builder&lt;/code>内のジェネリックメソッドの実装に依存するか、&lt;code>optimize_for&lt;/code>オプションが使用されている場合は、はるかに高速な生成されたカスタムコードに依存する場合があります。&lt;/p>
+&lt;p>&lt;code>Foo.Builder&lt;/code>は静的メソッドを定義していません。そのインターフェースは、&lt;code>Message.Builder&lt;/code>インターフェースで定義されているものとまったく同じですが、異なる点は戻り値の型がより具体的であることです。つまり、ビルダーを変更する&lt;code>Foo.Builder&lt;/code>のメソッドは&lt;code>Foo.Builder&lt;/code>を返し、&lt;code>build()&lt;/code>は&lt;code>Foo&lt;/code>型を返します。&lt;/p>
+&lt;p>ビルダーの内容を変更するメソッド（フィールドセッターを含む）は常にビルダーへの参照を返します（つまり、&lt;code>return this;&lt;/code>を行います）。これにより、複数のメソッド呼び出しを1行で連鎖させることができます。例えば：&lt;code>builder.mergeFrom(obj).setFoo(1).setBar(&amp;quot;abc&amp;quot;).clearBaz();&lt;/code>&lt;/p>
+&lt;p>ビルダーはスレッドセーフではないため、1つのビルダーの内容を複数の異なるスレッドが変更する必要がある場合は、Javaの同期化を使用する必要があります。&lt;/p>
+&lt;h3 id="sub-builders">サブビルダー&lt;/h3>
+&lt;p>サブメッセージを含むメッセージの場合、コンパイラはサブビルダーも生成します。これにより、深くネストされたサブメッセージを繰り返し変更することができます。例：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">val&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// some other fields.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Bar&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// some other fields.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Baz&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#000">Bar&lt;/span> &lt;span style="color:#000">bar&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// some other fields.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>既に&lt;code>Baz&lt;/code>メッセージがある場合、&lt;code>Foo&lt;/code>の深くネストされた&lt;code>val&lt;/code>を変更したい場合。次のように書くことができます：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">baz&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">baz&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">toBuilder&lt;/span>&lt;span style="color:#000;font-weight:bold">().&lt;/span>&lt;span style="color:#c4a000">setBar&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">baz&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">getBar&lt;/span>&lt;span style="color:#000;font-weight:bold">().&lt;/span>&lt;span style="color:#c4a000">toBuilder&lt;/span>&lt;span style="color:#000;font-weight:bold">().&lt;/span>&lt;span style="color:#c4a000">setFoo&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">baz&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">getBar&lt;/span>&lt;span style="color:#000;font-weight:bold">().&lt;/span>&lt;span style="color:#c4a000">getFoo&lt;/span>&lt;span style="color:#000;font-weight:bold">().&lt;/span>&lt;span style="color:#c4a000">toBuilder&lt;/span>&lt;span style="color:#000;font-weight:bold">().&lt;/span>&lt;span style="color:#c4a000">setVal&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">10&lt;/span>&lt;span style="color:#000;font-weight:bold">).&lt;/span>&lt;span style="color:#c4a000">build&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000;font-weight:bold">).&lt;/span>&lt;span style="color:#c4a000">build&lt;/span>&lt;span style="color:#000;font-weight:bold">()).&lt;/span>&lt;span style="color:#c4a000">build&lt;/span>&lt;span style="color:#000;font-weight:bold">();&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>次のように書くことができます：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">Baz&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">Builder&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">builder&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">baz&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">toBuilder&lt;/span>&lt;span style="color:#000;font-weight:bold">();&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">&lt;/span>&lt;span style="color:#000">builder&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">getBarBuilder&lt;/span>&lt;span style="color:#000;font-weight:bold">().&lt;/span>&lt;span style="color:#c4a000">getFooBuilder&lt;/span>&lt;span style="color:#000;font-weight:bold">().&lt;/span>&lt;span style="color:#c4a000">setVal&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">10&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">&lt;/span>&lt;span style="color:#000">baz&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">builder&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">build&lt;/span>&lt;span style="color:#000;font-weight:bold">();&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="nested">ネストされた型&lt;/h3>
+&lt;p>メッセージは別のメッセージの内部で宣言することができます。例：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Bar&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>この場合、コンパイラは&lt;code>Bar&lt;/code>を&lt;code>Foo&lt;/code>の内部クラスとして生成します。&lt;/p>
+&lt;h2 id="fields">フィールド&lt;/h2>
+&lt;p>前のセクションで説明したメソッドに加えて、プロトコルバッファコンパイラは、&lt;code>.proto&lt;/code>ファイルで定義された各フィールドに対して、アクセサメソッドのセットを生成します。フィールド値を読み取るメソッドは、メッセージクラスとそれに対応するビルダーの両方で定義されています。値を変更するメソッドはビルダーのみで定義されています。&lt;/p>
+&lt;p>メソッド名は常にキャメルケースの命名規則を使用します。たとえ&lt;code>.proto&lt;/code>ファイルのフィールド名がアンダースコアを使用した小文字であっても、ケース変換は次のように機能します：&lt;/p>
+&lt;ul>
+&lt;li>各アンダースコアについて、アンダースコアは削除され、次の文字が大文字になります。&lt;/li>
+&lt;li>名前に接頭辞が付いている場合（例： &amp;ldquo;get&amp;rdquo;）、最初の文字は大文字になります。それ以外の場合は小文字になります。&lt;/li>
+&lt;li>メソッド名の各数字の最後の数字の後に続く文字は大文字になります。&lt;/li>
+&lt;/ul>
+&lt;p>したがって、フィールド &lt;code>foo_bar_baz&lt;/code> は &lt;code>fooBarBaz&lt;/code> になります。&lt;code>get&lt;/code> と接頭辞が付いている場合は、&lt;code>getFooBarBaz&lt;/code> になります。そして、&lt;code>foo_ba23r_baz&lt;/code> は &lt;code>fooBa23RBaz&lt;/code> になります。&lt;/p>
+&lt;p>アクセサメソッドだけでなく、コンパイラは各フィールドに対して整数定数を生成し、そのフィールド番号を含みます。定数名はフィールド名を大文字に変換して &lt;code>_FIELD_NUMBER&lt;/code> が続きます。たとえば、フィールド &lt;code>optional int32 foo_bar = 5;&lt;/code> が与えられた場合、コンパイラは定数 &lt;code>public static final int FOO_BAR_FIELD_NUMBER = 5;&lt;/code> を生成します。&lt;/p>
+&lt;h3 id="singular-proto2">単数フィールド（proto2）&lt;/h3>
+&lt;p>次のいずれかのフィールド定義がある場合：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">required&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>コンパイラは、メッセージクラスとそのビルダーの両方に次のアクセサメソッドを生成します：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>boolean hasFoo()&lt;/code>: フィールドが設定されている場合は &lt;code>true&lt;/code> を返します。&lt;/li>
+&lt;li>&lt;code>int getFoo()&lt;/code>: フィールドの現在の値を返します。フィールドが設定されていない場合は、デフォルト値を返します。&lt;/li>
+&lt;/ul>
+&lt;p>コンパイラは、メッセージのビルダーにのみ次のメソッドを生成します：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Builder setFoo(int value)&lt;/code>: フィールドの値を設定します。これを呼び出した後、&lt;code>hasFoo()&lt;/code> は &lt;code>true&lt;/code> を返し、&lt;code>getFoo()&lt;/code> は &lt;code>value&lt;/code> を返します。&lt;/li>
+&lt;li>&lt;code>Builder clearFoo()&lt;/code>: フィールドの値をクリアします。これを呼び出した後、&lt;code>hasFoo()&lt;/code> は &lt;code>false&lt;/code> を返し、&lt;code>getFoo()&lt;/code> はデフォルト値を返します。&lt;/li>
+&lt;/ul>
+&lt;p>他の単純なフィールドタイプについては、対応する Java タイプは、
+&lt;a href="https://protobuf.dev/programming-guides/proto2#scalar">スカラー値タイプテーブル&lt;/a>
+に従って選択されます。メッセージおよび列挙型の場合、値のタイプはメッセージまたは列挙型クラスに置き換えられます。&lt;/p>
+&lt;h4 id="embedded-message-proto2">埋め込みメッセージフィールド&lt;/h4>
+&lt;p>メッセージ型の場合、&lt;code>setFoo()&lt;/code> はメッセージのビルダータイプのインスタンスもパラメータとして受け入れます。これは、ビルダーで &lt;code>.build()&lt;/code> を呼び出して結果をメソッドに渡すのと同等のショートカットです。&lt;/p>
+&lt;p>もしフィールドが設定されていない場合、&lt;code>getFoo()&lt;/code> はそのフィールドのどれも設定されていない Foo インスタンスを返します（おそらく &lt;code>Foo.getDefaultInstance()&lt;/code> によって返されるインスタンスです）。&lt;/p>
+&lt;p>さらに、コンパイラは、メッセージ型の関連するサブビルダーにアクセスできる 2 つのアクセサメソッドを生成します。次のメソッドは、メッセージクラスとそのビルダーの両方に生成されます。&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>FooOrBuilder getFooOrBuilder()&lt;/code>: フィールドのビルダーを返します。既に存在する場合はそのビルダーを、存在しない場合はメッセージを返します。このメソッドをビルダーで呼び出しても、フィールドのサブビルダーは作成されません。&lt;/li>
+&lt;/ul>
+&lt;p>コンパイラは、次のメソッドをメッセージのビルダーだけに生成します。&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Builder getFooBuilder()&lt;/code>: フィールドのビルダーを返します。&lt;/li>
+&lt;/ul>
+&lt;h3 id="singular-proto3">単数フィールド（proto3）&lt;/h3>
+&lt;p>このフィールド定義に対して:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>コンパイラは、メッセージクラスとそのビルダーの両方に次のアクセサメソッドを生成します。&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>int getFoo()&lt;/code>: フィールドの現在の値を返します。フィールドが設定されていない場合は、フィールドの型のデフォルト値を返します。&lt;/li>
+&lt;/ul>
+&lt;p>コンパイラは、次のメソッドをメッセージのビルダーだけに生成します。&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Builder setFoo(int value)&lt;/code>: フィールドの値を設定します。これを呼び出した後、&lt;code>getFoo()&lt;/code> は &lt;code>value&lt;/code> を返します。&lt;/li>
+&lt;li>&lt;code>Builder clearFoo()&lt;/code>: フィールドの値をクリアします。これを呼び出した後、&lt;code>getFoo()&lt;/code> はフィールドの型のデフォルト値を返します。&lt;/li>
+&lt;/ul>
+&lt;p>他の単純なフィールド型については、対応する Java 型が
+&lt;a href="https://protobuf.dev/programming-guides/proto2#scalar">スカラー値の種類テーブル&lt;/a>
+に従って選択されます。メッセージおよび列挙型の場合、値の型はメッセージまたは列挙型のクラスに置き換えられます。&lt;/p>
+&lt;h4 id="embedded-message-proto3">埋め込みメッセージフィールド&lt;/h4>
+&lt;p>メッセージフィールド型の場合、メッセージクラスとそのビルダーの両方に追加のアクセサメソッドが生成されます。&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>boolean hasFoo()&lt;/code>: フィールドが設定されている場合は &lt;code>true&lt;/code> を返します。&lt;/li>
+&lt;/ul>
+&lt;p>&lt;code>setFoo()&lt;/code> は、メッセージのビルダータイプのインスタンスもパラメータとして受け入れます。これは、ビルダーで &lt;code>.build()&lt;/code> を呼び出してその結果をメソッドに渡すのと同等のショートカットです。&lt;/p>
+&lt;p>もしフィールドが設定されていない場合、&lt;code>getFoo()&lt;/code> はそのフィールドが設定されていない Foo インスタンスを返します（おそらく &lt;code>Foo.getDefaultInstance()&lt;/code> によって返されるインスタンスです）。&lt;/p>
+&lt;p>さらに、コンパイラは、メッセージ型の関連するサブビルダーにアクセスするための2つのアクセサメソッドを生成します。次のメソッドは、メッセージクラスとそのビルダーの両方に生成されます。&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>FooOrBuilder getFooOrBuilder()&lt;/code>: フィールドのビルダーを返します。既に存在する場合はそのビルダーを、存在しない場合はメッセージを返します。このメソッドをビルダーで呼び出しても、フィールドのサブビルダーは作成されません。&lt;/li>
+&lt;/ul>
+&lt;p>コンパイラは、次のメソッドをメッセージのビルダーのみで生成します。&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Builder getFooBuilder()&lt;/code>: フィールドのビルダーを返します。&lt;/li>
+&lt;/ul>
+&lt;h4 id="enum-proto3">列挙型フィールド&lt;/h4>
+&lt;p>列挙型フィールドの場合、メッセージクラスとそのビルダーの両方に追加のアクセサメソッドが生成されます。&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>int getFooValue()&lt;/code>: 列挙型の整数値を返します。&lt;/li>
+&lt;/ul>
+&lt;p>コンパイラは、次の追加のメソッドをメッセージのビルダーのみで生成します。&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Builder setFooValue(int value)&lt;/code>: 列挙型の整数値を設定します。&lt;/li>
+&lt;/ul>
+&lt;p>さらに、もし列挙型の値が不明な場合、&lt;code>getFoo()&lt;/code> は &lt;code>UNRECOGNIZED&lt;/code> を返します。これは、proto3 コンパイラによって生成される&lt;a href="#enum">列挙型&lt;/a>に追加された特別な値です。&lt;/p>
+&lt;h3 id="repeated">繰り返しフィールド&lt;/h3>
+&lt;p>このフィールド定義に対して:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">repeated&lt;/span> &lt;span style="color:#204a87;font-weight:bold">string&lt;/span> &lt;span style="color:#000">foos&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>コンパイラは、メッセージクラスとそのビルダーの両方に次のアクセサメソッドを生成します。&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>int getFoosCount()&lt;/code>: 現在のフィールド内の要素数を返します。&lt;/li>
+&lt;li>&lt;code>String getFoos(int index)&lt;/code>: 指定されたゼロベースのインデックスの要素を返します。&lt;/li>
+&lt;li>&lt;code>ProtocolStringList getFoosList()&lt;/code>: フィールド全体を &lt;code>ProtocolStringList&lt;/code> として返します。フィールドが設定されていない場合は空のリストを返します。&lt;/li>
+&lt;/ul>
+&lt;p>コンパイラは、次のメソッドをメッセージのビルダーのみで生成します。&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Builder setFoos(int index, String value)&lt;/code>: 指定されたゼロベースのインデックスの要素の値を設定します。&lt;/li>
+&lt;li>&lt;code>Builder addFoos(String value)&lt;/code>: 指定された値で新しい要素をフィールドに追加します。&lt;/li>
+&lt;li>&lt;code>Builder addAllFoos(Iterable&amp;lt;? extends String&amp;gt; value)&lt;/code>: 指定された &lt;code>Iterable&lt;/code> のすべての要素をフィールドに追加します。&lt;/li>
+&lt;li>&lt;code>Builder clearFoos()&lt;/code>: フィールドからすべての要素を削除します。これを呼び出した後、&lt;code>getFoosCount()&lt;/code> はゼロを返します。&lt;/li>
+&lt;/ul>
+&lt;h4 id="repeated-embedded">繰り返し埋め込みメッセージフィールド&lt;/h4>
+&lt;p>メッセージ型の場合、&lt;code>setFoos()&lt;/code> および &lt;code>addFoos()&lt;/code> は、メッセージのビルダータイプのインスタンスもパラメータとして受け入れます。これは、ビルダーで &lt;code>.build()&lt;/code> を呼び出してその結果をメソッドに渡すのと同等のショートカットです。さらに、追加の生成されたメソッドがあります:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Builder addFoos(int index, Field value)&lt;/code>: ゼロベースの指定されたインデックスに新しい要素を挿入します。その位置に現在存在する要素（あれば）およびその後続の要素を右にシフトします（インデックスに1を追加します）。&lt;/li>
+&lt;/ul>
+&lt;p>さらに、コンパイラは、メッセージクラスとそのビルダーの両方に、メッセージ型の関連するサブビルダーにアクセスできるようにするための次の追加のアクセサメソッドを生成します:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>FooOrBuilder getFoosOrBuilder(int index)&lt;/code>: 指定された要素のビルダーを返します。要素が既に存在する場合は、&lt;code>IndexOutOfBoundsException&lt;/code> をスローします。これがメッセージクラスから呼び出された場合、ビルダーを作成しません。&lt;/li>
+&lt;li>&lt;code>List&amp;lt;FooOrBuilder&amp;gt; getFoosOrBuilderList()&lt;/code>: フィールド全体を、利用可能なビルダーの変更不可能なリストとして返します。利用できない場合はメッセージを返します。これがメッセージクラスから呼び出された場合、変更不可能なビルダーのリストではなく、メッセージの変更不可能なリストを常に返します。&lt;/li>
+&lt;/ul>
+&lt;p>コンパイラは、次のメソッドをメッセージのビルダーだけで生成します:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Builder getFoosBuilder(int index)&lt;/code>: 指定されたインデックスの要素のビルダーを返します。インデックスが範囲外の場合は、&lt;code>IndexOutOfBoundsException&lt;/code> をスローします。&lt;/li>
+&lt;li>&lt;code>Builder addFoosBuilder(int index)&lt;/code>: 指定されたインデックスの繰り返しメッセージのデフォルトメッセージインスタンスのビルダーを挿入して返します。既存のエントリは、挿入されたビルダーのためのスペースを作るためにより高いインデックスにシフトされます。&lt;/li>
+&lt;li>&lt;code>Builder addFoosBuilder()&lt;/code>: 繰り返しメッセージのデフォルトメッセージインスタンスのビルダーを追加して返します。&lt;/li>
+&lt;li>&lt;code>Builder removeFoos(int index)&lt;/code>: 指定されたゼロベースのインデックスの要素を削除します。&lt;/li>
+&lt;li>&lt;code>List&amp;lt;Builder&amp;gt; getFoosBuilderList()&lt;/code>: フィールド全体を、ビルダーの変更不可能なリストとして返します。&lt;/li>
+&lt;/ul>
+&lt;h4 id="repeated-enum-proto3">繰り返し列挙フィールド（proto3 のみ）&lt;/h4>
+&lt;p>コンパイラは、メッセージクラスとそのビルダーの両方に、以下の追加メソッドを生成します：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>int getFoosValue(int index)&lt;/code>: 指定されたインデックスの列挙型の整数値を返します。&lt;/li>
+&lt;li>&lt;code>List&amp;lt;java.lang.Integer&amp;gt; getFoosValueList()&lt;/code>: フィールド全体を Integer のリストとして返します。&lt;/li>
+&lt;/ul>
+&lt;p>コンパイラは、メッセージのビルダーにのみ、以下の追加メソッドを生成します：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Builder setFoosValue(int index, int value)&lt;/code>: 指定されたインデックスの列挙型の整数値を設定します。&lt;/li>
+&lt;/ul>
+&lt;h4 id="conflicts">名前の競合&lt;/h4>
+&lt;p>もう1つの繰り返しでないフィールドが、繰り返しフィールドの生成されたメソッドのいずれかと競合する名前を持っている場合、両方のフィールド名には protobuf フィールド番号が末尾に追加されます。&lt;/p>
+&lt;p>次のフィールド定義の場合：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">foos_count&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">repeated&lt;/span> &lt;span style="color:#204a87;font-weight:bold">string&lt;/span> &lt;span style="color:#000">foos&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">2&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>コンパイラは、まずそれらを次のように名前変更します：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">foos_count_1&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">repeated&lt;/span> &lt;span style="color:#204a87;font-weight:bold">string&lt;/span> &lt;span style="color:#000">foos_2&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">2&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>その後、アクセサメソッドが上記のように生成されます。&lt;/p>
+&lt;p>&lt;a id="oneof">&lt;/a>&lt;/p>
+&lt;h3 id="oneof-fields">Oneof フィールド&lt;/h3>
+&lt;p>この oneof フィールドの定義の場合：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">oneof&lt;/span> &lt;span style="color:#000">choice&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">foo_int&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">4&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">string&lt;/span> &lt;span style="color:#000">foo_string&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">9&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">...&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>choice&lt;/code> oneof 内のすべてのフィールドは、値に対して単一のプライベートフィールドを使用します。さらに、プロトコルバッファコンパイラは、次のように oneof ケース用の Java 列挙型を生成します：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">public&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">enum&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">ChoiceCase&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">implements&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">com&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">google&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">protobuf&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">Internal&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">EnumLite&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">FOO_INT&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">4&lt;/span>&lt;span style="color:#000;font-weight:bold">),&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">FOO_STRING&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">9&lt;/span>&lt;span style="color:#000;font-weight:bold">),&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000;font-weight:bold">...&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">CHOICE_NOT_SET&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">0&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000;font-weight:bold">...&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000;font-weight:bold">};&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>この列挙型の値には、次の特別なメソッドがあります：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>int getNumber()&lt;/code>: .proto ファイルで定義されたオブジェクトの数値を返します。&lt;/li>
+&lt;li>&lt;code>static ChoiceCase forNumber(int value)&lt;/code>: 指定された数値に対応する列挙オブジェクトを返します（その他の数値の場合は &lt;code>null&lt;/code> を返します）。&lt;/li>
+&lt;/ul>
+&lt;p>コンパイラは、メッセージクラスとそのビルダーの両方に、以下のアクセサメソッドを生成します：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>boolean hasFooInt()&lt;/code>: oneof ケースが &lt;code>FOO&lt;/code> の場合は &lt;code>true&lt;/code> を返します。&lt;/li>
+&lt;li>&lt;code>int getFooInt()&lt;/code>: oneof ケースが &lt;code>FOO&lt;/code> の場合は &lt;code>foo&lt;/code> の現在の値を返します。それ以外の場合は、このフィールドのデフォルト値を返します。&lt;/li>
+&lt;li>&lt;code>ChoiceCase getChoiceCase()&lt;/code>: どのフィールドが設定されているかを示す列挙型を返します。どれも設定されていない場合は &lt;code>CHOICE_NOT_SET&lt;/code> を返します。&lt;/li>
+&lt;/ul>
+&lt;p>コンパイラは、メッセージのビルダー内で以下のメソッドのみを生成します：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Builder setFooInt(int value)&lt;/code>: &lt;code>Foo&lt;/code> をこの値に設定し、oneof ケースを &lt;code>FOO&lt;/code> に設定します。これを呼び出した後、&lt;code>hasFooInt()&lt;/code> は &lt;code>true&lt;/code> を返し、&lt;code>getFooInt()&lt;/code> は &lt;code>value&lt;/code> を返し、&lt;code>getChoiceCase()&lt;/code> は &lt;code>FOO&lt;/code> を返します。&lt;/li>
+&lt;li>&lt;code>Builder clearFooInt()&lt;/code>:
+&lt;ul>
+&lt;li>oneof ケースが &lt;code>FOO&lt;/code> でない場合、何も変更されません。&lt;/li>
+&lt;li>oneof ケースが &lt;code>FOO&lt;/code> の場合、&lt;code>Foo&lt;/code> を null に設定し、oneof ケースを &lt;code>FOO_NOT_SET&lt;/code> に設定します。これを呼び出した後、&lt;code>hasFooInt()&lt;/code> は &lt;code>false&lt;/code> を返し、&lt;code>getFooInt()&lt;/code> はデフォルト値を返し、&lt;code>getChoiceCase()&lt;/code> は &lt;code>FOO_NOT_SET&lt;/code> を返します。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>Builder.clearChoice()&lt;/code>: &lt;code>choice&lt;/code> の値をリセットし、ビルダーを返します。&lt;/li>
+&lt;/ul>
+&lt;p>他の単純なフィールドタイプについては、対応する Java タイプは、&lt;a href="https://protobuf.dev/programming-guides/proto2#scalar">スカラー値タイプテーブル&lt;/a>に従って選択されます。メッセージおよび列挙型の場合、値のタイプはメッセージまたは列挙型クラスに置き換えられます。&lt;/p>
+&lt;h3 id="map-fields">マップフィールド&lt;/h3>
+&lt;p>次のマップフィールド定義に対して：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">map&lt;/span>&lt;span style="color:#000;font-weight:bold">&amp;lt;&lt;/span>&lt;span style="color:#204a87;font-weight:bold">int32&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span>&lt;span style="color:#000;font-weight:bold">&amp;gt;&lt;/span> &lt;span style="color:#000">weight&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>コンパイラは、メッセージクラスとそのビルダーの両方に、以下のアクセサメソッドを生成します：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Map&amp;lt;Integer, Integer&amp;gt; getWeightMap();&lt;/code>: 変更できない &lt;code>Map&lt;/code> を返します。&lt;/li>
+&lt;li>&lt;code>int getWeightOrDefault(int key, int default);&lt;/code>: キーの値を返すか、存在しない場合はデフォルト値を返します。&lt;/li>
+&lt;li>&lt;code>int getWeightOrThrow(int key);&lt;/code>: キーの値を返し、存在しない場合は IllegalArgumentException をスローします。&lt;/li>
+&lt;li>&lt;code>boolean containsWeight(int key);&lt;/code>: このフィールドにキーが存在するかを示します。&lt;/li>
+&lt;li>&lt;code>int getWeightCount();&lt;/code>: マップ内の要素数を返します。&lt;/li>
+&lt;/ul>
+&lt;p>コンパイラは、メッセージのビルダー内で以下のメソッドのみを生成します：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Builder putWeight(int key, int value);&lt;/code>: このフィールドに重みを追加します。&lt;/li>
+&lt;li>&lt;code>Builder putAllWeight(Map&amp;lt;Integer, Integer&amp;gt; value);&lt;/code>: 指定されたマップ内のすべてのエントリをこのフィールドに追加します。&lt;/li>
+&lt;li>&lt;code>Builder removeWeight(int key);&lt;/code>: このフィールドから重みを削除します。&lt;/li>
+&lt;li>&lt;code>Builder clearWeight();&lt;/code>: このフィールドからすべての重みを削除します。&lt;/li>
+&lt;li>&lt;code>@Deprecated Map&amp;lt;Integer, Integer&amp;gt; getMutableWeight();&lt;/code>: 変更可能な &lt;code>Map&lt;/code> を返します。このメソッドへの複数回の呼び出しは異なるマップインスタンスを返す可能性があります。返されたマップ参照は、ビルダーへの後続のメソッド呼び出しによって無効化される可能性があります。&lt;/li>
+&lt;/ul>
+&lt;h4 id="message-value-map-fields">メッセージ値マップフィールド&lt;/h4>
+&lt;p>値としてメッセージタイプを持つマップの場合、コンパイラはメッセージのビルダーに追加のメソッドを生成します:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Foo.Builder putFooBuilderIfAbsent(int key);&lt;/code>: &lt;code>key&lt;/code> がマッピング内に存在することを保証し、存在しない場合は新しい &lt;code>Foo.Builder&lt;/code> を挿入します。返された &lt;code>Foo.Builder&lt;/code> への変更は最終的なメッセージに反映されます。&lt;/li>
+&lt;/ul>
+&lt;h2 id="any-fields">Any&lt;/h2>
+&lt;p>次のような &lt;a href="https://protobuf.dev/programming-guides/proto3#any">&lt;code>Any&lt;/code>&lt;/a> フィールドがある場合:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">import&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;google/protobuf/any.proto&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">ErrorStatus&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">string&lt;/span> &lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">google.protobuf.Any&lt;/span> &lt;span style="color:#000">details&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">2&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>生成されたコードでは、&lt;code>details&lt;/code> フィールドのゲッターは &lt;code>com.google.protobuf.Any&lt;/code> のインスタンスを返します。これには &lt;code>Any&lt;/code> の値をパックおよびアンパックするための次の特別なメソッドが提供されます:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">class&lt;/span> &lt;span style="color:#000">Any&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#8f5902;font-style:italic">// Packs the given message into an Any using the default type URL&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#8f5902;font-style:italic">// prefix “type.googleapis.com”.&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">public&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">static&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">Any&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">pack&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">Message&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">message&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#8f5902;font-style:italic">// Packs the given message into an Any using the given type URL&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#8f5902;font-style:italic">// prefix.&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">public&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">static&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">Any&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">pack&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">Message&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">message&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">String&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">typeUrlPrefix&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#8f5902;font-style:italic">// Checks whether this Any message’s payload is the given type.&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">public&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">&amp;lt;&lt;/span>&lt;span style="color:#000">T&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">extends&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">Message&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">&amp;gt;&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">boolean&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">is&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#204a87;font-weight:bold">class&lt;/span>&lt;span style="color:#a40000">&amp;lt;&lt;/span>&lt;span style="color:#000">T&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">&amp;gt;&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">clazz&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#8f5902;font-style:italic">// Unpacks Any into the given message type. Throws exception if&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#8f5902;font-style:italic">// the type doesn’t match or parsing the payload has failed.&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">public&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">&amp;lt;&lt;/span>&lt;span style="color:#000">T&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">extends&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">Message&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">&amp;gt;&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">T&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">unpack&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#204a87;font-weight:bold">class&lt;/span>&lt;span style="color:#a40000">&amp;lt;&lt;/span>&lt;span style="color:#000">T&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">&amp;gt;&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">clazz&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">throws&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">InvalidProtocolBufferException&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="enum">列挙型&lt;/h2>
+&lt;p>次のような列挙型の定義がある場合:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">enum&lt;/span> &lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">VALUE_A&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">VALUE_B&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">5&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">VALUE_C&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1234&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>プロトコルバッファコンパイラは、同じ値のセットを持つ Java 列挙型 &lt;code>Foo&lt;/code> を生成します。proto3 を使用している場合、列挙型に特別な値 &lt;code>UNRECOGNIZED&lt;/code> も追加されます。生成された列挙型の値には次の特別なメソッドがあります:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>int getNumber()&lt;/code>: オブジェクトの数値値を &lt;code>.proto&lt;/code> ファイルで定義されたものとして返します。&lt;/li>
+&lt;li>&lt;code>EnumValueDescriptor getValueDescriptor()&lt;/code>: 値の記述子を返し、値の名前、番号、タイプに関する情報を含みます。&lt;/li>
+&lt;li>&lt;code>EnumDescriptor getDescriptorForType()&lt;/code>: 列挙型の記述子を返し、各定義された値に関する情報などを含みます。&lt;/li>
+&lt;/ul>
+&lt;p>さらに、&lt;code>Foo&lt;/code> 列挙型には次の静的メソッドが含まれています:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>static Foo forNumber(int value)&lt;/code>: 指定された数値値に対応する列挙オブジェクトを返します。対応する列挙オブジェクトがない場合は null を返します。&lt;/li>
+&lt;li>&lt;code>static Foo valueOf(int value)&lt;/code>: 指定された数値値に対応する列挙オブジェクトを返します。このメソッドは &lt;code>forNumber(int value)&lt;/code> の代わりに非推奨となり、今後のリリースで削除されます。&lt;/li>
+&lt;li>&lt;code>static Foo valueOf(EnumValueDescriptor descriptor)&lt;/code>: 指定された値記述子に対応する列挙オブジェクトを返します。&lt;code>valueOf(int)&lt;/code> よりも高速かもしれません。proto3 では、不明な値記述子が渡された場合は &lt;code>UNRECOGNIZED&lt;/code> を返します。&lt;/li>
+&lt;li>&lt;code>EnumDescriptor getDescriptor()&lt;/code>: 列挙型の記述子を返し、各定義された値に関する情報などを含みます。(これは &lt;code>getDescriptorForType()&lt;/code> と異なり、静的メソッドである点が異なります。)&lt;/li>
+&lt;/ul>
+&lt;p>整数定数は、各enum値に対してサフィックス &lt;code>_VALUE&lt;/code> が付いて生成されます。&lt;/p>
+&lt;p>&lt;code>.proto&lt;/code> 言語では、複数のenumシンボルが同じ数値を持つことができます。同じ数値を持つシンボルは同義語です。例えば：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">enum&lt;/span> &lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">BAR&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">BAZ&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>この場合、&lt;code>BAZ&lt;/code> は &lt;code>BAR&lt;/code> の同義語です。Javaでは、&lt;code>BAZ&lt;/code> は次のように静的な最終フィールドとして定義されます：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">static&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">final&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">Foo&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">BAZ&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">BAR&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>したがって、&lt;code>BAR&lt;/code> と &lt;code>BAZ&lt;/code> は等しく、&lt;code>BAZ&lt;/code> は switch 文には決して現れるべきではありません。コンパイラは、特定の数値で定義された最初のシンボルをそのシンボルの「正準」バージョンとして常に選択し、同じ数値を持つすべての後続のシンボルは単なるエイリアスです。&lt;/p>
+&lt;p>enumはメッセージ型の中にネストして定義することができます。コンパイラは、そのメッセージ型のクラス内にネストされたJava enum定義を生成します。&lt;/p>
+&lt;p>&lt;strong>注意: Javaコードを生成する際に、protobufのenum内の値の最大数は驚くほど低い場合があります&lt;/strong>—最悪の場合、最大で約1,700以上の値です。この制限は、Javaバイトコードのメソッドごとのサイズ制限に起因し、Javaの実装、protobufスイートの異なるバージョン、および&lt;code>.proto&lt;/code>ファイルで設定されたオプションによって異なります。&lt;/p>
+&lt;h2 id="extension">拡張機能 (proto2のみ)&lt;/h2>
+&lt;p>拡張範囲を持つメッセージがある場合：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">extensions&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">100&lt;/span> &lt;span style="color:#204a87;font-weight:bold">to&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">199&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>プロトコルバッファコンパイラは、通常の &lt;code>GeneratedMessage&lt;/code> の代わりに &lt;code>Foo&lt;/code> を &lt;code>GeneratedMessage.ExtendableMessage&lt;/code> に拡張します。同様に、&lt;code>Foo&lt;/code> のビルダーは &lt;code>GeneratedMessage.ExtendableBuilder&lt;/code> を拡張します。これらの基本型を名前で参照してはいけません（&lt;code>GeneratedMessage&lt;/code> は実装の詳細と見なされます）。ただし、これらのスーパークラスは、拡張を操作するために使用できる追加のメソッドをいくつか定義しています。&lt;/p>
+&lt;p>特に &lt;code>Foo&lt;/code> と &lt;code>Foo.Builder&lt;/code> は、&lt;code>hasExtension()&lt;/code>、&lt;code>getExtension()&lt;/code>、&lt;code>getExtensionCount()&lt;/code> メソッドを継承します。さらに、&lt;code>Foo.Builder&lt;/code> は &lt;code>setExtension()&lt;/code> と &lt;code>clearExtension()&lt;/code> メソッドを継承します。これらのメソッドの各々は、第1パラメータとして拡張識別子（後述）を取り、残りのパラメータと戻り値は、同じ型の通常の（拡張でない）フィールドのために生成される対応するアクセサメソッドと全く同じです。&lt;/p>
+&lt;p>与えられた拡張定義：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">extend&lt;/span> &lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">bar&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">123&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>プロトコルバッファコンパイラは、「拡張識別子」と呼ばれる &lt;code>bar&lt;/code> を生成し、
+この拡張にアクセスするために &lt;code>Foo&lt;/code> の拡張アクセサを使用できます。以下のように：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">Foo&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">foo&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">Foo&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">newBuilder&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">setExtension&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">bar&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">1&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">build&lt;/span>&lt;span style="color:#000;font-weight:bold">();&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">assert&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">foo&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">hasExtension&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">bar&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">assert&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">foo&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">getExtension&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">bar&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">==&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>（拡張識別子の正確な実装は複雑で、ジェネリックの魔法的な使用を含みますが、
+拡張識別子がどのように機能するかを気にする必要はありません。）&lt;/p>
+&lt;p>&lt;code>bar&lt;/code> は、上記のように、&lt;code>.proto&lt;/code> ファイルのラッパークラスの静的フィールドとして宣言されます。
+この例では、ラッパークラス名を省略しています。&lt;/p>
+&lt;p>拡張は、他の型のスコープ内で宣言されることがあり、生成されたシンボル名に接頭辞を付けるために使用されます。
+例えば、一般的なパターンは、メッセージをフィールドの宣言内部で拡張することです：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Baz&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">extend&lt;/span> &lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#000">Baz&lt;/span> &lt;span style="color:#000">foo_ext&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">124&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>この場合、識別子 &lt;code>foo_ext&lt;/code> と型 &lt;code>Baz&lt;/code> を持つ拡張が &lt;code>Baz&lt;/code> の宣言内で宣言され、
+&lt;code>foo_ext&lt;/code> を参照するには &lt;code>Baz.&lt;/code> 接頭辞を追加する必要があります：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">Baz&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">baz&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">createMyBaz&lt;/span>&lt;span style="color:#000;font-weight:bold">();&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">&lt;/span>&lt;span style="color:#000">Foo&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">foo&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">Foo&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">newBuilder&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">setExtension&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">Baz&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">fooExt&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">baz&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">build&lt;/span>&lt;span style="color:#000;font-weight:bold">();&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">assert&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">foo&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">hasExtension&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">Baz&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">fooExt&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">assert&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">foo&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">getExtension&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">Baz&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">fooExt&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">==&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">baz&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>拡張を持つ可能性のあるメッセージを解析する際には、
+解析できるようにしたい任意の拡張を登録した &lt;a href="https://protobuf.dev/reference/java/api-docs/com/google/protobuf/ExtensionRegistry.html">&lt;code>ExtensionRegistry&lt;/code>&lt;/a>
+を提供する必要があります。
+そうでない場合、これらの拡張は未知のフィールドのように扱われ、
+拡張を観察するメソッドは存在しないかのように振る舞います。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">ExtensionRegistry&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">registry&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">ExtensionRegistry&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">newInstance&lt;/span>&lt;span style="color:#000;font-weight:bold">();&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">&lt;/span>&lt;span style="color:#000">registry&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">add&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">Baz&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">fooExt&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">&lt;/span>&lt;span style="color:#000">Foo&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">foo&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">Foo&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">parseFrom&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">input&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">registry&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">assert&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">foo&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">hasExtension&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">Baz&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">fooExt&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">ExtensionRegistry&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">registry&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">ExtensionRegistry&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">newInstance&lt;/span>&lt;span style="color:#000;font-weight:bold">();&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">&lt;/span>&lt;span style="color:#000">Foo&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">foo&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">Foo&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">parseFrom&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">input&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">registry&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">assert&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">foo&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">hasExtension&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">Baz&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">fooExt&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">==&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">false&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="service">サービス&lt;/h2>
+&lt;p>&lt;code>.proto&lt;/code> ファイルに次の行が含まれている場合：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">option&lt;/span> &lt;span style="color:#000">java_generic_services&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#204a87;font-weight:bold">true&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>その後、プロトコルバッファコンパイラは、このセクションで説明されているように、
+ファイル内で見つかったサービス定義に基づいてコードを生成します。
+ただし、生成されたコードは特定の RPC システムに結びついていないため、
+1 つのシステムに合わせたコードよりも間接的なレベルが必要となります。
+このコードを生成したくない場合は、ファイルにこの行を追加してください：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">option&lt;/span> &lt;span style="color:#000">java_generic_services&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#204a87;font-weight:bold">false&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>上記のいずれも指定されていない場合、ジェネリックサービスは非推奨となるため、オプションのデフォルトは &lt;code>false&lt;/code> になります（2.4.0より前では、オプションのデフォルトは &lt;code>true&lt;/code> でした）。&lt;/p>
+&lt;p>&lt;code>.proto&lt;/code> 言語のサービス定義に基づく RPC システムは、システムに適したコードを生成するための&lt;a href="https://protobuf.dev/reference/cpp/api-docs/google.protobuf.compiler.plugin.pb">プラグイン&lt;/a>を提供する必要があります。これらのプラグインは、抽象サービスが無効になっていることを要求する可能性が高く、そのために彼ら自身の同じ名前のクラスを生成できます。プラグインはバージョン2.3.0（2010年1月）で新しく追加されました。&lt;/p>
+&lt;p>このセクションの残りの部分では、抽象サービスが有効になっている場合にプロトコルバッファコンパイラが生成する内容について説明します。&lt;/p>
+&lt;h3 id="interface">インターフェース&lt;/h3>
+&lt;p>以下のサービス定義が与えられた場合：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">service&lt;/span> &lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">rpc&lt;/span> &lt;span style="color:#000">Bar&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">FooRequest&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#204a87;font-weight:bold">returns&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">FooResponse&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>プロトコルバッファコンパイラは、このサービスを表す抽象クラス &lt;code>Foo&lt;/code> を生成します。&lt;code>Foo&lt;/code> には、サービス定義で定義された各メソッドに対応する抽象メソッドがあります。この場合、メソッド &lt;code>Bar&lt;/code> は次のように定義されています：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">abstract&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">void&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">bar&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">RpcController&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">controller&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">FooRequest&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">request&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">RpcCallback&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">&amp;lt;&lt;/span>&lt;span style="color:#000">FooResponse&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">&amp;gt;&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">done&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>これらのパラメータは、&lt;code>Service.CallMethod()&lt;/code> のパラメータと同等ですが、&lt;code>method&lt;/code> 引数は暗黙的であり、&lt;code>request&lt;/code> と &lt;code>done&lt;/code> は正確な型を指定しています。&lt;/p>
+&lt;p>&lt;code>Foo&lt;/code> は &lt;code>Service&lt;/code> インターフェースを継承しています。プロトコルバッファコンパイラは、&lt;code>Service&lt;/code> のメソッドの実装を自動的に生成します：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>getDescriptorForType&lt;/code>: サービスの &lt;code>ServiceDescriptor&lt;/code> を返します。&lt;/li>
+&lt;li>&lt;code>callMethod&lt;/code>: 提供されたメソッド記述子に基づいて呼び出されるメソッドを直接呼び出し、リクエストメッセージとコールバックを正しい型にダウンキャストします。&lt;/li>
+&lt;li>&lt;code>getRequestPrototype&lt;/code> および &lt;code>getResponsePrototype&lt;/code>: 指定されたメソッドの正しい型のデフォルトインスタンスを返します。&lt;/li>
+&lt;/ul>
+&lt;p>以下の静的メソッドも生成されます：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>static ServiceDescriptor getServiceDescriptor()&lt;/code>: タイプの記述子を返し、このサービスにどのメソッドがあるか、それらの入力および出力の型が何かについての情報を含んでいます。&lt;/li>
+&lt;/ul>
+&lt;p>&lt;code>Foo&lt;/code>にはネストされたインターフェース&lt;code>Foo.Interface&lt;/code>も含まれます。これは、サービス定義の各メソッドに対応するメソッドを含む純粋なインターフェースです。ただし、このインターフェースは&lt;code>Service&lt;/code>インターフェースを拡張しません。これは問題です。なぜなら、RPCサーバーの実装は通常、特定のサービスではなく抽象的な&lt;code>Service&lt;/code>オブジェクトを使用して書かれているからです。この問題を解決するために、&lt;code>Foo.Interface&lt;/code>を実装するオブジェクト&lt;code>impl&lt;/code>がある場合、&lt;code>Foo.newReflectiveService(impl)&lt;/code>を呼び出して、単に&lt;code>impl&lt;/code>に委譲し、&lt;code>Service&lt;/code>を実装する&lt;code>Foo&lt;/code>のインスタンスを構築できます。&lt;/p>
+&lt;p>要約すると、独自のサービスを実装する際には、2つのオプションがあります。&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Foo&lt;/code>をサブクラス化し、適切にそのメソッドを実装し、そのサブクラスのインスタンスを直接RPCサーバーの実装に渡す。これが通常最も簡単ですが、一部の人はそれをより「純粋」とは考えません。&lt;/li>
+&lt;li>&lt;code>Foo.Interface&lt;/code>を実装し、&lt;code>Foo.newReflectiveService(Foo.Interface)&lt;/code>を使用してそれをラップする&lt;code>Service&lt;/code>を構築し、そのラッパーをRPC実装に渡す。&lt;/li>
+&lt;/ul>
+&lt;h3 id="stub">スタブ&lt;/h3>
+&lt;p>プロトコルバッファコンパイラは、サービスインターフェースごとに「スタブ」実装も生成します。これは、サービスを実装するサーバーにリクエストを送信したいクライアントが使用するものです。&lt;code>Foo&lt;/code>サービス（上記）のスタブ実装&lt;code>Foo.Stub&lt;/code>はネストされたクラスとして定義されます。&lt;/p>
+&lt;p>&lt;code>Foo.Stub&lt;/code>は、次のメソッドも実装する&lt;code>Foo&lt;/code>のサブクラスです。&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Foo.Stub(RpcChannel channel)&lt;/code>: 指定されたチャンネルにリクエストを送信する新しいスタブを構築します。&lt;/li>
+&lt;li>&lt;code>RpcChannel getChannel()&lt;/code>: このスタブのチャンネルを返します。これはコンストラクタに渡されたものです。&lt;/li>
+&lt;/ul>
+&lt;p>スタブは、各サービスのメソッドをチャンネルをラップする方法で追加で実装します。メソッドの1つを呼び出すと、単に&lt;code>channel.callMethod()&lt;/code>が呼び出されます。&lt;/p>
+&lt;p>プロトコルバッファライブラリにはRPCの実装は含まれていません。ただし、生成されたサービスクラスを任意のRPC実装に接続するために必要なすべてのツールが含まれています。&lt;code>RpcChannel&lt;/code>と&lt;code>RpcController&lt;/code>の実装を提供するだけです。&lt;/p>
+&lt;h3 id="blocking">ブロッキングインターフェース&lt;/h3>
+&lt;p>上記で説明したRPCクラスはすべてノンブロッキングセマンティクスを持っています。メソッドを呼び出すときには、メソッドが完了するとコールバックオブジェクトが呼び出されます。メソッドが完了するまで戻らないブロッキングセマンティクスを使用すると、コードを書くのが簡単になりますが、スケーラブル性が低くなる可能性があります。このため、プロトコルバッファコンパイラは、サービスクラスのブロッキングバージョンも生成します。&lt;code>Foo.BlockingInterface&lt;/code>は、&lt;code>Foo.Interface&lt;/code>と同等ですが、各メソッドが単に結果を返すだけでコールバックを呼び出さない点が異なります。例えば、&lt;code>bar&lt;/code>は次のように定義されています：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">abstract&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">FooResponse&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">bar&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">RpcController&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">controller&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">FooRequest&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">request&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">throws&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">ServiceException&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>ノンブロッキングサービスに対応するように、&lt;code>Foo.newReflectiveBlockingService(Foo.BlockingInterface)&lt;/code>は、いくつかの&lt;code>Foo.BlockingInterface&lt;/code>をラップした&lt;code>BlockingService&lt;/code>を返します。最後に、&lt;code>Foo.BlockingStub&lt;/code>は、リクエストを特定の&lt;code>BlockingRpcChannel&lt;/code>に送信する&lt;code>Foo.BlockingInterface&lt;/code>のスタブ実装を返します。&lt;/p>
+&lt;h2 id="plugins">プラグイン挿入ポイント&lt;/h2>
+&lt;p>Javaコードジェネレータの出力を拡張したい&lt;a href="https://protobuf.dev/reference/cpp/api-docs/google.protobuf.compiler.plugin.pb">コードジェネレータプラグイン&lt;/a>は、次の挿入ポイント名を使用して次のタイプのコードを挿入できます。&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>outer_class_scope&lt;/code>：ファイルのラッパークラスに属するメンバー宣言。&lt;/li>
+&lt;li>&lt;code>class_scope:TYPENAME&lt;/code>：メッセージクラスに属するメンバー宣言。&lt;code>TYPENAME&lt;/code>は完全なプロト名であり、例えば&lt;code>package.MessageType&lt;/code>です。&lt;/li>
+&lt;li>&lt;code>builder_scope:TYPENAME&lt;/code>：メッセージのビルダークラスに属するメンバー宣言。&lt;code>TYPENAME&lt;/code>は完全なプロト名であり、例えば&lt;code>package.MessageType&lt;/code>です。&lt;/li>
+&lt;li>&lt;code>enum_scope:TYPENAME&lt;/code>：列挙型クラスに属するメンバー宣言。&lt;code>TYPENAME&lt;/code>は完全なプロト列挙型名であり、例えば&lt;code>package.EnumType&lt;/code>です。&lt;/li>
+&lt;li>&lt;code>message_implements:TYPENAME&lt;/code>：メッセージクラスのクラス実装宣言。&lt;code>TYPENAME&lt;/code>は完全なプロト名であり、例えば&lt;code>package.MessageType&lt;/code>です。&lt;/li>
+&lt;li>&lt;code>builder_implements:TYPENAME&lt;/code>：ビルダークラスのクラス実装宣言。&lt;code>TYPENAME&lt;/code>は完全なプロト名であり、例えば&lt;code>package.MessageType&lt;/code>です。&lt;/li>
+&lt;/ul>
+&lt;p>生成されたコードには、定義された型名と競合する可能性があるため、importステートメントを含めるべきではありません。代わりに、外部クラスを参照する際には常に完全修飾名を使用する必要があります。&lt;/p>
+&lt;p>Javaコードジェネレーターで出力ファイル名を決定するロジックはかなり複雑です。すべてのケースをカバーしていることを確認するには、&lt;code>protoc&lt;/code>のソースコード、特に&lt;code>java_headers.cc&lt;/code>を確認することをお勧めします。&lt;/p>
+&lt;p>標準のコードジェネレーターによって宣言されたプライベートクラスメンバーに依存するコードを生成しないでください。これらの実装の詳細はProtocol Buffersの将来のバージョンで変更される可能性があるためです。&lt;/p>
+&lt;h2 id="utility-classes">ユーティリティクラス&lt;/h2>
+&lt;p>Protocol Buffersは、メッセージ比較、JSON変換、および&lt;a href="https://protobuf.dev/reference/protobuf/google.protobuf">well-known types（一般的なユースケース向けの事前定義されたプロトコルバッファメッセージ）&lt;/a>の操作に使用する&lt;a href="https://protobuf.dev/reference/java/api-docs/com/google/protobuf/util/package-summary.html">ユーティリティクラス&lt;/a>を提供します。&lt;/p></description></item><item><title>Reference: Java Proto Names</title><link>https://protobuf.dev/ja/reference/java/java-proto-names/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/reference/java/java-proto-names/</guid><description>
+&lt;p>このドキュメントには、異なるProtoオプションに基づいて、Protoの完全修飾Java名が何であるかに関する情報が含まれています。この名前は、そのメッセージを使用するためにインポートする必要があるパッケージに対応しています。&lt;/p>
+&lt;p>&lt;strong>注意:&lt;/strong> &lt;code>java_package&lt;/code>および&lt;code>java_alt_api_package&lt;/code>オプションは、&lt;code>java_api_version&lt;/code>で示されるAPIに対して相対的に解釈されます。たとえば、&lt;code>java_api_version&lt;/code>が1の場合、proto1パッケージは&lt;code>java_package&lt;/code>となり、proto2パッケージ（&amp;ldquo;alternative&amp;rdquo; API）は&lt;code>java_alt_api_package&lt;/code>となります。そして、&lt;code>java_api_version&lt;/code>が2の場合、&lt;code>java_package&lt;/code>がproto2パッケージを決定し、&lt;code>java_alt_api_package&lt;/code>がproto1パッケージを決定します。&lt;/p>
+&lt;h2 id="immutable-api-message-names">イミュータブルAPIメッセージ名&lt;/h2>
+&lt;p>イミュータブルAPI（&lt;code>java_proto_library&lt;/code> BUILDターゲット）によって生成されたProtoの名前は、次の表にリストされています。&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th style="text-align:center">java_api_version&lt;/th>
+&lt;th style="text-align:center">java_multiple_files&lt;/th>
+&lt;th>java_alt_api_package&lt;/th>
+&lt;th>java_package&lt;/th>
+&lt;th>java_outer_classname&lt;/th>
+&lt;th>生成された完全メッセージ名&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td style="text-align:center">1&lt;/td>
+&lt;td style="text-align:center">true&lt;/td>
+&lt;td>Defined&lt;/td>
+&lt;td>-&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;code>$java_alt_api_package.$message&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:center">1&lt;/td>
+&lt;td style="text-align:center">true&lt;/td>
+&lt;td>Not defined&lt;/td>
+&lt;td>Not defined&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;code>com.google.protos.$package.proto2api.$message&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:center">1&lt;/td>
+&lt;td style="text-align:center">true&lt;/td>
+&lt;td>Not defined&lt;/td>
+&lt;td>Defined&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;code>$java_package.proto2api.$message&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:center">1&lt;/td>
+&lt;td style="text-align:center">false&lt;/td>
+&lt;td>Defined&lt;/td>
+&lt;td>-&lt;/td>
+&lt;td>Not defined&lt;/td>
+&lt;td>&lt;code>$java_alt_api_package.$derived_outer_class.$message&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:center">1&lt;/td>
+&lt;td style="text-align:center">false&lt;/td>
+&lt;td>Defined&lt;/td>
+&lt;td>-&lt;/td>
+&lt;td>Defined&lt;/td>
+&lt;td>&lt;code>$java_alt_api_package.$java_outer_classname.$message&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:center">1&lt;/td>
+&lt;td style="text-align:center">false&lt;/td>
+&lt;td>Not defined&lt;/td>
+&lt;td>Not defined&lt;/td>
+&lt;td>Not defined&lt;/td>
+&lt;td>&lt;code>com.google.protos.$package.proto2api.$derived_outer_class.$message&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:center">1&lt;/td>
+&lt;td style="text-align:center">false&lt;/td>
+&lt;td>Not defined&lt;/td>
+&lt;td>Not defined&lt;/td>
+&lt;td>Defined&lt;/td>
+&lt;td>&lt;code>com.google.protos.$package.proto2api.$java_outer_classname.$message&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:center">1&lt;/td>
+&lt;td style="text-align:center">false&lt;/td>
+&lt;td>Not defined&lt;/td>
+&lt;td>Defined&lt;/td>
+&lt;td>Not defined&lt;/td>
+&lt;td>&lt;code>$java_package.proto2api.$derived_outer_class.$message&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:center">1&lt;/td>
+&lt;td style="text-align:center">false&lt;/td>
+&lt;td>Not defined&lt;/td>
+&lt;td>Defined&lt;/td>
+&lt;td>Defined&lt;/td>
+&lt;td>&lt;code>$java_package.proto2api.$java_outer_classname.$message&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:center">2&lt;/td>
+&lt;td style="text-align:center">true&lt;/td>
+&lt;td>-&lt;/td>
+&lt;td>Not defined&lt;/td>
+&lt;td>-&lt;/td>
+&lt;td>&lt;code>com.google.protos.$package.$message&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:center">2&lt;/td>
+&lt;td style="text-align:center">true&lt;/td>
+&lt;td>-&lt;/td>
+&lt;td>Defined&lt;/td>
+&lt;td>-&lt;/td>
+&lt;td>&lt;code>$java_package.$message&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:center">2&lt;/td>
+&lt;td style="text-align:center">false&lt;/td>
+&lt;td>-&lt;/td>
+&lt;td>Not defined&lt;/td>
+&lt;td>Not defined&lt;/td>
+&lt;td>&lt;code>com.google.protos.$package.$derived_outer_class.$message&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:center">2&lt;/td>
+&lt;td style="text-align:center">false&lt;/td>
+&lt;td>-&lt;/td>
+&lt;td>Not defined&lt;/td>
+&lt;td>Defined&lt;/td>
+&lt;td>&lt;code>com.google.protos.$package.$java_outer_classname.$message&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:center">2&lt;/td>
+&lt;td style="text-align:center">false&lt;/td>
+&lt;td>-&lt;/td>
+&lt;td>Defined&lt;/td>
+&lt;td>Not defined&lt;/td>
+&lt;td>&lt;code>$java_package.$derived_outer_class.$message&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:center">2&lt;/td>
+&lt;td style="text-align:center">false&lt;/td>
+&lt;td>-&lt;/td>
+&lt;td>Defined&lt;/td>
+&lt;td>Defined&lt;/td>
+&lt;td>&lt;code>$java_package.$java_outer_classname.$message&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>&lt;strong>凡例&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;code>-&lt;/code> は、オプションを設定するかしないかで生成されるフルメッセージ名が変わらないことを意味します。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>$message&lt;/code> は、実際の proto メッセージの名前です。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>$package&lt;/code> は、proto パッケージの名前です。これは、通常ファイルの先頭にある &lt;code>package&lt;/code> ディレクティブで指定される名前です。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>$derived_outer_class&lt;/code> は、proto ファイル名から生成される名前です。一般的には、ファイル名から句読点を削除し、CamelCase に変換して計算されます。例えば、proto ファイルが &lt;code>foo_bar.proto&lt;/code> の場合、&lt;code>$derived_outer_class&lt;/code> の値は &lt;code>FooBar&lt;/code> になります。&lt;/p>
+&lt;p>生成されるクラス名が proto ファイルで定義されたメッセージの1つと同じ場合、&lt;code>derived_outer_class&lt;/code> に &lt;code>OuterClass&lt;/code> が追加されます。例えば、proto が &lt;code>foo_bar.proto&lt;/code> で &lt;code>FooBar&lt;/code> メッセージを含む場合、&lt;code>$derived_outer_class&lt;/code> の値は &lt;code>FooBarOuterClass&lt;/code> になります。クラス名が同じであるかどうかに関わらず、v1 API を使用する場合も同様です。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>その他の &lt;code>$names&lt;/code> は、proto ファイルで定義された対応する proto2 ファイルオプションの値です。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="recommendation">推奨事項&lt;/h3>
+&lt;p>推奨されるオプションは次の通りです:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">option&lt;/span> &lt;span style="color:#000">java_multiple_files&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#204a87;font-weight:bold">true&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>java_multiple_files = true&lt;/code> を使用すると、各メッセージの生成された Java クラスが個別の &lt;code>.java&lt;/code> ファイルに配置されます。これにより、メッセージを1つの &lt;code>.proto&lt;/code> ファイルから別のファイルに移動することがはるかに簡単になります。また、&lt;code>.proto&lt;/code> ファイル自体に対して外部の Java クラスも生成されます。（上記の凡例で、この外部クラス名がどのように生成されるかが説明されています。）&lt;/p>
+&lt;p>&lt;code>java_api_version&lt;/code> オプションはデフォルトで &lt;code>2&lt;/code> に設定されていますが、必要に応じて &lt;code>1&lt;/code> に手動で設定することもできます。&lt;/p></description></item><item><title>Reference: Java API</title><link>https://protobuf.dev/ja/reference/java/api-docs-link/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/reference/java/api-docs-link/</guid><description/></item></channel></rss>

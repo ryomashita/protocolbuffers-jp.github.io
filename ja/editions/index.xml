@@ -1,0 +1,228 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Protocol Buffers Documentation – Protobuf Editions</title><link>https://protobuf.dev/ja/editions/</link><description>Recent content in Protobuf Editions on Protocol Buffers Documentation</description><generator>Hugo -- gohugo.io</generator><language>ja</language><atom:link href="https://protobuf.dev/ja/editions/index.xml" rel="self" type="application/rss+xml"/><item><title>Editions:</title><link>https://protobuf.dev/ja/editions/implementation/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/editions/implementation/</guid><description>
+&lt;h2 id="overview">概要&lt;/h2>
+&lt;h3 id="edition-2023">Edition 2023&lt;/h3>
+&lt;p>最初にリリースされたエディションはEdition 2023で、proto2とproto3の構文を統一するために設計されています。振る舞いの違いをカバーするために追加した機能については、&lt;a href="https://protobuf.dev/editions/features">エディション用の機能設定&lt;/a>に詳細が記載されています。&lt;/p>
+&lt;h3 id="feature-definition">機能の定義&lt;/h3>
+&lt;p>エディションを&lt;em>サポート&lt;/em>し、定義済みのグローバル機能に加えて、インフラストラクチャを活用するために独自の機能を定義したい場合があります。これにより、ジェネレータやランタイムが新しい振る舞いを制御するために使用できる任意の機能を定義できます。最初のステップは、&lt;code>descriptor.proto&lt;/code>内の&lt;code>FeatureSet&lt;/code>メッセージの拡張番号を9999より大きくすることです。GitHubでプルリクエストを送信していただくと、次のリリースに含まれます（例：&lt;a href="https://github.com/protocolbuffers/protobuf/pull/15439">#15439&lt;/a>を参照）。&lt;/p>
+&lt;p>拡張番号を取得したら、自分の機能の proto ファイルを作成できます（例：&lt;a href="https://github.com/protocolbuffers/protobuf/blob/main/src/google/protobuf/cpp_features.proto">cpp_features.proto&lt;/a>）。これらは通常、次のように見えます：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">edition&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;2023&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">package&lt;/span> &lt;span style="color:#000">foo&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">import&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;google/protobuf/descriptor.proto&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">extend&lt;/span> &lt;span style="color:#000">google&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">protobuf.FeatureSet&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">MyFeatures&lt;/span> &lt;span style="color:#000">features&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000;font-weight:bold">&amp;lt;&lt;/span>&lt;span style="color:#000">extension&lt;/span> &lt;span style="color:#a40000">#&lt;/span>&lt;span style="color:#000;font-weight:bold">&amp;gt;;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">MyFeatures&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">enum&lt;/span> &lt;span style="color:#000">FeatureValue&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">FEATURE_VALUE_UNKNOWN&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">VALUE1&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">VALUE2&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">2&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">FeatureValue&lt;/span> &lt;span style="color:#000">feature_value&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span> &lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">targets&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">TARGET_TYPE_FIELD&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">targets&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">TARGET_TYPE_FILE&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">feature_support&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">edition_introduced&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#000">EDITION_2023&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">edition_deprecated&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#000">EDITION_2024&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">deprecation_warning&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;Feature will be removed in 2025&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">edition_removed&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#000">EDITION_2025&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000;font-weight:bold">},&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">edition_defaults&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span> &lt;span style="color:#000">edition&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#000">EDITION_LEGACY&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">value&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;VALUE1&amp;#34;&lt;/span> &lt;span style="color:#000;font-weight:bold">},&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">edition_defaults&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span> &lt;span style="color:#000">edition&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#000">EDITION_2024&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">value&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;VALUE2&amp;#34;&lt;/span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000;font-weight:bold">];&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>ここでは、新しい enum 機能 &lt;code>foo.feature_value&lt;/code> を定義しています（現在はブール値と enum タイプのみがサポートされています）。取りうる値を定義するだけでなく、それがどのように使用されるかを指定する必要があります：&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Targets&lt;/strong> - この機能がアタッチできる proto ディスクリプタのタイプを指定します。これにより、ユーザーが機能を明示的に指定できる場所が制御されます。すべてのタイプを明示的にリストする必要があります。&lt;/li>
+&lt;li>&lt;strong>Feature support&lt;/strong> - この機能の寿命をエディションに対して指定します。導入されたエディションを指定する必要があり、それ以前には許可されません。後のエディションで非推奨化または削除することもできます。&lt;/li>
+&lt;li>&lt;strong>Edition defaults&lt;/strong> - 機能のデフォルト値の変更を指定します。すべてのサポートされているエディションをカバーする必要がありますが、デフォルトが変更されなかったエディションは省略できます。&lt;code>EDITION_PROTO2&lt;/code> と &lt;code>EDITION_PROTO3&lt;/code> をここで指定して、「レガシー」エディションのデフォルトを提供することができることに注意してください（&lt;a href="#legacy_editions">レガシーエディション&lt;/a>を参照）。&lt;/li>
+&lt;/ul>
+&lt;h4 id="what-feature">フィーチャーとは何ですか？&lt;/h4>
+&lt;p>フィーチャーは、時間の経過とともに悪い振る舞いを段階的に抑制するメカニズムを提供するように設計されています。実際にフィーチャーを削除するタイムラインは、将来数年（または数十年）かかるかもしれませんが、任意のフィーチャーの望ましい目標は最終的な削除です。悪い振る舞いが特定された場合、修正を保護する新しいフィーチャーを導入できます。次のエディション（または後で）で、デフォルト値を切り替えることができますが、ユーザーが古い振る舞いを保持することができるようにします。将来のある時点で、フィーチャーを非推奨にマークし、それをオーバーライドしているユーザーにカスタム警告をトリガーします。後のエディションでは、それを削除済みとマークし、ユーザーがそれをオーバーライドできないようにします（ただし、デフォルト値は引き続き適用されます）。その最後のエディションのサポートが破壊的リリースで削除されるまで、フィーチャーは古いエディションに固執しているプロトにとって引き続き使用可能であり、移行する時間を与えます。&lt;/p>
+&lt;p>削除する意図のないオプションの振る舞いを制御するフラグは、
+&lt;a href="https://protobuf.dev/programming-guides/proto2/#customoptions">カスタムオプション&lt;/a>として実装する方が良いです。
+これは、フィーチャーをブール値または列挙型に制限している理由と関連しています。比較的無制限な数の値によって制御される振る舞いは、エディションフレームワークには適していない可能性があります。なぜなら、その多くの異なる振る舞いを最終的に抑制することは現実的ではないからです。&lt;/p>
+&lt;p>これに関連する注意点の1つは、ワイヤー境界に関連する振る舞いです。シリアライズやパースの振る舞いを制御するために言語固有のフィーチャーを使用することは危険です。なぜなら、他の言語が反対側にある可能性があるからです。ワイヤーフォーマットの変更は常に、&lt;code>descriptor.proto&lt;/code> でグローバルなフィーチャーによって制御されるべきであり、すべてのランタイムが均一に尊重できるようにするべきです。&lt;/p>
+&lt;h3 id="generators">ジェネレーター&lt;/h3>
+&lt;p>C++で書かれたジェネレーターは、C++ランタイムを使用するため、多くの機能を無料で提供します。彼らは自分で&lt;a href="#feature_resolution">フィーチャーの解決&lt;/a>を処理する必要がなく、必要なフィーチャー拡張があれば、CodeGeneratorの&lt;code>GetFeatureExtensions&lt;/code> でそれらを登録できます。通常、コード生成中にディスクリプタの解決されたフィーチャーにアクセスするために&lt;code>GetResolvedSourceFeatures&lt;/code> を使用し、自分自身の未解決のフィーチャーにアクセスするために&lt;code>GetUnresolvedSourceFeatures&lt;/code> を使用できます。&lt;/p>
+&lt;p>プラグインは、生成されるコードと同じ言語で書かれている場合、機能定義のためにカスタムのブートストラップが必要になるかもしれません。&lt;/p>
+&lt;h4 id="explicit-support">明示的なサポート&lt;/h4>
+&lt;p>ジェネレータは、正確にどのエディションをサポートするかを指定する必要があります。これにより、リリース後にエディションのサポートを安全に追加できます。Protocは、&lt;code>CodeGeneratorResponse&lt;/code>の&lt;code>supported_features&lt;/code>フィールドに&lt;code>FEATURE_SUPPORTS_EDITIONS&lt;/code>を含まないジェネレータに送信されたエディションのプロトを拒否します。さらに、&lt;code>minimum_edition&lt;/code>および&lt;code>maximum_edition&lt;/code>フィールドがあり、正確なサポートウィンドウを指定するために使用されます。新しいエディションのコードと機能の変更をすべて定義したら、&lt;code>maximum_edition&lt;/code>を上げてこのサポートを宣伝できます。&lt;/p>
+&lt;h4 id="codegen-tests">コード生成テスト&lt;/h4>
+&lt;p>Edition 2023が予期しない機能的変更を生じないことを確認するために使用できるコード生成テストがあります。これらは、C++やJavaなどの言語で非常に有用であり、機能の大部分がジェネレートされたコードに含まれる場合に役立ちます。一方、Pythonのような言語では、ジェネレートされたコードが基本的にシリアライズされた記述子のコレクションであるため、それほど有用ではありません。&lt;/p>
+&lt;p>このインフラストラクチャはまだ再利用できませんが、将来のリリースで再利用可能にする予定です。その時点で、エディションへの移行に予期しないコード生成の変更がないかを検証するために使用できるようになります。&lt;/p>
+&lt;h3 id="runtimes">ランタイム&lt;/h3>
+&lt;p>リフレクションやダイナミックメッセージを持たないランタイムは、エディションを実装するために何もする必要はありません。そのロジックはすべてコードジェネレータによって処理されるべきです。&lt;/p>
+&lt;p>リフレクションを持つがダイナミックメッセージを持たない言語は、解決済みの機能が必要ですが、ジェネレータ内でのみ処理することも選択できます。これは、ランタイムに解決済みおよび未解決の機能セットの両方をコード生成中に渡すことで行われます。これにより、ランタイムで&lt;a href="#feature_resolution">Feature Resolution&lt;/a>を再実装する必要がなくなりますが、効率が低下する可能性があります。なぜなら、それはすべての記述子に対してユニークな機能セットを作成するからです。&lt;/p>
+&lt;p>ダイナミックメッセージを持つ言語は、ランタイムで記述子をランタイムでビルドできる必要があるため、エディションを完全に実装する必要があります。&lt;/p>
+&lt;h4 id="syntax_reflection">構文反映&lt;/h4>
+&lt;p>リフレクションを使用してエディションを実行時に実装する最初のステップは、&lt;code>syntax&lt;/code> キーワードの直接的なチェックをすべて削除することです。これらすべては、必要に応じて &lt;code>syntax&lt;/code> を使用できるようにすることができる、より細かい粒度の機能ヘルパーに移動すべきです。&lt;/p>
+&lt;p>次の機能ヘルパーは、ディスクリプタに実装されるべきで、言語に適した名前を付けるべきです:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>FieldDescriptor::has_presence&lt;/code> - フィールドが明示的な存在を持つかどうか
+&lt;ul>
+&lt;li>繰り返しフィールドは&lt;em>決して&lt;/em>存在しません&lt;/li>
+&lt;li>メッセージ、拡張、および oneof フィールドは&lt;em>常に&lt;/em>明示的な存在を持ちます&lt;/li>
+&lt;li>それ以外のすべては、&lt;code>field_presence&lt;/code> が &lt;code>IMPLICIT&lt;/code> でない場合にのみ存在します&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>FieldDescriptor::is_required&lt;/code> - フィールドが必須かどうか&lt;/li>
+&lt;li>&lt;code>FieldDescriptor::requires_utf8_validation&lt;/code> - フィールドが utf8 の妥当性をチェックする必要があるかどうか&lt;/li>
+&lt;li>&lt;code>FieldDescriptor::is_packed&lt;/code> - 繰り返しフィールドがパックされたエンコーディングを持つかどうか&lt;/li>
+&lt;li>&lt;code>FieldDescriptor::is_delimited&lt;/code> - メッセージフィールドが区切り記号付きエンコーディングを持つかどうか&lt;/li>
+&lt;li>&lt;code>EnumDescriptor::is_closed&lt;/code> - フィールドが閉じられているかどうか&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>注意:&lt;/strong> ほとんどの言語では、メッセージエンコーディング機能は現在も &lt;code>TYPE_GROUP&lt;/code> でシグナルされ、必須フィールドはまだ &lt;code>LABEL_REQUIRED&lt;/code> が設定されています。これは理想的ではなく、下流の移行を容易にするために行われました。最終的には、これらは適切なヘルパーに移行し、&lt;code>TYPE_MESSAGE/LABEL_OPTIONAL&lt;/code> に移行すべきです。&lt;/p>
+&lt;p>下流のユーザーは、直接構文を使用する代わりにこれらの新しいヘルパーに移行すべきです。次の既存のディスクリプタ API クラスは理想的には非推奨とされ、最終的に削除されるべきです。なぜなら、これらは構文情報を漏洩させるからです:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>FileDescriptor&lt;/code> 構文&lt;/li>
+&lt;li>Proto3 オプションの API
+&lt;ul>
+&lt;li>&lt;code>FieldDescriptor::has_optional_keyword&lt;/code>&lt;/li>
+&lt;li>&lt;code>OneofDescriptor::is_synthetic&lt;/code>&lt;/li>
+&lt;li>&lt;code>Descriptor::*real_oneof*&lt;/code> - 単に &amp;ldquo;oneof&amp;rdquo; に名前を変更し、既存の &amp;ldquo;oneof&amp;rdquo; ヘルパーを削除すべきです。なぜなら、これらは合成 oneof に関する情報を漏洩させるからです（エディションには存在しない）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>グループ型
+&lt;ul>
+&lt;li>&lt;code>TYPE_GROUP&lt;/code> 列挙値は削除され、&lt;code>is_delimited&lt;/code> ヘルパーに置き換えられるべきです。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>必須ラベル
+&lt;ul>
+&lt;li>&lt;code>LABEL_REQUIRED&lt;/code> 列挙値は削除され、&lt;code>is_required&lt;/code> ヘルパーに置き換えられるべきです。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>多くのユーザーコードのクラスには、これらのチェックが存在しますが、編集には敵対的ではありません。たとえば、その合成的なoneof実装のためにproto3 &lt;code>optional&lt;/code> を特別に処理する必要があるコードは、極性が &lt;code>syntax == &amp;quot;proto3&amp;quot;&lt;/code> のようなものであれば（&lt;code>syntax != &amp;quot;proto2&amp;quot;&lt;/code> をチェックするのではなく）、編集には敵対的ではありません。&lt;/p>
+&lt;p>これらの API を完全に削除することができない場合は、非推奨として扱うべきです。&lt;/p>
+&lt;h4 id="visibility">機能の可視性&lt;/h4>
+&lt;p>&lt;a href="https://github.com/protocolbuffers/protobuf/blob/main/docs/design/editions/editions-feature-visibility.md">editions-feature-visibility&lt;/a> で議論されているように、機能プロトは任意の Protobuf 実装の内部の詳細であるべきです。それらが制御する &lt;em>振る舞い&lt;/em> は、ディスクリプタメソッドを介して公開されるべきですが、プロト自体は公開されるべきではありません。特に、ユーザーに公開されるオプションは、その &lt;code>features&lt;/code> フィールドが削除されている必要があります。&lt;/p>
+&lt;p>特徴が漏れ出ることを許可する唯一のケースは、ディスクリプタをシリアライズする場合です。生成されたディスクリプタプロトは、元の proto ファイルの忠実な表現であるべきであり、オプション内に &lt;em>未解決の特徴&lt;/em> を含んでいる必要があります。&lt;/p>
+&lt;h4 id="legacy_editions">レガシー版&lt;/h4>
+&lt;p>&lt;a href="https://github.com/protocolbuffers/protobuf/blob/main/docs/design/editions/legacy-syntax-editions.md">legacy-syntax-editions&lt;/a> でさらに詳しく議論されているように、editions 実装の早期カバレッジを得るための優れた方法は、proto2、proto3、および editions を統合することです。これにより、proto2 と proto3 が実質的に editions に移行し、&lt;a href="#syntax_reflection">Syntax Reflection&lt;/a> で実装されたすべてのヘルパーが機能のみを使用するようになります（構文に基づく分岐ではなく）。これは、proto ファイルのさまざまな側面がどの機能が適切かを通知する &lt;em>機能推論&lt;/em> フェーズを &lt;a href="#feature_resolution">Feature Resolution&lt;/a> に挿入することで行うことができます。これらの機能は、解決された機能セットを取得するために親の機能にマージされることができます。&lt;/p>
+&lt;p>proto2/proto3 にはすでに合理的なデフォルトが提供されていますが、2023 年版では、次の追加の推論が必要です。&lt;/p>
+&lt;ul>
+&lt;li>必須 - フィールドに &lt;code>LABEL_REQUIRED&lt;/code> がある場合、&lt;code>LEGACY_REQUIRED&lt;/code> の存在を推測します&lt;/li>
+&lt;li>グループ - フィールドに &lt;code>TYPE_GROUP&lt;/code> がある場合、&lt;code>DELIMITED&lt;/code> メッセージエンコーディングを推測します&lt;/li>
+&lt;li>パック - &lt;code>packed&lt;/code> オプションが true の場合、&lt;code>PACKED&lt;/code> エンコーディングを推測します&lt;/li>
+&lt;li>拡張 - proto3 フィールドの &lt;code>packed&lt;/code> が明示的に false に設定されている場合、&lt;code>EXPANDED&lt;/code> エンコーディングを推測します&lt;/li>
+&lt;/ul>
+&lt;h4 id="conformance-tests">適合テスト&lt;/h4>
+&lt;p>エディション固有の適合テストが追加されましたが、オプトインする必要があります。
+これらを有効にするにはランナーに &lt;code>--maximum_edition 2023&lt;/code> フラグを渡す必要があります。
+以下の新しいメッセージタイプを処理するためにテスターバイナリを構成する必要があります：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>protobuf_test_messages.editions.proto2.TestAllTypesProto2&lt;/code> - 古い proto2 メッセージと同じですが、エディション 2023 に変換されています&lt;/li>
+&lt;li>&lt;code>protobuf_test_messages.editions.proto3.TestAllTypesProto3&lt;/code> - 古い proto3 メッセージと同じですが、エディション 2023 に変換されています&lt;/li>
+&lt;li>&lt;code>protobuf_test_messages.editions.TestAllTypesEdition2023&lt;/code> - エディション 2023 固有のテストケースをカバーするために使用されます&lt;/li>
+&lt;/ul>
+&lt;h3 id="feature-resolution">機能解決&lt;/h3>
+&lt;p>エディションは機能を定義するためにレキシカルスコープを使用し、エディションサポートを実装する必要がある非C++コードは、&lt;em>機能解決&lt;/em> アルゴリズムを再実装する必要があります。
+ただし、作業の大部分は protoc 自体によって処理され、中間の &lt;code>FeatureSetDefaults&lt;/code> メッセージを出力するように構成できます。
+このメッセージには、各エディションでのデフォルトの機能値が記載された、一連の機能定義ファイルの「コンパイル」が含まれています。&lt;/p>
+&lt;p>たとえば、上記の機能定義は、proto2 とエディション 2025 の間で次のデフォルト値にコンパイルされます（テキスト形式で表記）：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>defaults {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> edition: EDITION_PROTO2
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> overridable_features { [foo.features] {} }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fixed_features {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> // Global feature defaults…
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> [foo.features] { feature_value: VALUE1 }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>defaults {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> edition: EDITION_PROTO3
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> overridable_features { [foo.features] {} }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fixed_features {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> // Global feature defaults…
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> [foo.features] { feature_value: VALUE1 }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>defaults {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> edition: EDITION_2023
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> overridable_features {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> // Global feature defaults…
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> [foo.features] { feature_value: VALUE1 }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>defaults {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> edition: EDITION_2024
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> overridable_features {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> // Global feature defaults…
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> [foo.features] { feature_value: VALUE2 }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>defaults {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> edition: EDITION_2025
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> overridable_features {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> // Global feature defaults…
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> fixed_features { [foo.features] { feature_value: VALUE2 } }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>minimum_edition: EDITION_PROTO2
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>maximum_edition: EDITION_2025
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>グローバルな機能のデフォルトは簡潔さのために省略されていますが、それらも存在します。
+このオブジェクトには、指定された範囲内で一意のデフォルトセットを持つすべてのエディションの順序付きリストが含まれています。
+各デフォルトセットは、&lt;em>オーバーライド可能&lt;/em> と &lt;em>固定&lt;/em> の機能に分割されます。
+前者はユーザーが自由にオーバーライドできるエディションのサポートされる機能であり、後者はまだ導入されていないか削除された機能であり、ユーザーによってオーバーライドできません。&lt;/p>
+&lt;p>提供するBazelルールを使用して、これらの中間オブジェクトをコンパイルします：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-gdscript3" data-lang="gdscript3">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87">load&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#4e9a06">&amp;#34;@com_google_protobuf//editions:defaults.bzl&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;compile_edition_defaults&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">compile_edition_defaults&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">name&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;my_defaults&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">srcs&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#4e9a06">&amp;#34;//some/path:lang_features_proto&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">],&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">maximum_edition&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;PROTO2&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">minimum_edition&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;2024&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>出力&lt;code>FeatureSetDefaults&lt;/code>は、必要な言語で機能解決を行うための生の文字列リテラルに埋め込むことができます。また、これを行うための&lt;code>embed_edition_defaults&lt;/code>マクロも提供しています：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>embed_edition_defaults(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> name = &amp;#34;embed_my_defaults&amp;#34;,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> defaults = &amp;#34;:my_defaults&amp;#34;,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> output = &amp;#34;my_defaults.h&amp;#34;,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> placeholder = &amp;#34;DEFAULTS_DATA&amp;#34;,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> template = &amp;#34;my_defaults.h.template&amp;#34;,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>また、protocを直接（Bazelの外部で）呼び出して、このデータを生成することもできます：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>protoc --edition_defaults_out=defaults.binpb --edition_defaults_minimum=PROTO2 --edition_defaults_maximum=2023 &amp;lt;feature files...&amp;gt;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>デフォルトメッセージがコードにフックされ、指定されたエディションのファイル記述子の機能解決が行われると、次の単純なアルゴリズムに従います：&lt;/p>
+&lt;ol>
+&lt;li>エディションが適切な範囲[&lt;code>minimum_edition&lt;/code>、&lt;code>maximum_edition&lt;/code>]内にあることを検証します&lt;/li>
+&lt;li>順序付けられた&lt;code>defaults&lt;/code>フィールドをエディション以下の最も高いエントリをバイナリサーチします&lt;/li>
+&lt;li>選択したデフォルトから&lt;code>overridable_features&lt;/code>を&lt;code>fixed_features&lt;/code>にマージします&lt;/li>
+&lt;li>ファイルオプションの&lt;code>features&lt;/code>フィールド内に設定された明示的な機能をマージします&lt;/li>
+&lt;/ol>
+&lt;p>その後、他の記述子のすべての機能を再帰的に解決できます：&lt;/p>
+&lt;ol>
+&lt;li>親記述子の機能セットを初期化します&lt;/li>
+&lt;li>ファイルオプションの&lt;code>features&lt;/code>フィールドに設定された明示的な機能をマージします&lt;/li>
+&lt;/ol>
+&lt;p>“親”記述子を決定するために、&lt;a href="https://github.com/protocolbuffers/protobuf/blob/27.x/src/google/protobuf/descriptor.cc#L1129">C++実装&lt;/a>を参照できます。これはほとんどの場合には簡単ですが、拡張は拡張元ではなく包含スコープが親であるため、少し驚くかもしれません。Oneofも、フィールドの親として考慮する必要があります。&lt;/p>
+&lt;h4 id="conformance-tests">適合テスト&lt;/h4>
+&lt;p>将来のリリースでは、機能解決のクロス言語検証のための適合テストを追加する予定です。その間、通常の&lt;a href="#conformance_tests">適合テスト&lt;/a>は部分的なカバレッジを提供しますし、&lt;a href="https://github.com/protocolbuffers/protobuf/blob/27.x/python/google/protobuf/internal/descriptor_test.py#L1386">例の継承ユニットテスト&lt;/a>も移植して、より包括的なカバレッジを提供できます。&lt;/p>
+&lt;h3 id="examples">例&lt;/h3>
+&lt;p>以下は、ランタイムおよびプラグインでのエディションサポートの実装例です。&lt;/p>
+&lt;h4 id="java">Java&lt;/h4>
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/protocolbuffers/protobuf/pull/14138">#14138&lt;/a> - Java機能のprotoに対するC++ gencodeを使用したブートストラップコンパイラ&lt;/li>
+&lt;li>&lt;a href="https://github.com/protocolbuffers/protobuf/pull/14377">#14377&lt;/a> - Java、Kotlin、およびJava Liteコードジェネレーターでの機能の使用、コード生成テストを含む&lt;/li>
+&lt;li>&lt;a href="https://github.com/protocolbuffers/protobuf/pull/15210">#15210&lt;/a> - Javaフルランタイムでの機能の使用、Java機能のブートストラップ、機能解決、およびレガシーエディションのカバレッジ、ユニットテストと適合性テストを含む&lt;/li>
+&lt;/ul>
+&lt;h4 id="python">純粋なPython&lt;/h4>
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/protocolbuffers/protobuf/pull/14546">#14546&lt;/a> - コード生成テストの事前設定&lt;/li>
+&lt;li>&lt;a href="https://github.com/protocolbuffers/protobuf/pull/14547">#14547&lt;/a> - 一気にエディションを完全に実装、ユニットテストと適合性テストを含む&lt;/li>
+&lt;/ul>
+&lt;h4 id="upb">𝛍pb&lt;/h4>
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/protocolbuffers/protobuf/pull/14638">#14638&lt;/a> - 機能解決とレガシーエディションをカバーするエディション実装の最初のパス&lt;/li>
+&lt;li>&lt;a href="https://github.com/protocolbuffers/protobuf/pull/14667">#14667&lt;/a> - フィールドラベル/タイプのより完全な処理、upbのコードジェネレーターのサポート、一部のテストを追加&lt;/li>
+&lt;li>&lt;a href="https://github.com/protocolbuffers/protobuf/pull/14678">#14678&lt;/a> - upbをPythonランタイムに接続し、より多くのユニットテストと適合性テストを追加&lt;/li>
+&lt;/ul>
+&lt;h4 id="ruby">Ruby&lt;/h4>
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/protocolbuffers/protobuf/pull/16132">#16132&lt;/a> - フルエディションサポートのためにupb/Javaをすべての4つのRubyランタイムに接続&lt;/li>
+&lt;/ul></description></item></channel></rss>

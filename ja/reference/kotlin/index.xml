@@ -1,0 +1,174 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Protocol Buffers Documentation – Kotlin リファレンス</title><link>https://protobuf.dev/ja/reference/kotlin/</link><description>Recent content in Kotlin リファレンス on Protocol Buffers Documentation</description><generator>Hugo -- gohugo.io</generator><language>ja</language><atom:link href="https://protobuf.dev/ja/reference/kotlin/index.xml" rel="self" type="application/rss+xml"/><item><title>Reference: Kotlin リファレンス</title><link>https://protobuf.dev/ja/reference/kotlin/api-docs/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/reference/kotlin/api-docs/</guid><description>
+&lt;h2 id="パッケージ">パッケージ&lt;/h2>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Name&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;a name="com.google.protobuf.kotlin////PointingToDeclaration/">&lt;/a>&lt;a href="protobuf-kotlin/com.google.protobuf.kotlin/">com.google.protobuf.kotlin&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table></description></item><item><title>Reference: Kotlin 生成コードガイド</title><link>https://protobuf.dev/ja/reference/kotlin/kotlin-generated/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/reference/kotlin/kotlin-generated/</guid><description>
+&lt;p>proto2 と proto3 で生成されるコードの違い
+は強調されています。これらの違いは、このドキュメントで説明されている生成されたコードにありますが、ベースのメッセージクラス/インターフェースは両バージョンで同じです。このドキュメントを読む前に、
+&lt;a href="https://protobuf.dev/programming-guides/proto2">proto2 言語ガイド&lt;/a>
+および
+&lt;a href="https://protobuf.dev/programming-guides/proto3">proto3 言語ガイド&lt;/a>
+を読むべきです。&lt;/p>
+&lt;h2 id="invocation">コンパイラの呼び出し&lt;/h2>
+&lt;p>プロトコルバッファコンパイラは、Java コードをベースに構築された Kotlin コードを生成します。そのため、&lt;code>--java_out=&lt;/code> と &lt;code>--kotlin_out=&lt;/code> の 2 つのコマンドラインフラグを使用して呼び出す必要があります。&lt;code>--java_out=&lt;/code> オプションのパラメータは、コンパイラが Java 出力を書き込むディレクトリであり、&lt;code>--kotlin_out=&lt;/code> も同様です。各 &lt;code>.proto&lt;/code> ファイルの入力に対して、コンパイラは &lt;code>.proto&lt;/code> ファイル自体を表す Java クラスを含むラッパー &lt;code>.java&lt;/code> ファイルを作成します。&lt;/p>
+&lt;p>次のような行が &lt;code>.proto&lt;/code> ファイルに含まれているかどうかに関係なく：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">option&lt;/span> &lt;span style="color:#000">java_multiple_files&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#204a87;font-weight:bold">true&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>コンパイラは、&lt;code>.proto&lt;/code> ファイルで宣言された各トップレベルメッセージに対して生成される各クラスおよびファクトリメソッド用に個別の &lt;code>.kt&lt;/code> ファイルを作成します。&lt;/p>
+&lt;p>各ファイルの Java パッケージ名は、
+&lt;a href="https://protobuf.dev/reference/java/java-generated#package">Java 生成コードリファレンス&lt;/a>
+で説明されている生成された Java コードで使用されるものと同じです。&lt;/p>
+&lt;p>出力ファイルは、&lt;code>--kotlin_out=&lt;/code> のパラメータ、パッケージ名（ピリオド [.] をスラッシュ [/] に置き換えたもの）、および接尾辞 &lt;code>Kt.kt&lt;/code> ファイル名を連結して選択されます。&lt;/p>
+&lt;p>たとえば、次のようにコンパイラを呼び出すとします：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>protoc --proto_path&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>src --java_out&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>build/gen/java --kotlin_out&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>build/gen/kotlin src/foo.proto
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>foo.proto&lt;/code> の Java パッケージが &lt;code>com.example&lt;/code> であり、&lt;code>Bar&lt;/code> というメッセージが含まれている場合、プロトコルバッファコンパイラはファイル &lt;code>build/gen/kotlin/com/example/BarKt.kt&lt;/code> を生成します。プロトコルバッファコンパイラは、必要に応じて &lt;code>build/gen/kotlin/com&lt;/code> および &lt;code>build/gen/kotlin/com/example&lt;/code> ディレクトリを自動的に作成します。ただし、&lt;code>build/gen/kotlin&lt;/code>、&lt;code>build/gen&lt;/code>、または &lt;code>build&lt;/code> は作成されません。これらはすでに存在している必要があります。1 回の呼び出しで複数の &lt;code>.proto&lt;/code> ファイルを指定できます。すべての出力ファイルが一度に生成されます。&lt;/p>
+&lt;h2 id="message">メッセージ&lt;/h2>
+&lt;p>単純なメッセージ宣言が与えられた場合：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">FooBar&lt;/span> &lt;span style="color:#000;font-weight:bold">{}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>プロトコルバッファコンパイラは、生成されたJavaコードに加えて、&lt;code>FooBarKt&lt;/code>というオブジェクト、および次の構造を持つ2つのトップレベル関数を生成します：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-kotlin" data-lang="kotlin">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">object&lt;/span> &lt;span style="color:#000">FooBarKt&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">class&lt;/span> &lt;span style="color:#000">Dsl&lt;/span> &lt;span style="color:#204a87;font-weight:bold">private&lt;/span> &lt;span style="color:#204a87;font-weight:bold">constructor&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">..&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">inline&lt;/span> &lt;span style="color:#204a87;font-weight:bold">fun&lt;/span> &lt;span style="color:#000">fooBar&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">block&lt;/span>&lt;span style="color:#000;font-weight:bold">:&lt;/span> &lt;span style="color:#000">FooBarKt&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Dsl&lt;/span>&lt;span style="color:#000;font-weight:bold">.()&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">-&amp;gt;&lt;/span> &lt;span style="color:#000">Unit&lt;/span>&lt;span style="color:#000;font-weight:bold">):&lt;/span> &lt;span style="color:#000">FooBar&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">inline&lt;/span> &lt;span style="color:#204a87;font-weight:bold">fun&lt;/span> &lt;span style="color:#000">FooBar&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">copy&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">block&lt;/span>&lt;span style="color:#000;font-weight:bold">:&lt;/span> &lt;span style="color:#000">FooBarKt&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Dsl&lt;/span>&lt;span style="color:#000;font-weight:bold">.()&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">-&amp;gt;&lt;/span> &lt;span style="color:#000">Unit&lt;/span>&lt;span style="color:#000;font-weight:bold">):&lt;/span> &lt;span style="color:#000">FooBar&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="ネストされたタイプ">ネストされたタイプ&lt;/h3>
+&lt;p>メッセージは別のメッセージの内部で宣言することができます。例：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Bar&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>この場合、コンパイラは&lt;code>FooKt&lt;/code>の内部に&lt;code>BarKt&lt;/code>オブジェクトと&lt;code>bar&lt;/code>ファクトリメソッドをネストしますが、&lt;code>copy&lt;/code>メソッドはトップレベルのままです：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-kotlin" data-lang="kotlin">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">object&lt;/span> &lt;span style="color:#000">FooKt&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">class&lt;/span> &lt;span style="color:#000">Dsl&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">..&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">object&lt;/span> &lt;span style="color:#000">BarKt&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">class&lt;/span> &lt;span style="color:#000">Dsl&lt;/span> &lt;span style="color:#204a87;font-weight:bold">private&lt;/span> &lt;span style="color:#204a87;font-weight:bold">constructor&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">..&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">inline&lt;/span> &lt;span style="color:#204a87;font-weight:bold">fun&lt;/span> &lt;span style="color:#000">bar&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">block&lt;/span>&lt;span style="color:#000;font-weight:bold">:&lt;/span> &lt;span style="color:#000">FooKt&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">BarKt&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Dsl&lt;/span>&lt;span style="color:#000;font-weight:bold">.()&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">-&amp;gt;&lt;/span> &lt;span style="color:#000">Unit&lt;/span>&lt;span style="color:#000;font-weight:bold">):&lt;/span> &lt;span style="color:#000">Foo&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Bar&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">inline&lt;/span> &lt;span style="color:#204a87;font-weight:bold">fun&lt;/span> &lt;span style="color:#000">foo&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">block&lt;/span>&lt;span style="color:#000;font-weight:bold">:&lt;/span> &lt;span style="color:#000">FooKt&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Dsl&lt;/span>&lt;span style="color:#000;font-weight:bold">.()&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">-&amp;gt;&lt;/span> &lt;span style="color:#000">Unit&lt;/span>&lt;span style="color:#000;font-weight:bold">):&lt;/span> &lt;span style="color:#000">Foo&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">inline&lt;/span> &lt;span style="color:#204a87;font-weight:bold">fun&lt;/span> &lt;span style="color:#000">Foo&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">copy&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">block&lt;/span>&lt;span style="color:#000;font-weight:bold">:&lt;/span> &lt;span style="color:#000">FooKt&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Dsl&lt;/span>&lt;span style="color:#000;font-weight:bold">.()&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">-&amp;gt;&lt;/span> &lt;span style="color:#000">Unit&lt;/span>&lt;span style="color:#000;font-weight:bold">):&lt;/span> &lt;span style="color:#000">Foo&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">inline&lt;/span> &lt;span style="color:#204a87;font-weight:bold">fun&lt;/span> &lt;span style="color:#000">Foo&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Bar&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">copy&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">block&lt;/span>&lt;span style="color:#000;font-weight:bold">:&lt;/span> &lt;span style="color:#000">FooKt&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">BarKt&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Dsl&lt;/span>&lt;span style="color:#000;font-weight:bold">.()&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">-&amp;gt;&lt;/span> &lt;span style="color:#000">Unit&lt;/span>&lt;span style="color:#000;font-weight:bold">):&lt;/span> &lt;span style="color:#000">Foo&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Bar&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="フィールド">フィールド&lt;/h2>
+&lt;p>前のセクションで説明されたメソッドに加えて、プロトコルバッファコンパイラは、&lt;code>.proto&lt;/code>ファイル内で定義された各フィールドに対してDSL内の可変プロパティを生成します（Kotlinは既にJavaによって生成されたゲッターからメッセージオブジェクトの読み取り専用プロパティを推論します）。&lt;/p>
+&lt;p>プロパティは常にキャメルケースの命名規則を使用しますが、&lt;code>.proto&lt;/code>ファイル内のフィールド名がアンダースコアを使用している場合でも（&lt;a href="https://protobuf.dev/programming-guides/style">使用すべきです&lt;/a>）、ケース変換は次のように機能します：&lt;/p>
+&lt;ol>
+&lt;li>名前内の各アンダースコアは削除され、次の文字が大文字になります。&lt;/li>
+&lt;li>名前に接頭辞が付加される場合（たとえば、&amp;ldquo;clear&amp;quot;のような場合）、最初の文字が大文字になります。それ以外の場合は小文字になります。&lt;/li>
+&lt;/ol>
+&lt;p>したがって、フィールド&lt;code>foo_bar_baz&lt;/code>は&lt;code>fooBarBaz&lt;/code>になります。&lt;/p>
+&lt;p>Kotlinの予約語やプロトコルバッファライブラリで既に定義されているメソッドとフィールド名が競合する特別な場合には、追加のアンダースコアが付加されます。たとえば、&lt;code>in&lt;/code>という名前のフィールドのクリアメソッドは&lt;code>clearIn_()&lt;/code>になります。&lt;/p>
+&lt;h3 id="単数のフィールドproto2">単数のフィールド（proto2）&lt;/h3>
+&lt;p>次のいずれかのフィールド定義がある場合：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">required&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>コンパイラはDSL内で次のアクセサを生成します：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>fun hasFoo(): Boolean&lt;/code>：フィールドが設定されている場合は&lt;code>true&lt;/code>を返します。&lt;/li>
+&lt;li>&lt;code>var foo: Int&lt;/code>：フィールドの現在の値。フィールドが設定されていない場合はデフォルト値を返します。&lt;/li>
+&lt;li>&lt;code>fun clearFoo()&lt;/code>：フィールドの値をクリアします。これを呼び出した後、&lt;code>hasFoo()&lt;/code>は&lt;code>false&lt;/code>を返し、&lt;code>getFoo()&lt;/code>はデフォルト値を返します。&lt;/li>
+&lt;/ul>
+&lt;p>他の単純なフィールドタイプについては、&lt;a href="https://protobuf.dev/programming-guides/proto2#scalar">スカラー値タイプテーブル&lt;/a>に従って対応するJavaタイプが選択されます。メッセージおよび列挙型の場合、値のタイプはメッセージまたは列挙型クラスに置き換えられます。メッセージタイプがまだJavaで定義されているため、メッセージ内の符号なしタイプは、Javaおよび古いバージョンのKotlinとの互換性のためにDSL内の標準の対応する符号付きタイプを使用して表されます。&lt;/p>
+&lt;h4 id="埋め込みメッセージフィールド">埋め込みメッセージフィールド&lt;/h4>
+&lt;p>サブメッセージの特別な処理はありません。たとえば、次のようなフィールドがある場合、&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000">my_foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>次のように書く必要があります&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-kotlin" data-lang="kotlin">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">myFoo&lt;/span> &lt;span style="color:#000;font-weight:bold">=&lt;/span> &lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#ce5c00;font-weight:bold">..&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>一般的に、これはコンパイラが&lt;code>Foo&lt;/code>がKotlin DSLを持っているかどうか、または例えばJava APIのみが生成されているかどうかを知らないためです。これは、依存しているメッセージにKotlinコード生成を追加するのを待つ必要がないことを意味します。&lt;/p>
+&lt;h3 id="単数フィールドproto3">単数フィールド（proto3）&lt;/h3>
+&lt;p>このフィールド定義に対して：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>コンパイラはDSL内で次のプロパティを生成します：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>var foo: Int&lt;/code>：フィールドの現在の値を返します。フィールドが設定されていない場合、フィールドのタイプのデフォルト値を返します。&lt;/li>
+&lt;li>&lt;code>fun clearFoo()&lt;/code>：フィールドの値をクリアします。これを呼び出した後、&lt;code>getFoo()&lt;/code>はフィールドのタイプのデフォルト値を返します。&lt;/li>
+&lt;/ul>
+&lt;p>他の単純なフィールドタイプについては、&lt;a href="https://protobuf.dev/programming-guides/proto2#scalar">スカラー値タイプテーブル&lt;/a>に従って対応するJavaタイプが選択されます。メッセージおよび列挙型の場合、値のタイプはメッセージまたは列挙型クラスに置き換えられます。メッセージタイプがまだJavaで定義されているため、メッセージ内の符号なしタイプは、Javaおよび古いバージョンのKotlinとの互換性のためにDSL内の標準の対応する符号付きタイプを使用して表されます。&lt;/p>
+&lt;h4 id="埋め込みメッセージフィールド-1">埋め込みメッセージフィールド&lt;/h4>
+&lt;p>メッセージフィールドタイプの場合、DSL内に追加のアクセサメソッドが生成されます：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>boolean hasFoo()&lt;/code>：フィールドが設定されている場合は&lt;code>true&lt;/code>を返します。&lt;/li>
+&lt;/ul>
+&lt;p>サブメッセージをDSLに基づいて設定するためのショートカットはありません。たとえば、次のようなフィールドがある場合、&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000">my_foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-kotlin" data-lang="kotlin">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">myFoo&lt;/span> &lt;span style="color:#000;font-weight:bold">=&lt;/span> &lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#ce5c00;font-weight:bold">..&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>一般的に、これはコンパイラが&lt;code>Foo&lt;/code>がKotlin DSLを持っているかどうかを知らないためです。例えば、JavaのAPIのみが生成されているかもしれません。これは、依存しているメッセージがKotlinコード生成を追加するのを待つ必要がないことを意味します。&lt;/p>
+&lt;h3 id="repeated">繰り返しフィールド&lt;/h3>
+&lt;p>このフィールド定義に対して:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">repeated&lt;/span> &lt;span style="color:#204a87;font-weight:bold">string&lt;/span> &lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>コンパイラはDSL内に以下のメンバーを生成します:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>class FooProxy: DslProxy&lt;/code>、ジェネリック内でのみ使用される構築不可能な型&lt;/li>
+&lt;li>&lt;code>val fooList: DslList&amp;lt;String, FooProxy&amp;gt;&lt;/code>、繰り返しフィールド内の現在の要素の読み取り専用ビュー&lt;/li>
+&lt;li>&lt;code>fun DslList&amp;lt;String, FooProxy&amp;gt;.add(value: String)&lt;/code>、要素を繰り返しフィールドに追加する拡張関数&lt;/li>
+&lt;li>&lt;code>operator fun DslList&amp;lt;String, FooProxy&amp;gt;.plusAssign(value: String)&lt;/code>、&lt;code>add&lt;/code>のエイリアス&lt;/li>
+&lt;li>&lt;code>fun DslList&amp;lt;String, FooProxy&amp;gt;.addAll(values: Iterable&amp;lt;String&amp;gt;)&lt;/code>、&lt;code>Iterable&lt;/code>の要素を繰り返しフィールドに追加する拡張関数&lt;/li>
+&lt;li>&lt;code>operator fun DslList&amp;lt;String, FooProxy&amp;gt;.plusAssign(values: Iterable&amp;lt;String&amp;gt;)&lt;/code>、&lt;code>addAll&lt;/code>のエイリアス&lt;/li>
+&lt;li>&lt;code>operator fun DslList&amp;lt;String, FooProxy&amp;gt;.set(index: Int, value: String)&lt;/code>、指定されたゼロベースのインデックスの要素の値を設定する拡張関数&lt;/li>
+&lt;li>&lt;code>fun DslList&amp;lt;String, FooProxy&amp;gt;.clear()&lt;/code>、繰り返しフィールドの内容をクリアする拡張関数&lt;/li>
+&lt;/ul>
+&lt;p>この異例の構造により、&lt;code>fooList&lt;/code>はDSLのスコープ内で変更可能なリストのように振る舞い、基礎となるビルダーがサポートするメソッドのみをサポートし、DSLからの変更可能性が「逃げ出す」のを防ぎ、混乱を招く副作用を防ぎます。&lt;/p>
+&lt;p>他の単純なフィールドタイプについては、対応するJavaタイプは、&lt;a href="https://protobuf.dev/programming-guides/proto2#scalar">スカラー値の種類テーブル&lt;/a>に従って選択されます。メッセージおよび列挙型の場合、タイプはメッセージまたは列挙型のクラスです。&lt;/p>
+&lt;h3 id="oneof-フィールド">Oneof フィールド&lt;/h3>
+&lt;p>このoneofフィールドの定義に対して:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">oneof&lt;/span> &lt;span style="color:#000">oneof_name&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">...&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>コンパイラはDSL内に以下のアクセサメソッドを生成します:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>val oneofNameCase: OneofNameCase&lt;/code>: どの &lt;code>oneof_name&lt;/code> フィールドが設定されているかを取得します。戻り値の型については、&lt;a href="https://protobuf.dev/reference/java/java-generated#oneof">Java コードリファレンス&lt;/a> を参照してください。{/&lt;em>examples&lt;/em>/}&lt;/li>
+&lt;li>&lt;code>fun hasFoo(): Boolean&lt;/code> (proto2 のみ): oneof ケースが &lt;code>FOO&lt;/code> の場合は &lt;code>true&lt;/code> を返します。{/&lt;em>examples&lt;/em>/}&lt;/li>
+&lt;li>&lt;code>val foo: Int&lt;/code>: oneof ケースが &lt;code>FOO&lt;/code> の場合は &lt;code>oneof_name&lt;/code> の現在の値を返します。それ以外の場合は、このフィールドのデフォルト値を返します。{/&lt;em>examples&lt;/em>/}&lt;/li>
+&lt;/ul>
+&lt;p>他の単純なフィールドタイプについては、&lt;a href="https://protobuf.dev/programming-guides/proto2#scalar">scalar value types table&lt;/a> に従って対応する Java タイプが選択されます。メッセージおよび列挙型の場合、値のタイプはメッセージまたは列挙型クラスに置き換えられます。{/&lt;em>examples&lt;/em>/}&lt;/p>
+&lt;h3 id="マップフィールド">マップフィールド&lt;/h3>
+&lt;p>このマップフィールドの定義について:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">map&lt;/span>&lt;span style="color:#000;font-weight:bold">&amp;lt;&lt;/span>&lt;span style="color:#204a87;font-weight:bold">int32&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span>&lt;span style="color:#000;font-weight:bold">&amp;gt;&lt;/span> &lt;span style="color:#000">weight&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>コンパイラは、DSL クラス内に次のメンバーを生成します:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>class WeightProxy private constructor(): DslProxy()&lt;/code>: ジェネリックスでのみ使用される構築不可能なタイプ&lt;/li>
+&lt;li>&lt;code>val weight: DslMap&amp;lt;Int, Int, WeightProxy&amp;gt;&lt;/code>: マップフィールド内の現在のエントリの読み取り専用ビュー&lt;/li>
+&lt;li>&lt;code>fun DslMap&amp;lt;Int, Int, WeightProxy&amp;gt;.put(key: Int, value: Int)&lt;/code>: このマップフィールドにエントリを追加します&lt;/li>
+&lt;li>&lt;code>operator fun DslMap&amp;lt;Int, Int, WeightProxy&amp;gt;.put(key: Int, value: Int)&lt;/code>: 演算子構文を使用した &lt;code>put&lt;/code> のエイリアス&lt;/li>
+&lt;li>&lt;code>fun DslMap&amp;lt;Int, Int, WeightProxy&amp;gt;.remove(key: Int)&lt;/code>: &lt;code>key&lt;/code> に関連付けられたエントリを削除します（存在する場合）&lt;/li>
+&lt;li>&lt;code>fun DslMap&amp;lt;Int, Int, WeightProxy&amp;gt;.putAll(map: Map&amp;lt;Int, Int)&lt;/code>: 指定されたマップからすべてのエントリをこのマップフィールドに追加し、既存のキーの以前の値を上書きします&lt;/li>
+&lt;li>&lt;code>fun DslMap&amp;lt;Int, Int, WeightProxy&amp;gt;.clear()&lt;/code>: このマップフィールドからすべてのエントリをクリアします{/&lt;em>examples&lt;/em>/}&lt;/li>
+&lt;/ul>
+&lt;h2 id="extension">拡張機能 (proto2 のみ)&lt;/h2>
+&lt;p>拡張範囲を持つメッセージがある場合:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">extensions&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">100&lt;/span> &lt;span style="color:#204a87;font-weight:bold">to&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">199&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>プロトコルバッファコンパイラは、&lt;code>FooKt.Dsl&lt;/code> に次のメソッドを追加します:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>operator fun &amp;lt;T&amp;gt; get(extension: ExtensionLite&amp;lt;Foo, T&amp;gt;): T&lt;/code>: DSL 内の拡張フィールドの現在の値を取得します&lt;/li>
+&lt;li>&lt;code>operator fun &amp;lt;T&amp;gt; get(extension: ExtensionLite&amp;lt;Foo, List&amp;lt;T&amp;gt;&amp;gt;): ExtensionList&amp;lt;T, Foo&amp;gt;&lt;/code>: DSL 内の繰り返し拡張フィールドの現在の値を読み取り専用の &lt;code>List&lt;/code> として取得します&lt;/li>
+&lt;li>&lt;code>operator fun &amp;lt;T : Comparable&amp;lt;T&amp;gt;&amp;gt; set(extension: ExtensionLite&amp;lt;Foo, T&amp;gt;)&lt;/code>: DSL 内の拡張フィールドの現在の値を設定します（&lt;code>Comparable&lt;/code> フィールドタイプ用）&lt;/li>
+&lt;li>&lt;code>operator fun &amp;lt;T : MessageLite&amp;gt; set(extension: ExtensionLite&amp;lt;Foo, T&amp;gt;)&lt;/code>: DSL 内の拡張フィールドの現在の値を設定します（メッセージフィールドタイプ用）&lt;/li>
+&lt;li>&lt;code>operator fun set(extension: ExtensionLite&amp;lt;Foo, ByteString&amp;gt;)&lt;/code>: DSL 内の拡張フィールドの現在の値を設定します（&lt;code>bytes&lt;/code> フィールド用）&lt;/li>
+&lt;li>&lt;code>operator fun contains(extension: ExtensionLite&amp;lt;Foo, *&amp;gt;): Boolean&lt;/code>: 拡張フィールドに値がある場合は &lt;code>true&lt;/code> を返します&lt;/li>
+&lt;li>&lt;code>fun clear(extension: ExtensionLite&amp;lt;Foo, *&amp;gt;)&lt;/code>: 拡張フィールドをクリアします&lt;/li>
+&lt;li>&lt;code>fun &amp;lt;E&amp;gt; ExtensionList&amp;lt;Foo, E&amp;gt;.add(value: E)&lt;/code>: 繰り返し拡張フィールドに値を追加します&lt;/li>
+&lt;li>&lt;code>operator fun &amp;lt;E&amp;gt; ExtensionList&amp;lt;Foo, E&amp;gt;.plusAssign(value: E)&lt;/code>: 演算子構文を使用した &lt;code>add&lt;/code> のエイリアス&lt;/li>
+&lt;li>&lt;code>operator fun &amp;lt;E&amp;gt; ExtensionList&amp;lt;Foo, E&amp;gt;.addAll(values: Iterable&amp;lt;E&amp;gt;)&lt;/code>: 複数の値を繰り返し拡張フィールドに追加します&lt;/li>
+&lt;li>&lt;code>operator fun &amp;lt;E&amp;gt; ExtensionList&amp;lt;Foo, E&amp;gt;.plusAssign(values: Iterable&amp;lt;E&amp;gt;)&lt;/code>: 演算子構文を使用した &lt;code>addAll&lt;/code> のエイリアス&lt;/li>
+&lt;li>&lt;code>operator fun &amp;lt;E&amp;gt; ExtensionList&amp;lt;Foo, E&amp;gt;.set(index: Int, value: E)&lt;/code>: 指定されたインデックスの繰り返し拡張フィールドの要素を設定します&lt;/li>
+&lt;li>&lt;code>inline fun ExtensionList&amp;lt;Foo, *&amp;gt;.clear()&lt;/code>: 繰り返し拡張フィールドの要素をクリアします{/&lt;em>examples&lt;/em>/}&lt;/li>
+&lt;/ul>
+&lt;p>ジェネリックスはここでは複雑ですが、&lt;code>this[extension] = value&lt;/code> の効果は、繰り返し拡張を除くすべての拡張タイプに対して機能します。繰り返し拡張は「自然な」リスト構文を持ち、&lt;a href="#repeated">非拡張繰り返しフィールド&lt;/a> と同様に機能します。&lt;/p>
+&lt;p>拡張の定義が与えられた場合：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">extend&lt;/span> &lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">bar&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">123&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Java は「拡張識別子」&lt;code>bar&lt;/code> を生成し、これが上記の拡張操作の「キー」として使用されます。&lt;/p></description></item></channel></rss>

@@ -1,0 +1,1213 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Protocol Buffers Documentation – プログラミングガイド</title><link>https://protobuf.dev/ja/programming-guides/</link><description>Recent content in プログラミングガイド on Protocol Buffers Documentation</description><generator>Hugo -- gohugo.io</generator><language>ja</language><atom:link href="https://protobuf.dev/ja/programming-guides/index.xml" rel="self" type="application/rss+xml"/><item><title>Programming-Guides:</title><link>https://protobuf.dev/ja/programming-guides/dos-donts/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/programming-guides/dos-donts/</guid><description>
+&lt;p>Clients and servers are never updated at exactly the same time - even when you try to update them at the same time. One or the other may get rolled back. Don’t assume that you can make a breaking change and it&amp;rsquo;ll be okay because the client and server are in sync.&lt;/p>
+&lt;p>&lt;a id="dont-re-use-a-tag-number">&lt;/a>&lt;/p>
+&lt;h2 id="reuse-number">&lt;strong>Don&amp;rsquo;t&lt;/strong> Re-use a Tag Number&lt;/h2>
+&lt;p>Never re-use a tag number. It messes up deserialization. Even if you think no one is using the field, don’t re-use a tag number. If the change was live ever, there could be serialized versions of your proto in a log somewhere. Or there could be old code in another server that will break.&lt;/p>
+&lt;p>&lt;a id="do-reserve-tag-numbers-for-deleted-fields">&lt;/a>&lt;/p>
+&lt;h2 id="reserve-tag-numbers">&lt;strong>Do&lt;/strong> Reserve Tag Numbers for Deleted Fields&lt;/h2>
+&lt;p>When you delete a field that&amp;rsquo;s no longer used, reserve its tag number so that no one accidentally re-uses it in the future. Just &lt;code>reserved 2, 3;&lt;/code> is enough. No type required (lets you trim dependencies!). You can also reserve names to avoid recycling now-deleted field names: &lt;code>reserved &amp;quot;foo&amp;quot;, &amp;quot;bar&amp;quot;;&lt;/code>.&lt;/p>
+&lt;p>&lt;a id="do-reserve-numbers-for-deleted-enum-values">&lt;/a>&lt;/p>
+&lt;h2 id="reserve-deleted-numbers">&lt;strong>Do&lt;/strong> Reserve Numbers for Deleted Enum Values&lt;/h2>
+&lt;p>When you delete an enum value that&amp;rsquo;s no longer used, reserve its number so that no one accidentally re-uses it in the future. Just &lt;code>reserved 2, 3;&lt;/code> is enough. You can also reserve names to avoid recycling now-deleted value names: &lt;code>reserved &amp;quot;FOO&amp;quot;, &amp;quot;BAR&amp;quot;;&lt;/code>.&lt;/p>
+&lt;p>&lt;a id="dont-change-the-type-of-a-field">&lt;/a>&lt;/p>
+&lt;h2 id="change-type">&lt;strong>Don&amp;rsquo;t&lt;/strong> Change the Type of a Field&lt;/h2>
+&lt;p>Almost never change the type of a field; it&amp;rsquo;ll mess up deserialization, same as re-using a tag number. The &lt;a href="https://protobuf.dev/programming-guides/proto2#updating">protobuf docs&lt;/a> outline a small number of cases that are okay (for example, going between &lt;code>int32&lt;/code>, &lt;code>uint32&lt;/code>, &lt;code>int64&lt;/code> and &lt;code>bool&lt;/code>). However, changing a field’s message type &lt;strong>will break&lt;/strong> unless the new message is a superset of the old one.&lt;/p>
+&lt;p>&lt;a id="dont-add-a-required-field">&lt;/a>&lt;/p>
+&lt;h2 id="add-required">必須フィールドを追加しない&lt;/h2>
+&lt;p>必須フィールドを追加しないでください。代わりに、APIの契約を文書化するために &lt;code>// required&lt;/code> を追加してください。必須フィールドは、多くの人々にとって有害と見なされ、proto3から完全に削除されました。すべてのフィールドをオプションまたは繰り返し可能にしてください。メッセージタイプがどれだけ長持ちするか、将来的に必須ではなくなったときに誰かが必須フィールドに空の文字列やゼロを入力することが強制されるかどうかはわかりませんが、protoはそれが必要であるとまだ言っているかもしれません。&lt;/p>
+&lt;p>proto3では &lt;code>required&lt;/code> フィールドは存在しないため、このアドバイスは適用されません。&lt;/p>
+&lt;p>&lt;a id="dont-make-a-message-with-lots-of-fields">&lt;/a>&lt;/p>
+&lt;h2 id="lots-of-fields">多くのフィールドを持つメッセージを作成しない&lt;/h2>
+&lt;p>“多く”（数百と考えてください）のフィールドを持つメッセージを作成しないでください。C++では、各フィールドがメモリ内オブジェクトサイズに約65ビットを追加します。それが設定されているかどうかに関わらず（ポインタ用の8バイトと、フィールドがオプションとして宣言されている場合は、フィールドが設定されているかどうかを追跡するビットフィールド内の別のビット）。protoが大きくなりすぎると、生成されたコードがコンパイルできなくなるかもしれません（たとえば、Javaではメソッドのサイズには厳しい制限があります）。&lt;/p>
+&lt;p>&lt;a id="do-include-an-unspecified-value-in-an-enum">&lt;/a>&lt;/p>
+&lt;h2 id="unspecified-enum">Enumに未指定の値を含める&lt;/h2>
+&lt;p>Enumには、宣言の最初の値としてデフォルトの &lt;code>FOO_UNSPECIFIED&lt;/code> 値を含めるべきです。proto2のenumに新しい値が追加されると、古いクライアントはフィールドを未設定として見て、getterはデフォルト値またはデフォルトが存在しない場合は最初に宣言された値を返します。一貫した動作をするために、[proto enums][proto-enums]と同様に、最初に宣言されたenum値はデフォルトの &lt;code>FOO_UNSPECIFIED&lt;/code> 値であるべきであり、タグ0を使用するべきです。このデフォルト値を意味のある値として宣言することは誘惑されるかもしれませんが、一般的なルールとして、新しいenum値が時間とともに追加されるプロトコルの進化を助けるために、しないでください。コンテナメッセージの下に宣言されたすべてのenum値は同じC++名前空間にありますので、コンパイルエラーを回避するために、未指定の値をenumの名前で接頭辞付けてください。クロス言語の定数が必要ない場合、&lt;code>int32&lt;/code> は未知の値を保持し、コードを少なく生成します。[proto enums][proto-enums]は最初の値をゼロにする必要があり、未知のenum値をラウンドトリップ（逆シリアル化、シリアル化）できます。&lt;/p>
+&lt;h2 id="macro-constants">&lt;strong>C/C++ マクロ定数を列挙型の値として使用しない&lt;/strong>&lt;/h2>
+&lt;p>C++ 言語で既に定義されている単語を使用することは避けてください。特に、&lt;code>math.h&lt;/code> などのヘッダーで定義されている単語を使用すると、&lt;code>.proto.h&lt;/code> の &lt;code>#include&lt;/code> ステートメントがそのヘッダーの前に現れる場合、コンパイルエラーが発生する可能性があります。&lt;code>NULL&lt;/code>、&lt;code>NAN&lt;/code>、&lt;code>DOMAIN&lt;/code> などのマクロ定数を列挙型の値として使用しないようにしてください。&lt;/p>
+&lt;p>{/&lt;em>examples&lt;/em>/}&lt;/p>
+&lt;h2 id="well-known-common">&lt;strong>Well-Known Types および Common Types を使用する&lt;/strong>&lt;/h2>
+&lt;p>以下の共通の型を使用することを強くお勧めします。たとえば、既存の共通の型がすでに存在する場合、&lt;code>int32 timestamp_seconds_since_epoch&lt;/code> や &lt;code>int64 timeout_millis&lt;/code> をコード内で使用しないでください。&lt;/p>
+&lt;p>{/&lt;em>examples&lt;/em>/}&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/protocolbuffers/protobuf/blob/main/src/google/protobuf/duration.proto">&lt;code>duration&lt;/code>&lt;/a>
+は、符号付きの固定長時間スパンです（たとえば、42秒）。&lt;/li>
+&lt;li>&lt;a href="https://github.com/protocolbuffers/protobuf/blob/main/src/google/protobuf/timestamp.proto">&lt;code>timestamp&lt;/code>&lt;/a>
+は、任意のタイムゾーンやカレンダーに依存しない時点を表します（たとえば、2017-01-15T01:30:15.01Z）。&lt;/li>
+&lt;li>&lt;a href="https://github.com/googleapis/googleapis/blob/master/google/type/interval.proto">&lt;code>interval&lt;/code>&lt;/a>
+は、タイムゾーンやカレンダーに依存しない時間間隔を表します（たとえば、2017-01-15T01:30:15.01Z - 2017-01-16T02:30:15.01Z）。&lt;/li>
+&lt;li>&lt;a href="https://github.com/googleapis/googleapis/blob/master/google/type/date.proto">&lt;code>date&lt;/code>&lt;/a>
+は、完全なカレンダー日付を表します（たとえば、2005-09-19）。&lt;/li>
+&lt;li>&lt;a href="https://github.com/googleapis/googleapis/blob/master/google/type/month.proto">&lt;code>month&lt;/code>&lt;/a>
+は、年の月を表します（たとえば、April）。&lt;/li>
+&lt;li>&lt;a href="https://github.com/googleapis/googleapis/blob/master/google/type/dayofweek.proto">&lt;code>dayofweek&lt;/code>&lt;/a>
+は、曜日を表します（たとえば、Monday）。&lt;/li>
+&lt;li>&lt;a href="https://github.com/googleapis/googleapis/blob/master/google/type/timeofday.proto">&lt;code>timeofday&lt;/code>&lt;/a>
+は、1日の中の時刻を表します（たとえば、10:42:23）。&lt;/li>
+&lt;li>&lt;a href="https://github.com/protocolbuffers/protobuf/blob/main/src/google/protobuf/field_mask.proto">&lt;code>field_mask&lt;/code>&lt;/a>
+は、象徴的なフィールドパスのセットを表します（たとえば、f.b.d）。&lt;/li>
+&lt;li>&lt;a href="https://github.com/googleapis/googleapis/blob/master/google/type/postal_address.proto">&lt;code>postal_address&lt;/code>&lt;/a>
+は、郵便住所を表します（たとえば、1600 Amphitheatre Parkway Mountain View, CA 94043 USA）。&lt;/li>
+&lt;li>&lt;a href="https://github.com/googleapis/googleapis/blob/master/google/type/money.proto">&lt;code>money&lt;/code>&lt;/a>
+は、通貨タイプ付きの金額を表します（たとえば、42 USD）。&lt;/li>
+&lt;li>&lt;a href="https://github.com/googleapis/googleapis/blob/master/google/type/latlng.proto">&lt;code>latlng&lt;/code>&lt;/a>
+は、緯度/経度のペアを表します（たとえば、緯度 37.386051、経度 -122.083855）。&lt;/li>
+&lt;li>&lt;a href="https://github.com/googleapis/googleapis/blob/master/google/type/color.proto">&lt;code>color&lt;/code>&lt;/a>
+は、RGBA 色空間の色を表します。&lt;/li>
+&lt;/ul>
+&lt;h2 id="separate-files">&lt;strong>Do&lt;/strong> 別ファイルに広く使用されるメッセージタイプを定義する&lt;/h2>
+&lt;p>自分のチーム外で広く使用されることを期待/恐れ/予想しているメッセージタイプや列挙型を定義している場合は、依存関係のない独自のファイルに配置することを検討してください。そのようなタイプを使用することが誰にとっても簡単になり、他の proto ファイルに移行依存関係を導入することなく使用できます。&lt;/p>
+&lt;h2 id="change-default-value">&lt;strong>Don&amp;rsquo;t&lt;/strong> フィールドのデフォルト値を変更しない&lt;/h2>
+&lt;p>ほとんどの場合、proto フィールドのデフォルト値を変更しないでください。これにより、クライアントとサーバー間でバージョンの不一致が発生します。設定されていない値を読み取るクライアントは、ビルドが proto の変更をまたいでいる場合、サーバーが同じ設定されていない値を読み取るときとは異なる結果を見ることになります。Proto3 では、デフォルト値の設定が削除されました。&lt;/p>
+&lt;h2 id="repeated-to-scalar">&lt;strong>Don&amp;rsquo;t&lt;/strong> Repeated から Scalar に変更しない&lt;/h2>
+&lt;p>クラッシュを引き起こすことはありませんが、データが失われます。JSON の場合、繰り返しの不一致は&lt;em>メッセージ全体&lt;/em>を失います。数値の proto3 フィールドと proto2 の &lt;code>packed&lt;/code> フィールドでは、繰り返しからスカラーに移行すると、その&lt;em>フィールド&lt;/em>内のすべてのデータが失われます。数値以外の proto3 フィールドと注釈のない proto2 フィールドでは、繰り返しからスカラーに移行すると、最後に逆シリアル化された値が「勝利」します。&lt;/p>
+&lt;p>proto2 では、スカラーから繰り返しに移行することは可能であり、proto3 では &lt;code>[packed=false]&lt;/code> を使用すると、バイナリシリアル化の場合、スカラー値が1要素のリストになります。&lt;/p>
+&lt;h2 id="follow-style-guide">&lt;strong>Do&lt;/strong> 生成されたコードのスタイルガイドに従う&lt;/h2>
+&lt;p>Proto 生成されたコードは通常のコードで参照されます。&lt;code>.proto&lt;/code> ファイルのオプションがスタイルガイドに違反するコードの生成につながらないようにしてください。
+例:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;code>java_outer_classname&lt;/code> は以下に従うべきです:
+&lt;a href="https://google.github.io/styleguide/javaguide.html#s5.2.2-class-names">https://google.github.io/styleguide/javaguide.html#s5.2.2-class-names&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>java_package&lt;/code> と &lt;code>java_alt_package&lt;/code> は以下に従うべきです:
+&lt;a href="https://google.github.io/styleguide/javaguide.html#s5.2.1-package-names">https://google.github.io/styleguide/javaguide.html#s5.2.1-package-names&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>package&lt;/code> は、&lt;code>java_package&lt;/code> が存在しない場合に Java で使用されますが、常に C++ の名前空間に直接対応し、したがって &lt;a href="https://google.github.io/styleguide/cppguide.html#Namespace_Names">https://google.github.io/styleguide/cppguide.html#Namespace_Names&lt;/a> に従う必要があります。これらのスタイルガイドが競合する場合は、Java では &lt;code>java_package&lt;/code> を使用してください。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>ruby_package&lt;/code> は &lt;code>Foo::Bar::Baz&lt;/code> の形式であるべきであり、&lt;code>Foo.Bar.Baz&lt;/code> ではないべきです。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;a id="never-use-text-format-messages-for-interchange">&lt;/a>&lt;/p>
+&lt;h2 id="text-format-interchange">&lt;strong>交換用に&lt;/strong> テキスト形式メッセージを使用しない&lt;/h2>
+&lt;p>テキスト形式や JSON のようなテキストベースのシリアライゼーション形式は、フィールドや列挙型の値を文字列として表現します。その結果、古いコードを使用してこれらの形式でプロトコルバッファを逆シリアライズすると、フィールドや列挙型の値が名前変更された場合や新しいフィールドや列挙型の値や拡張が追加された場合に失敗します。データの交換には可能な限りバイナリシリアライゼーションを使用し、テキスト形式は人間による編集とデバッグにのみ使用してください。&lt;/p>
+&lt;p>API やデータの保存に JSON に変換された proto を使用している場合、フィールドや列挙型の名前を安全に変更できないかもしれません。&lt;/p>
+&lt;p>&lt;a id="never-rely-on-serialization-stability-across-builds">&lt;/a>&lt;/p>
+&lt;h2 id="serialization-stability">&lt;strong>決して&lt;/strong> ビルド間でのシリアライゼーションの安定性に依存しない&lt;/h2>
+&lt;p>プロトシリアライゼーションの安定性は、バイナリ間または同じバイナリのビルド間で保証されていません。たとえば、キャッシュキーを構築する場合などにそれに依存しないでください。&lt;/p>
+&lt;p>&lt;a id="dont-generate-java-protos-in-the-same-java-package-as-other-code">&lt;/a>&lt;/p>
+&lt;h2 id="generate-java-protos">同じ Java パッケージ内に Java Protos を生成しないでください&lt;/h2>
+&lt;p>手書きの Java ソースとは別のパッケージに Java プロトソースを生成してください。&lt;code>package&lt;/code>、&lt;code>java_package&lt;/code>、&lt;code>java_alt_api_package&lt;/code> オプションは、&lt;a href="https://protobuf.dev/reference/java/java-generated#package">生成された Java ソースが出力される場所&lt;/a>を制御します。手書きの Java ソースコードが同じパッケージに存在しないようにしてください。一般的な慣習として、プロジェクト内の &lt;code>proto&lt;/code> サブパッケージにのみそれらの proto を生成することです（つまり、手書きのソースコードは含まれません）。&lt;/p>
+&lt;h2 id="avoid-keywords">フィールド名に言語キーワードを使用しないでください&lt;/h2>
+&lt;p>もしメッセージ、フィールド、列挙型、または列挙型の値の名前が、そのフィールドから読み取り/書き込みを行う言語のキーワードである場合、protobufはフィールド名を変更し、通常のフィールドとは異なるアクセス方法を持つ可能性があります。例えば、&lt;a href="https://protobuf.dev/reference/python/python-generated#keyword-conflicts">Pythonに関するこの警告&lt;/a>を参照してください。&lt;/p>
+&lt;p>また、ファイルパスにキーワードを使用することも避けるべきです。これも問題を引き起こす可能性があります。&lt;/p>
+&lt;h2 id="appendix">付録&lt;/h2>
+&lt;h3 id="api-best-practices">API ベストプラクティス&lt;/h3>
+&lt;p>この文書では、壊れやすい変更のみをリストしています。柔軟に成長する proto API を作成する方法に関する高レベルのガイダンスについては、&lt;a href="https://protobuf.dev/programming-guides/api">API ベストプラクティス&lt;/a>を参照してください。&lt;/p></description></item><item><title>Programming-Guides:</title><link>https://protobuf.dev/ja/programming-guides/encoding/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/programming-guides/encoding/</guid><description>
+&lt;p>このドキュメントでは、プロトコルバッファの&lt;em>ワイヤーフォーマット&lt;/em>について説明します。これは、メッセージがワイヤー上で送信される方法やディスク上でどれだけのスペースを消費するかの詳細を定義しています。アプリケーションでプロトコルバッファを使用する際には、これを理解する必要はないかもしれませんが、最適化を行う際には有用な情報です。&lt;/p>
+&lt;p>すでに概念を理解しているが、参照資料が必要な場合は、&lt;a href="#cheat-sheet">簡略化されたリファレンスカード&lt;/a>セクションにスキップしてください。&lt;/p>
+&lt;p>&lt;a href="https://github.com/protocolbuffers/protoscope">Protoscope&lt;/a>は、低レベルのワイヤーフォーマットのスニペットを記述するための非常にシンプルな言語であり、さまざまなメッセージのエンコーディングの視覚的な参照を提供するために使用されます。 Protoscopeの構文は、それぞれが特定のバイトシーケンスにエンコードされる一連の&lt;em>トークン&lt;/em>で構成されています。&lt;/p>
+&lt;p>たとえば、バッククォートは&lt;code>`70726f746f6275660a`&lt;/code>のような生の16進数リテラルを示します。これは、リテラル内の16進数で示される正確なバイトにエンコードされます。引用符はUTF-8文字列を示し、&lt;code>&amp;quot;Hello, Protobuf!&amp;quot;&lt;/code>のようなものです。このリテラルは&lt;code>`48656c6c6f2c2050726f746f62756621`&lt;/code>と同義です（これはASCIIバイトで構成されていることに注意してください）。ワイヤーフォーマットの側面について議論する際に、Protoscope言語のさらなる紹介を行います。&lt;/p>
+&lt;p>Protoscopeツールは、エンコードされたプロトコルバッファをテキストとしてダンプすることもできます。例については、https://github.com/protocolbuffers/protoscope/tree/main/testdata を参照してください。&lt;/p>
+&lt;h2 id="simple">単純なメッセージ&lt;/h2>
+&lt;p>次の非常に単純なメッセージ定義があるとします：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Test1&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">a&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>アプリケーションで、&lt;code>Test1&lt;/code>メッセージを作成し、&lt;code>a&lt;/code>を150に設定します。その後、メッセージを出力ストリームにシリアライズします。エンコードされたメッセージを調べることができた場合、3つのバイトが表示されます：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#0000cf;font-weight:bold">08&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">96&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">01&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>これまでのところ、小さくて数値的ですが、これは何を意味するのでしょうか？ Protoscopeツールを使用してこれらのバイトをダンプすると、&lt;code>1: 150&lt;/code>のようなものが表示されます。これがメッセージの内容であることをどのように知るのでしょうか？&lt;/p>
+&lt;h2 id="varints">Base 128 Varints&lt;/h2>
+&lt;p>可変幅整数、または&lt;em>varints&lt;/em>はワイヤーフォーマットの中心にあります。これにより、1から10バイトの間で符号なし64ビット整数をエンコードでき、小さな値はより少ないバイトを使用します。&lt;/p>
+&lt;p>varint内の各バイトには、その後に続くバイトがvarintの一部であるかどうかを示す&lt;em>継続ビット&lt;/em>があります。これはバイトの&lt;em>最上位ビット&lt;/em>（MSB）です（時々&lt;em>符号ビット&lt;/em>とも呼ばれます）。下位7ビットはペイロードであり、結果の整数は、構成バイトの7ビットのペイロードを連結して構築されます。&lt;/p>
+&lt;p>例えば、ここに数字1があります。 &lt;code>`01`&lt;/code>とエンコードされています&amp;ndash;これは1バイトなので、MSBは設定されていません：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#0000cf;font-weight:bold">0000&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0001&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">^&lt;/span> &lt;span style="color:#000">msb&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>そして、ここに150があります。 &lt;code>`9601`&lt;/code>とエンコードされています&amp;ndash;これはもう少し複雑です：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#0000cf;font-weight:bold">10010110&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">00000001&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">^&lt;/span> &lt;span style="color:#000">msb&lt;/span> &lt;span style="color:#a40000">^&lt;/span> &lt;span style="color:#000">msb&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>これが150であることをどのように理解しますか？まず、各バイトからMSBを削除します。これは単に数値の終わりに達したかどうかを示すために存在しているだけです（最初のバイトに設定されていることがわかります。varintに複数のバイトがあるため）。これらの7ビットのペイロードはリトルエンディアン順になっています。ビッグエンディアン順に変換し、連結して符号なし64ビット整数として解釈します：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#0000cf;font-weight:bold">10010110&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">00000001&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// Original inputs.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0010110&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0000001&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// Drop continuation bits.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0000001&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0010110&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// Convert to big-endian.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">00000010010110&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// Concatenate.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">128&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">+&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">16&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">+&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">4&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">+&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">2&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">150&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// Interpret as an unsigned 64-bit integer.
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>プロトコルバッファにとってvarintsが非常に重要であるため、プロトスコープ構文では、これらを単純な整数として参照します。 &lt;code>150&lt;/code>は &lt;code>`9601`&lt;/code>と同じです。&lt;/p>
+&lt;h2 id="structure">メッセージ構造&lt;/h2>
+&lt;p>プロトコルバッファメッセージはキーと値のペアのシリーズです。メッセージのバイナリバージョンでは、各フィールドの番号がキーとして使用されます&amp;ndash;各フィールドの名前と宣言されたタイプは、デコーディングエンドでのみ、メッセージタイプの定義（つまり&lt;code>.proto&lt;/code>ファイル）を参照することで決定できます。プロトスコープはこの情報にアクセスできないため、フィールド番号のみを提供できます。&lt;/p>
+&lt;p>メッセージがエンコードされると、各キーと値のペアは、フィールド番号、ワイヤータイプ、およびペイロードから構成される&lt;em>レコード&lt;/em>に変換されます。ワイヤータイプは、その後に続くペイロードの大きさをパーサーに伝えます。これにより、古いパーサーが理解できない新しいフィールドをスキップできます。このタイプのスキームは、&lt;a href="https://en.wikipedia.org/wiki/Type%E2%80%93length%E2%80%93value">Tag-Length-Value&lt;/a>またはTLVと呼ばれることがあります。&lt;/p>
+&lt;p>存在するワイヤータイプは6つあります：&lt;code>VARINT&lt;/code>、&lt;code>I64&lt;/code>、&lt;code>LEN&lt;/code>、&lt;code>SGROUP&lt;/code>、&lt;code>EGROUP&lt;/code>、&lt;code>I32&lt;/code>&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>ID&lt;/th>
+&lt;th>名前&lt;/th>
+&lt;th>用途&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>0&lt;/td>
+&lt;td>VARINT&lt;/td>
+&lt;td>int32、int64、uint32、uint64、sint32、sint64、bool、enum&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>1&lt;/td>
+&lt;td>I64&lt;/td>
+&lt;td>fixed64、sfixed64、double&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>2&lt;/td>
+&lt;td>LEN&lt;/td>
+&lt;td>string、bytes、埋め込まれたメッセージ、繰り返しフィールドのパック&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>3&lt;/td>
+&lt;td>SGROUP&lt;/td>
+&lt;td>グループ開始（非推奨）&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>4&lt;/td>
+&lt;td>EGROUP&lt;/td>
+&lt;td>グループ終了（非推奨）&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>5&lt;/td>
+&lt;td>I32&lt;/td>
+&lt;td>fixed32、sfixed32、float&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>レコードの「タグ」は、フィールド番号とワイヤータイプから構成される varint としてエンコードされます。具体的には、式 &lt;code>(field_number &amp;lt;&amp;lt; 3) | wire_type&lt;/code> によって形成されます。言い換えると、フィールドを表す varint をデコードした後、下位 3 ビットがワイヤータイプを示し、整数の残りの部分がフィールド番号を示します。&lt;/p>
+&lt;p>さて、簡単な例をもう一度見てみましょう。今度は、ストリーム内の最初の数値が常に varint キーであることを知っています。ここでは、&lt;code>`08`&lt;/code> または（MSB を削除して）：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#0000cf;font-weight:bold">000&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1000&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>最後の 3 ビットを取得してワイヤータイプ（0）を取得し、その後 3 ビット右にシフトしてフィールド番号（1）を取得します。Protoscope では、タグを整数に続いてコロンとワイヤータイプで表現します。したがって、上記のバイトを &lt;code>1:VARINT&lt;/code> と書くことができます。&lt;/p>
+&lt;p>ワイヤータイプが 0 または &lt;code>VARINT&lt;/code> であるため、ペイロードを取得するために varint をデコードする必要があることがわかります。上記で見たように、バイト &lt;code>`9601`&lt;/code> は varint デコードして 150 になり、私たちのレコードを取得します。Protoscope では、&lt;code>1:VARINT 150&lt;/code> として書くことができます。&lt;/p>
+&lt;p>Protoscope は、&lt;code>:&lt;/code> の後に空白がある場合、タグの型を推測できます。次のトークンを先読みして、意図した内容を推測します（詳細なルールは &lt;a href="https://github.com/protocolbuffers/protoscope/blob/main/language.txt">Protoscope&amp;rsquo;s language.txt&lt;/a> に詳細に記載されています）。たとえば、&lt;code>1: 150&lt;/code> では、未型指定のタグの直後に varint があるため、Protoscope はその型を &lt;code>VARINT&lt;/code> と推測します。&lt;code>2: {}&lt;/code> を書いた場合、&lt;code>{&lt;/code> を見て &lt;code>LEN&lt;/code> と推測し、&lt;code>3: 5i32&lt;/code> を書いた場合は &lt;code>I32&lt;/code> と推測します。&lt;/p>
+&lt;h2 id="int-types">さらなる整数型&lt;/h2>
+&lt;h3 id="bools-and-enums">Bools と Enums&lt;/h3>
+&lt;p>Boolsとenumsは両方とも&lt;code>int32&lt;/code>としてエンコードされます。特にBoolsは、常に&lt;code>`00`&lt;/code>または&lt;code>`01`&lt;/code>としてエンコードされます。Protoscopeでは、&lt;code>false&lt;/code>と&lt;code>true&lt;/code>はこれらのバイト文字列のエイリアスです。&lt;/p>
+&lt;h3 id="signed-ints">符号付き整数&lt;/h3>
+&lt;p>前のセクションで見たように、ワイヤータイプ0に関連付けられたすべてのプロトコルバッファタイプはvarintsとしてエンコードされます。ただし、varintsは符号なしですので、&lt;code>sint32&lt;/code>および&lt;code>sint64&lt;/code>と&lt;code>int32&lt;/code>または&lt;code>int64&lt;/code>のような異なる符号付きタイプは、負の整数を異なる方法でエンコードします。&lt;/p>
+&lt;p>&lt;code>intN&lt;/code>タイプは、負の数を2の補数としてエンコードします。これは、符号なしの64ビット整数として、最上位ビットが設定されていることを意味します。その結果、これは&lt;em>すべての10バイト&lt;/em>を使用する必要があることを意味します。たとえば、&lt;code>-2&lt;/code>は、protoscopeによって次のように変換されます&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#0000cf;font-weight:bold">11111110&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">11111111&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">11111111&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">11111111&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">11111111&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">11111111&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">11111111&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">11111111&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">11111111&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">00000001&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>これは、2の&lt;em>2の補数&lt;/em>であり、符号なし算術で定義される&lt;code>~0 - 2 + 1&lt;/code>であり、&lt;code>~0&lt;/code>がすべて1の64ビット整数であることを意味します。これがなぜこれほど多くの1を生成するのかを理解するのは有益な練習です。&lt;/p>
+&lt;!-- mdformat off(アスタリスクは箇条書きを引き起こす) -->
+&lt;p>&lt;code>sintN&lt;/code>は、負の整数をエンコードするために2の補数の代わりに「ZigZag」エンコーディングを使用します。正の整数&lt;code>p&lt;/code>は&lt;code>2 * p&lt;/code>（偶数）としてエンコードされ、負の整数&lt;code>n&lt;/code>は&lt;code>2 * |n| - 1&lt;/code>（奇数）としてエンコードされます。このエンコーディングは、正の数と負の数の間を「ジグザグ」します。たとえば：&lt;/p>
+&lt;!-- mdformat on -->
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>符号つき元の数&lt;/th>
+&lt;th>エンコードされた値&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>0&lt;/td>
+&lt;td>0&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-1&lt;/td>
+&lt;td>1&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>1&lt;/td>
+&lt;td>2&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-2&lt;/td>
+&lt;td>3&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&amp;hellip;&lt;/td>
+&lt;td>&amp;hellip;&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>0x7fffffff&lt;/td>
+&lt;td>0xfffffffe&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>-0x80000000&lt;/td>
+&lt;td>0xffffffff&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>つまり、各値&lt;code>n&lt;/code>は次のようにエンコードされます&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>(n &amp;lt;&amp;lt; 1) ^ (n &amp;gt;&amp;gt; 31)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>sint32&lt;/code>の場合、または&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>(n &amp;lt;&amp;lt; 1) ^ (n &amp;gt;&amp;gt; 63)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>64ビットバージョンの場合。&lt;/p>
+&lt;p>&lt;code>sint32&lt;/code>または&lt;code>sint64&lt;/code>が解析されると、その値は元の符号付きバージョンにデコードされます。&lt;/p>
+&lt;p>protoscopeでは、整数に&lt;code>z&lt;/code>を付けるとZigZagとしてエンコードされます。たとえば、&lt;code>-500z&lt;/code>はvarint &lt;code>999&lt;/code>と同じです。&lt;/p>
+&lt;h3 id="non-varints">非可変長数値&lt;/h3>
+&lt;p>非可変長数値型はシンプルです。&lt;code>double&lt;/code> と &lt;code>fixed64&lt;/code> はワイヤータイプ &lt;code>I64&lt;/code> を持ち、これはパーサーに固定の8バイトのデータを期待することを伝えます。&lt;code>double&lt;/code> レコードは &lt;code>5: 25.4&lt;/code> と書くことで指定できますし、&lt;code>fixed64&lt;/code> レコードは &lt;code>6: 200i64&lt;/code> と書くことで指定できます。どちらの場合も、明示的なワイヤータイプを省略すると &lt;code>I64&lt;/code> ワイヤータイプが適用されます。&lt;/p>
+&lt;p>同様に、&lt;code>float&lt;/code> と &lt;code>fixed32&lt;/code> はワイヤータイプ &lt;code>I32&lt;/code> を持ち、4バイトのデータを期待することを示します。これらの構文は &lt;code>i32&lt;/code> 接頭辞を追加することで表されます。&lt;code>25.4i32&lt;/code> は4バイトを生成し、&lt;code>200i32&lt;/code> も同様です。タグのタイプは &lt;code>I32&lt;/code> と推論されます。&lt;/p>
+&lt;h2 id="length-types">長さ指定レコード&lt;/h2>
+&lt;p>&lt;em>長さプレフィックス&lt;/em> はワイヤーフォーマットにおけるもう一つの重要な概念です。&lt;code>LEN&lt;/code> ワイヤータイプは、タグの直後に即座に指定される可変長の長さを持ち、通常のペイロードが続きます。&lt;/p>
+&lt;p>次のメッセージスキーマを考えてみましょう：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Test2&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#204a87;font-weight:bold">string&lt;/span> &lt;span style="color:#000">b&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">2&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>フィールド &lt;code>b&lt;/code> のレコードは文字列であり、文字列は &lt;code>LEN&lt;/code> でエンコードされます。もし &lt;code>b&lt;/code> を &lt;code>&amp;quot;testing&amp;quot;&lt;/code> に設定した場合、ASCII文字列 &lt;code>&amp;quot;testing&amp;quot;&lt;/code> を含むフィールド番号2の &lt;code>LEN&lt;/code> レコードとしてエンコードされます。結果は &lt;code>`120774657374696e67`&lt;/code> です。バイトを分割すると、&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#0000cf;font-weight:bold">12&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">07&lt;/span> &lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">74&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">65&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">73&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">74&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">69&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">6&lt;/span>&lt;span style="color:#000">e&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">67&lt;/span>&lt;span style="color:#000;font-weight:bold">]&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>タグである &lt;code>`12`&lt;/code> は &lt;code>00010 010&lt;/code> または &lt;code>2:LEN&lt;/code> を表し、その後に続くバイトは int32 の可変長 &lt;code>7&lt;/code> であり、次の7バイトは &lt;code>&amp;quot;testing&amp;quot;&lt;/code> の UTF-8 エンコーディングです。int32 の可変長は、文字列の最大長さが2GBであることを意味します。&lt;/p>
+&lt;p>Protoscopeでは、これは &lt;code>2:LEN 7 &amp;quot;testing&amp;quot;&lt;/code> と書かれます。しかし、文字列の長さを繰り返すのは不便かもしれません（Protoscopeテキストでは既に引用符で囲まれています）。Protoscopeコンテンツを中括弧で囲むと、それに対して長さプレフィックスが生成されます：&lt;code>{&amp;quot;testing&amp;quot;}&lt;/code> は &lt;code>7 &amp;quot;testing&amp;quot;&lt;/code> の省略形です。&lt;code>{}&lt;/code> は常にフィールドによって &lt;code>LEN&lt;/code> レコードと推論されるため、このレコードは単純に &lt;code>2: {&amp;quot;testing&amp;quot;}&lt;/code> と書くことができます。&lt;/p>
+&lt;p>&lt;code>bytes&lt;/code> フィールドも同様にエンコードされます。&lt;/p>
+&lt;h3 id="embedded">サブメッセージ&lt;/h3>
+&lt;p>サブメッセージフィールドも &lt;code>LEN&lt;/code> ワイヤータイプを使用します。以下は、元の例メッセージ &lt;code>Test1&lt;/code> の埋め込まれたメッセージを持つメッセージ定義です：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Test3&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#000">Test1&lt;/span> &lt;span style="color:#000">c&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">3&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>もし &lt;code>Test1&lt;/code> の &lt;code>a&lt;/code> フィールド（つまり、&lt;code>Test3&lt;/code> の &lt;code>c.a&lt;/code> フィールド）が 150 に設定されている場合、我々は &lt;code>1a03089601&lt;/code> を得ます。分解すると：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000">a&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">03&lt;/span> &lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">08&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">96&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">01&lt;/span>&lt;span style="color:#000;font-weight:bold">]&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>最後の3バイト（&lt;code>[]&lt;/code> 内）は、まさに私たちの&lt;a href="#simple">最初の例&lt;/a>からのものです。これらのバイトは &lt;code>LEN&lt;/code> 型のタグに続き、長さ3、まさに文字列がエンコードされる方法と同じです。&lt;/p>
+&lt;p>Protoscope では、サブメッセージは非常に簡潔です。&lt;code>1a03089601&lt;/code> は &lt;code>3: {1: 150}&lt;/code> と書くことができます。&lt;/p>
+&lt;h2 id="optional">Optional and Repeated Elements&lt;/h2>
+&lt;p>欠落している &lt;code>optional&lt;/code> フィールドは簡単にエンコードできます：存在しない場合はレコードを省略します。これは、わずかなフィールドが設定された「巨大な」プロトはかなり疎です。&lt;/p>
+&lt;p>&lt;code>repeated&lt;/code> フィールドは少し複雑です。通常の（&lt;a href="#packed">packed&lt;/a>でない）repeated フィールドは、フィールドの各要素ごとに1つのレコードを発行します。したがって、次のような場合、&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Test4&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#204a87;font-weight:bold">string&lt;/span> &lt;span style="color:#000">d&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">4&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">repeated&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">e&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">5&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>d&lt;/code> が &lt;code>&amp;quot;hello&amp;quot;&lt;/code> に設定され、&lt;code>e&lt;/code> が &lt;code>1&lt;/code>、&lt;code>2&lt;/code>、&lt;code>3&lt;/code> に設定された &lt;code>Test4&lt;/code> メッセージを構築すると、これは &lt;code>`220568656c6c6f280128022803`&lt;/code> としてエンコードされるか、Protoscope で書かれるかもしれません。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#0000cf;font-weight:bold">4&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#4e9a06">&amp;#34;hello&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">5&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">5&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">2&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">5&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">3&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>ただし、&lt;code>e&lt;/code> のレコードは連続して表示する必要はなく、他のフィールドと交互に配置することができます。同じフィールドのレコード同士の順序だけが保持されます。したがって、これは次のようにエンコードされる可能性があります&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#0000cf;font-weight:bold">5&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">5&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">2&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">4&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#4e9a06">&amp;#34;hello&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">5&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">3&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="oneofs">Oneofs&lt;/h3>
+&lt;p>&lt;a href="https://protobuf.dev/programming-guides/proto2#oneof">&lt;code>Oneof&lt;/code> フィールド&lt;/a> は、&lt;code>oneof&lt;/code> 内のフィールドであるかのようにエンコードされます。&lt;code>oneof&lt;/code> に適用されるルールは、ワイヤ上でどのように表現されているかには独立して適用されます。&lt;/p>
+&lt;h3 id="last-one-wins">Last One Wins&lt;/h3>
+&lt;p>通常、エンコードされたメッセージには非 &lt;code>repeated&lt;/code> フィールドの複数のインスタンスが含まれることはありません。ただし、パーサーはそれが含まれる場合に対処することが期待されています。数値型と文字列の場合、同じフィールドが複数回現れる場合、パーサーは見た&lt;em>最後の&lt;/em>値を受け入れます。埋め込みメッセージフィールドの場合、パーサーは同じフィールドの複数のインスタンスをマージします。これらのルールの効果は、2つのエンコードされたメッセージの連結を解析すると、2つのメッセージを別々に解析して生成されたオブジェクトをマージしたかのような結果が得られることです。つまり、これは:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">MyMessage&lt;/span> &lt;span style="color:#000">message&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">message&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">ParseFromString&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">str1&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">+&lt;/span> &lt;span style="color:#000">str2&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>は、次のように等価です：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">MyMessage&lt;/span> &lt;span style="color:#000">message&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">message2&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">message&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">ParseFromString&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">str1&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">message2&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">ParseFromString&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">str2&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">message&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">MergeFrom&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">message2&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>このプロパティは時折便利であり、タイプがわからなくても2つのメッセージを（連結して）マージできるようにします。&lt;/p>
+&lt;h3 id="packed">パックされた繰り返しフィールド&lt;/h3>
+&lt;p>v2.1.0から、プリミティブ型の &lt;code>repeated&lt;/code> フィールド（&lt;code>string&lt;/code> または &lt;code>bytes&lt;/code> でない任意の&lt;a href="https://protobuf.dev/programming-guides/proto2#scalar">スカラー型&lt;/a>）を「パックされた」状態で宣言できます。proto2 では、これはフィールドオプション &lt;code>[packed=true]&lt;/code> を使用して行われます。proto3 ではデフォルトです。&lt;/p>
+&lt;p>1つのエントリごとに1つのレコードとしてエンコードされる代わりに、それらは各要素が連結された単一の &lt;code>LEN&lt;/code> レコードとしてエンコードされます。デコードする際は、要素が &lt;code>LEN&lt;/code> レコードから1つずつデコードされ、ペイロードが尽きるまで続きます。次の要素の開始位置は、前の要素の長さによって決定され、それ自体はフィールドのタイプに依存します。&lt;/p>
+&lt;p>例えば、次のメッセージ型があるとします：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Test5&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">repeated&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">f&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">6&lt;/span> &lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#204a87;font-weight:bold">packed&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#204a87;font-weight:bold">true&lt;/span>&lt;span style="color:#000;font-weight:bold">];&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>今、&lt;code>Test5&lt;/code> を構築し、繰り返しフィールド &lt;code>f&lt;/code> に値 3、270、86942 を提供したとします。エンコードすると、&lt;code>`3206038e029ea705`&lt;/code> となり、Protoscope テキストでは次のようになります：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#0000cf;font-weight:bold">6&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">3&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">270&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">86942&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>「パックされた」状態にできるのは、プリミティブ数値型の繰り返しフィールドのみです。これらは通常、&lt;code>VARINT&lt;/code>、&lt;code>I32&lt;/code>、または &lt;code>I64&lt;/code> ワイヤータイプを使用するタイプです。&lt;/p>
+&lt;p>パックされた繰り返しフィールドに複数のキーと値のペアをエンコードする理由は通常ありませんが、パーサーは複数のキーと値のペアを受け入れる準備をしている必要があります。この場合、ペイロードは連結される必要があります。各ペアは要素の整数倍を含んでいる必要があります。次は、パーサーが受け入れる必要がある同じメッセージの有効なエンコーディングです：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#0000cf;font-weight:bold">6&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">3&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">270&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">6&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">86942&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>プロトコルバッファパーサーは、&lt;code>packed&lt;/code> としてコンパイルされた繰り返しフィールドを、パックされていないかのように解析できるようにする必要があります。これにより、既存のフィールドに &lt;code>[packed=true]&lt;/code> を追加することが、前方および後方互換性のある方法で可能になります。&lt;/p>
+&lt;h3 id="maps">マップ&lt;/h3>
+&lt;p>Mapフィールドは、特別な種類の繰り返しフィールドの省略形です。以下のような場合、&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Test6&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">map&lt;/span>&lt;span style="color:#000;font-weight:bold">&amp;lt;&lt;/span>&lt;span style="color:#204a87;font-weight:bold">string&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span>&lt;span style="color:#000;font-weight:bold">&amp;gt;&lt;/span> &lt;span style="color:#000">g&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">7&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>実際には次のようになります&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Test6&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">g_Entry&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#204a87;font-weight:bold">string&lt;/span> &lt;span style="color:#000">key&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">value&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">2&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">repeated&lt;/span> &lt;span style="color:#000">g_Entry&lt;/span> &lt;span style="color:#000">g&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">7&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>したがって、マップは、2つのフィールドを持つ&lt;code>LEN&lt;/code>型のレコードのシーケンスとして、&lt;code>repeated&lt;/code>メッセージフィールドとまったく同じようにエンコードされます。&lt;/p>
+&lt;h2 id="groups">グループ&lt;/h2>
+&lt;p>グループは使用されるべきでない非推奨の機能ですが、ワイヤーフォーマットには残っており、一言で触れる価値があります。&lt;/p>
+&lt;p>グループはサブメッセージのようなものですが、&lt;code>LEN&lt;/code>プレフィックスではなく特別なタグで区切られています。メッセージ内の各グループにはフィールド番号があり、これらの特別なタグで使用されます。&lt;/p>
+&lt;p>フィールド番号&lt;code>8&lt;/code>のグループは&lt;code>8:SGROUP&lt;/code>タグで始まります。&lt;code>SGROUP&lt;/code>レコードには空のペイロードがあり、これによりグループの開始が示されます。グループ内のすべてのフィールドがリストされた後、対応する&lt;code>8:EGROUP&lt;/code>タグがその終わりを示します。&lt;code>EGROUP&lt;/code>レコードにもペイロードがないため、&lt;code>8:EGROUP&lt;/code>は完全なレコードです。グループのフィールド番号は一致する必要があります。&lt;code>8:EGROUP&lt;/code>が期待される場所で&lt;code>7:EGROUP&lt;/code>が発生した場合、メッセージは不正な形式です。&lt;/p>
+&lt;p>Protoscopeはグループを書くための便利な構文を提供します。次のように書く代わりに&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#0000cf;font-weight:bold">8&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span>&lt;span style="color:#000">SGROUP&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">2&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">3&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#4e9a06">&amp;#34;foo&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">8&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span>&lt;span style="color:#000">EGROUP&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Protoscopeでは次のように書くことができます&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#0000cf;font-weight:bold">8&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#a40000">!&lt;/span>&lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">2&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">3&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#4e9a06">&amp;#34;foo&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>これにより、適切な開始および終了グループマーカーが生成されます。&lt;code>!{}&lt;/code>構文は、&lt;code>8:&lt;/code>のような未入力のタグ式の直後にのみ発生できます。&lt;/p>
+&lt;h2 id="order">フィールドの順序&lt;/h2>
+&lt;p>フィールド番号は&lt;code>.proto&lt;/code>ファイル内で任意の順序で宣言される可能性があります。選択された順序は、メッセージがシリアライズされる方法に影響を与えません。&lt;/p>
+&lt;p>メッセージがシリアライズされるとき、既知のフィールドまたは&lt;a href="https://protobuf.dev/programming-guides/proto2#updating">未知のフィールド&lt;/a>がどのように書き込まれるかについては保証されません。シリアル化の順序は実装の詳細であり、特定の実装の詳細は将来変更される可能性があります。したがって、プロトコルバッファパーサは、フィールドを任意の順序で解析できる必要があります。&lt;/p>
+&lt;h3 id="implications">影響&lt;/h3>
+&lt;ul>
+&lt;li>シリアル化されたメッセージのバイト出力が安定しているとは限りません。これは特に、他のシリアル化されたプロトコルバッファメッセージを表すトランジティブバイトフィールドを持つメッセージの場合に当てはまります。&lt;/li>
+&lt;li>デフォルトでは、同じプロトコルバッファメッセージインスタンスに対するシリアル化メソッドの繰り返し呼び出しは、同じバイト出力を生成しない場合があります。つまり、デフォルトのシリアル化は決定論的ではありません。
+&lt;ul>
+&lt;li>決定論的シリアル化は、特定のバイナリに対して同じバイト出力を保証します。バイト出力は、バイナリの異なるバージョン間で変更する可能性があります。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>プロトコルバッファメッセージインスタンス&lt;code>foo&lt;/code>に対して次のチェックが失敗する可能性があります：
+&lt;ul>
+&lt;li>&lt;code>foo.SerializeAsString() == foo.SerializeAsString()&lt;/code>&lt;/li>
+&lt;li>&lt;code>Hash(foo.SerializeAsString()) == Hash(foo.SerializeAsString())&lt;/code>&lt;/li>
+&lt;li>&lt;code>CRC(foo.SerializeAsString()) == CRC(foo.SerializeAsString())&lt;/code>&lt;/li>
+&lt;li>&lt;code>FingerPrint(foo.SerializeAsString()) == FingerPrint(foo.SerializeAsString())&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>論理的に等価なプロトコルバッファメッセージ&lt;code>foo&lt;/code>と&lt;code>bar&lt;/code>が異なるバイト出力にシリアル化される可能性があるいくつかの例のシナリオは次のとおりです：
+&lt;ul>
+&lt;li>&lt;code>bar&lt;/code>は、一部のフィールドを未知として扱う古いサーバーによってシリアル化されています。&lt;/li>
+&lt;li>&lt;code>bar&lt;/code>は、異なるプログラミング言語で実装されたサーバーによってシリアル化され、フィールドが異なる順序でシリアル化されています。&lt;/li>
+&lt;li>&lt;code>bar&lt;/code>には、決定論的でない方法でシリアル化されるフィールドがあります。&lt;/li>
+&lt;li>&lt;code>bar&lt;/code>には、異なる方法でシリアル化されるプロトコルバッファメッセージのシリアル化バイト出力を格納するフィールドがあります。&lt;/li>
+&lt;li>&lt;code>bar&lt;/code>は、実装の変更により異なる順序でフィールドをシリアル化する新しいサーバーによってシリアル化されています。&lt;/li>
+&lt;li>&lt;code>foo&lt;/code>と&lt;code>bar&lt;/code>は、異なる順序で個々のメッセージの連結です。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="size-limit">エンコードされた Proto のサイズ制限&lt;/h2>
+&lt;p>Proto はシリアライズされたときに 2 GiB より小さくなければなりません。多くの Proto 実装は、この制限を超えるメッセージをシリアライズまたは解析することを拒否します。&lt;/p>
+&lt;h2 id="cheat-sheet">コンデンスド リファレンス カード&lt;/h2>
+&lt;p>以下は、ワイヤ形式の最も顕著な部分を簡単に参照できる形式で提供します。&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-gdscript3" data-lang="gdscript3">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">message&lt;/span> &lt;span style="color:#000;font-weight:bold">:&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">tag&lt;/span> &lt;span style="color:#000">value&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">*&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">tag&lt;/span> &lt;span style="color:#000;font-weight:bold">:&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">field&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">&amp;lt;&amp;lt;&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">3&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000">bit&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">-&lt;/span>&lt;span style="color:#204a87;font-weight:bold">or&lt;/span> &lt;span style="color:#000">wire_type&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">encoded&lt;/span> &lt;span style="color:#000">as&lt;/span> &lt;span style="color:#000">uint32&lt;/span> &lt;span style="color:#000">varint&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">value&lt;/span> &lt;span style="color:#000;font-weight:bold">:&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">varint&lt;/span> &lt;span style="color:#204a87;font-weight:bold">for&lt;/span> &lt;span style="color:#000">wire_type&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">==&lt;/span> &lt;span style="color:#000">VARINT&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">i32&lt;/span> &lt;span style="color:#204a87;font-weight:bold">for&lt;/span> &lt;span style="color:#000">wire_type&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">==&lt;/span> &lt;span style="color:#000">I32&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">i64&lt;/span> &lt;span style="color:#204a87;font-weight:bold">for&lt;/span> &lt;span style="color:#000">wire_type&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">==&lt;/span> &lt;span style="color:#000">I64&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">len&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">-&lt;/span>&lt;span style="color:#000">prefix&lt;/span> &lt;span style="color:#204a87;font-weight:bold">for&lt;/span> &lt;span style="color:#000">wire_type&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">==&lt;/span> &lt;span style="color:#000">LEN&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#ce5c00;font-weight:bold">&amp;lt;&lt;/span>&lt;span style="color:#000">empty&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">&amp;gt;&lt;/span> &lt;span style="color:#204a87;font-weight:bold">for&lt;/span> &lt;span style="color:#000">wire_type&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">==&lt;/span> &lt;span style="color:#000">SGROUP&lt;/span> &lt;span style="color:#204a87;font-weight:bold">or&lt;/span> &lt;span style="color:#000">EGROUP&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">varint&lt;/span> &lt;span style="color:#000;font-weight:bold">:&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">int32&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">|&lt;/span> &lt;span style="color:#000">int64&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">|&lt;/span> &lt;span style="color:#000">uint32&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">|&lt;/span> &lt;span style="color:#000">uint64&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">|&lt;/span> &lt;span style="color:#c00;font-weight:bold">bool&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">|&lt;/span> &lt;span style="color:#204a87;font-weight:bold">enum&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">|&lt;/span> &lt;span style="color:#000">sint32&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">|&lt;/span> &lt;span style="color:#000">sint64&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">encoded&lt;/span> &lt;span style="color:#000">as&lt;/span> &lt;span style="color:#000">varints&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">sintN&lt;/span> &lt;span style="color:#000">are&lt;/span> &lt;span style="color:#000">ZigZag&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">-&lt;/span>&lt;span style="color:#000">encoded&lt;/span> &lt;span style="color:#000">first&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">i32&lt;/span> &lt;span style="color:#000;font-weight:bold">:&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">sfixed32&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">|&lt;/span> &lt;span style="color:#000">fixed32&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">|&lt;/span> &lt;span style="color:#c00;font-weight:bold">float&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">encoded&lt;/span> &lt;span style="color:#000">as&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">4&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">-&lt;/span>&lt;span style="color:#000">byte&lt;/span> &lt;span style="color:#000">little&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">-&lt;/span>&lt;span style="color:#000">endian&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">memcpy&lt;/span> &lt;span style="color:#000">of&lt;/span> &lt;span style="color:#000">the&lt;/span> &lt;span style="color:#000">equivalent&lt;/span> &lt;span style="color:#000">C&lt;/span> &lt;span style="color:#000">types&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">u&lt;/span>&lt;span style="color:#a40000">?&lt;/span>&lt;span style="color:#000">int32_t&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#c00;font-weight:bold">float&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">i64&lt;/span> &lt;span style="color:#000;font-weight:bold">:&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">sfixed64&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">|&lt;/span> &lt;span style="color:#000">fixed64&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">|&lt;/span> &lt;span style="color:#000">double&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">encoded&lt;/span> &lt;span style="color:#000">as&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">8&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">-&lt;/span>&lt;span style="color:#000">byte&lt;/span> &lt;span style="color:#000">little&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">-&lt;/span>&lt;span style="color:#000">endian&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">memcpy&lt;/span> &lt;span style="color:#000">of&lt;/span> &lt;span style="color:#000">the&lt;/span> &lt;span style="color:#000">equivalent&lt;/span> &lt;span style="color:#000">C&lt;/span> &lt;span style="color:#000">types&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">u&lt;/span>&lt;span style="color:#a40000">?&lt;/span>&lt;span style="color:#000">int64_t&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">double&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">len&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">-&lt;/span>&lt;span style="color:#000">prefix&lt;/span> &lt;span style="color:#000;font-weight:bold">:&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">size&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">message&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">|&lt;/span> &lt;span style="color:#000">string&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">|&lt;/span> &lt;span style="color:#000">bytes&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">|&lt;/span> &lt;span style="color:#000">packed&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">size&lt;/span> &lt;span style="color:#000">encoded&lt;/span> &lt;span style="color:#000">as&lt;/span> &lt;span style="color:#000">int32&lt;/span> &lt;span style="color:#000">varint&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">string&lt;/span> &lt;span style="color:#000;font-weight:bold">:&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">valid&lt;/span> &lt;span style="color:#000">UTF&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">-&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">8&lt;/span> &lt;span style="color:#000">string&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">e&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">g&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span> &lt;span style="color:#000">ASCII&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87">max&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">2&lt;/span>&lt;span style="color:#000">GB&lt;/span> &lt;span style="color:#000">of&lt;/span> &lt;span style="color:#000">bytes&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">bytes&lt;/span> &lt;span style="color:#000;font-weight:bold">:&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">any&lt;/span> &lt;span style="color:#000">sequence&lt;/span> &lt;span style="color:#000">of&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">8&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">-&lt;/span>&lt;span style="color:#000">bit&lt;/span> &lt;span style="color:#000">bytes&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87">max&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">2&lt;/span>&lt;span style="color:#000">GB&lt;/span> &lt;span style="color:#000">of&lt;/span> &lt;span style="color:#000">bytes&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">packed&lt;/span> &lt;span style="color:#000;font-weight:bold">:&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">varint&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">*&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">|&lt;/span> &lt;span style="color:#000">i32&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">*&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">|&lt;/span> &lt;span style="color:#000">i64&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">*&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">consecutive&lt;/span> &lt;span style="color:#000">values&lt;/span> &lt;span style="color:#000">of&lt;/span> &lt;span style="color:#000">the&lt;/span> &lt;span style="color:#000">type&lt;/span> &lt;span style="color:#000">specified&lt;/span> &lt;span style="color:#204a87;font-weight:bold">in&lt;/span> &lt;span style="color:#a40000">`&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">proto&lt;/span>&lt;span style="color:#a40000">`&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>また、&lt;a href="https://github.com/protocolbuffers/protoscope/blob/main/language.txt">Protoscope 言語リファレンス&lt;/a> も参照してください。&lt;/p>
+&lt;h3 id="cheat-sheet-key">キー&lt;/h3>
+&lt;dl>
+&lt;dt>&lt;code>message := (tag value)*&lt;/code>&lt;/dt>
+&lt;dd>メッセージは、タグと値のペアのゼロ個以上のシーケンスとしてエンコードされます。&lt;/dd>
+&lt;dt>&lt;code>tag := (field &amp;lt;&amp;lt; 3) bit-or wire_type&lt;/code>&lt;/dt>
+&lt;dd>タグは、最下位 3 ビットに格納された &lt;code>wire_type&lt;/code> と、&lt;code>.proto&lt;/code> ファイルで定義されたフィールド番号の組み合わせです。&lt;/dd>
+&lt;dt>&lt;code>value := varint for wire_type == VARINT, ...&lt;/code>&lt;/dt>
+&lt;dd>値は、タグで指定された &lt;code>wire_type&lt;/code> に応じて異なる方法で格納されます。&lt;/dd>
+&lt;dt>&lt;code>varint := int32 | int64 | uint32 | uint64 | bool | enum | sint32 | sint64&lt;/code>&lt;/dt>
+&lt;dd>リストされたデータ型のいずれかを格納するために varint を使用できます。&lt;/dd>
+&lt;dt>&lt;code>i32 := sfixed32 | fixed32 | float&lt;/code>&lt;/dt>
+&lt;dd>リストされたデータ型のいずれかを格納するために fixed32 を使用できます。&lt;/dd>
+&lt;dt>&lt;code>i64 := sfixed64 | fixed64 | double&lt;/code>&lt;/dt>
+&lt;dd>リストされたデータ型のいずれかを格納するために fixed64 を使用できます。&lt;/dd>
+&lt;dt>&lt;code>len-prefix := size (message | string | bytes | packed)&lt;/code>&lt;/dt>
+&lt;dd>長さ接頭辞付きの値は、長さ（varint としてエンコードされた）と、その後にリストされたデータ型のいずれかが格納されます。&lt;/dd>
+&lt;dt>&lt;code>string := valid UTF-8 string (e.g. ASCII)&lt;/code>&lt;/dt>
+&lt;dd>記述されているように、文字列は UTF-8 文字エンコーディングを使用する必要があります。文字列は 2GB を超えることはできません。&lt;/dd>
+&lt;dt>&lt;code>bytes := any sequence of 8-bit bytes&lt;/code>&lt;/dt>
+&lt;dd>記述されているように、バイトはカスタムデータ型を格納でき、最大 2GB のサイズまでです。&lt;/dd>
+&lt;dt>&lt;code>packed := varint* | i32* | i64*&lt;/code>&lt;/dt>
+&lt;dd>プロトコル定義で説明されているタイプの連続した値を格納する場合は、&lt;code>packed&lt;/code> データ型を使用します。最初の値以降の値にはタグが削除され、フィールドごとではなく要素ごとにタグのコストが均等化されます。&lt;/dd>
+&lt;/dl>
+&lt;p>Please provide the Markdown content you would like me to translate into Japanese.&lt;/p></description></item><item><title>Programming-Guides:</title><link>https://protobuf.dev/ja/programming-guides/enum/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/programming-guides/enum/</guid><description>
+&lt;h2 id="definitions">列挙型の動作&lt;/h2>
+&lt;p>列挙型は、異なる言語ライブラリで異なる動作をします。このトピックでは、異なる動作と、protobuf をすべての言語で一貫した状態に移行する計画について説明します。一般的な列挙型の使用方法については、&lt;a href="https://protobuf.dev/programming-guides/proto2#enum">proto2&lt;/a> および &lt;a href="https://protobuf.dev/programming-guides/proto3#enum">proto3&lt;/a> 言語ガイドの対応するセクションを参照してください。&lt;/p>
+&lt;p>列挙型には、2 つの異なるフレーバー（&lt;em>オープン&lt;/em> と &lt;em>クローズド&lt;/em>）があります。未知の値の処理を除いて、それらは同じように動作します。実際には、単純なケースでは同じように動作しますが、いくつかの特殊なケースには興味深い影響があります。&lt;/p>
+&lt;p>説明のために、次の &lt;code>.proto&lt;/code> ファイルがあると仮定しましょう（現時点では &lt;code>syntax = &amp;quot;proto2&amp;quot;&lt;/code> または &lt;code>syntax = &amp;quot;proto3&amp;quot;&lt;/code> ファイルであるかどうかは意図的に指定していません）:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-gdscript3" data-lang="gdscript3">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">enum&lt;/span> &lt;span style="color:#000">Enum&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">A&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">B&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">message&lt;/span> &lt;span style="color:#000">Msg&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">optional&lt;/span> &lt;span style="color:#000">Enum&lt;/span> &lt;span style="color:#204a87;font-weight:bold">enum&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;em>オープン&lt;/em> と &lt;em>クローズド&lt;/em> の区別は、1 つの質問で表すことができます:&lt;/p>
+&lt;blockquote>
+&lt;p>プログラムが値 &lt;code>2&lt;/code> を持つフィールド 1 を含むバイナリデータを解析するとき、何が起こりますか？&lt;/p>
+&lt;/blockquote>
+&lt;ul>
+&lt;li>&lt;strong>オープン&lt;/strong> 列挙型は値 &lt;code>2&lt;/code> を解析し、それを直接フィールドに格納します。アクセサはフィールドを &lt;em>設定&lt;/em> として報告し、&lt;code>2&lt;/code> を表すものを返します。&lt;/li>
+&lt;li>&lt;strong>クローズド&lt;/strong> 列挙型は値 &lt;code>2&lt;/code> を解析し、メッセージの未知のフィールドセットに格納します。アクセサはフィールドを &lt;em>未設定&lt;/em> として報告し、列挙型のデフォルト値を返します。&lt;/li>
+&lt;/ul>
+&lt;h2 id="クローズド-列挙型の影響">&lt;em>クローズド&lt;/em> 列挙型の影響&lt;/h2>
+&lt;p>&lt;em>クローズド&lt;/em> 列挙型の動作には、繰り返しフィールドを解析する際に予期しない結果があります。&lt;code>repeated Enum&lt;/code> フィールドを解析すると、すべての未知の値が&lt;a href="https://protobuf.dev/programming-guides/proto3/#unknowns">未知のフィールド&lt;/a>セットに配置されます。シリアライズされると、これらの未知の値は再度書き込まれますが、&lt;em>元のリスト内の元の位置には書き込まれません&lt;/em>。たとえば、次の &lt;code>.proto&lt;/code> ファイルが与えられた場合:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-gdscript3" data-lang="gdscript3">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">enum&lt;/span> &lt;span style="color:#000">Enum&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">A&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">B&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">message&lt;/span> &lt;span style="color:#000">Msg&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">repeated&lt;/span> &lt;span style="color:#000">Enum&lt;/span> &lt;span style="color:#000">r&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>ワイヤーフォーマットには、フィールド1の値として &lt;code>[0, 2, 1, 2]&lt;/code> を含むものがあります。この場合、繰り返しフィールドには &lt;code>[0, 1]&lt;/code> が含まれ、値 &lt;code>[2, 2]&lt;/code> は未知のフィールドとして格納されます。メッセージを再シリアル化した後、ワイヤーフォーマットは &lt;code>[0, 1, 2, 2]&lt;/code> に対応します。&lt;/p>
+&lt;p>同様に、値が未知の場合、&lt;em>closed&lt;/em> 列挙型を持つマップは、その値が未知の場合には、エントリ全体（キーと値）を未知のフィールドに配置します。&lt;/p>
+&lt;h2 id="history">履歴&lt;/h2>
+&lt;p>&lt;code>syntax = &amp;quot;proto3&amp;quot;&lt;/code> の導入以前、すべての列挙型は &lt;em>closed&lt;/em> でした。Proto3 は &lt;em>closed&lt;/em> 列挙型が引き起こす予期しない動作のために &lt;em>open&lt;/em> 列挙型を導入しました。&lt;/p>
+&lt;h2 id="spec">仕様&lt;/h2>
+&lt;p>以下は、protobuf の準拠実装の動作を指定しています。これは微妙な点であるため、多くの実装が準拠していません。異なる実装がどのように振る舞うかの詳細については、&lt;a href="#known-issues">既知の問題&lt;/a> を参照してください。&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>proto2&lt;/code> ファイルが &lt;code>proto2&lt;/code> ファイルで定義された列挙型をインポートする場合、その列挙型は &lt;strong>closed&lt;/strong> として扱われるべきです。&lt;/li>
+&lt;li>&lt;code>proto3&lt;/code> ファイルが &lt;code>proto3&lt;/code> ファイルで定義された列挙型をインポートする場合、その列挙型は &lt;strong>open&lt;/strong> として扱われるべきです。&lt;/li>
+&lt;li>&lt;code>proto3&lt;/code> ファイルが &lt;code>proto2&lt;/code> ファイルで定義された列挙型をインポートする場合、&lt;code>protoc&lt;/code> コンパイラはエラーを出力します。&lt;/li>
+&lt;li>&lt;code>proto2&lt;/code> ファイルが &lt;code>proto3&lt;/code> ファイルで定義された列挙型をインポートする場合、その列挙型は &lt;strong>open&lt;/strong> として扱われるべきです。&lt;/li>
+&lt;/ul>
+&lt;h2 id="known-issues">既知の問題&lt;/h2>
+&lt;h3 id="cpp">C++&lt;/h3>
+&lt;p>すべての既知の C++ リリースは準拠していません。&lt;code>proto2&lt;/code> ファイルが &lt;code>proto3&lt;/code> ファイルで定義された列挙型をインポートする場合、C++ はそのフィールドを &lt;strong>closed&lt;/strong> 列挙型として扱います。&lt;/p>
+&lt;h3 id="csharp">C#&lt;/h3>
+&lt;p>すべての既知の C# リリースは準拠していません。C# はすべての列挙型を &lt;strong>open&lt;/strong> として扱います。&lt;/p>
+&lt;h3 id="java">Java&lt;/h3>
+&lt;p>すべての既知の Java リリースは準拠していません。&lt;code>proto2&lt;/code> ファイルが &lt;code>proto3&lt;/code> ファイルで定義された列挙型をインポートする場合、Java はそのフィールドを &lt;strong>closed&lt;/strong> 列挙型として扱います。&lt;/p>
+&lt;blockquote>
+&lt;p>&lt;strong>注意:&lt;/strong> Java における &lt;strong>open&lt;/strong> 列挙型の扱いには驚くべきエッジケースがあります。次の定義が与えられた場合：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-gdscript3" data-lang="gdscript3">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">syntax&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;proto3&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">enum&lt;/span> &lt;span style="color:#000">Enum&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">A&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">B&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">message&lt;/span> &lt;span style="color:#000">Msg&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">repeated&lt;/span> &lt;span style="color:#000">Enum&lt;/span> &lt;span style="color:#000">name&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Java は &lt;code>Enum getName()&lt;/code> および &lt;code>int getNameValue()&lt;/code> メソッドを生成します。&lt;code>getName&lt;/code> メソッドは既知のセット外の値（たとえば &lt;code>2&lt;/code> など）に対して &lt;code>Enum.UNRECOGNIZED&lt;/code> を返し、&lt;code>getNameValue&lt;/code> は &lt;code>2&lt;/code> を返します。&lt;/p>
+&lt;p>同様に、Java は &lt;code>Builder setName(Enum value)&lt;/code> および &lt;code>Builder setNameValue(int value)&lt;/code> メソッドを生成します。&lt;code>setName&lt;/code> メソッドは &lt;code>Enum.UNRECOGNIZED&lt;/code> が渡された場合に例外をスローし、&lt;code>setNameValue&lt;/code> は &lt;code>2&lt;/code> を受け入れます。&lt;/p>
+&lt;/blockquote>
+&lt;h3 id="java">Kotlin&lt;/h3>
+&lt;p>すべての既知のKotlinリリースは適合性を満たしていません。&lt;code>proto2&lt;/code>ファイルが&lt;code>proto3&lt;/code>ファイルで定義された列挙型をインポートすると、Kotlinはそのフィールドを&lt;strong>クローズド&lt;/strong>列挙型として扱います。&lt;/p>
+&lt;p>KotlinはJava上に構築されており、そのすべての特異性を共有しています。&lt;/p>
+&lt;h3 id="go">Go&lt;/h3>
+&lt;p>すべての既知のGoリリースは適合性を満たしていません。Goはすべての列挙型を&lt;strong>オープン&lt;/strong>として扱います。&lt;/p>
+&lt;h3 id="jspb">JSPB&lt;/h3>
+&lt;p>すべての既知のJSPBリリースは適合性を満たしていません。JSPBはすべての列挙型を&lt;strong>オープン&lt;/strong>として扱います。&lt;/p>
+&lt;h3 id="php">PHP&lt;/h3>
+&lt;p>PHPは適合しています。&lt;/p>
+&lt;h3 id="python">Python&lt;/h3>
+&lt;p>4.22.0以降、Pythonは適合しています。&lt;/p>
+&lt;p>4.21.xでは、Pythonはデフォルトで適合していますが、&lt;code>PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python&lt;/code>を設定すると適合性を満たさなくなります。&lt;/p>
+&lt;p>4.21.0より前では、Pythonは適合していません。&lt;/p>
+&lt;p>&lt;code>proto2&lt;/code>ファイルが&lt;code>proto3&lt;/code>ファイルで定義された列挙型をインポートすると、適合していないPythonバージョンはそのフィールドを&lt;strong>クローズド&lt;/strong>列挙型として扱います。&lt;/p>
+&lt;h3 id="ruby">Ruby&lt;/h3>
+&lt;p>すべての既知のRubyリリースは適合性を満たしていません。Rubyはすべての列挙型を&lt;strong>オープン&lt;/strong>として扱います。&lt;/p>
+&lt;h3 id="obj-c">Objective-C&lt;/h3>
+&lt;p>22.0以降、Objective-Cは適合しています。&lt;/p>
+&lt;p>22.0より前では、Objective-Cは適合していませんでした。&lt;code>proto2&lt;/code>ファイルが&lt;code>proto3&lt;/code>ファイルで定義された列挙型をインポートすると、そのフィールドを&lt;strong>クローズド&lt;/strong>列挙型として扱いました。&lt;/p>
+&lt;h3 id="swift">Swift&lt;/h3>
+&lt;p>Swiftは適合しています。&lt;/p>
+&lt;h3 id="dart">Dart&lt;/h3>
+&lt;p>Dartはすべての列挙型を&lt;strong>クローズド&lt;/strong>として扱います。&lt;/p></description></item><item><title>Programming-Guides:</title><link>https://protobuf.dev/ja/programming-guides/extension_declarations/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/programming-guides/extension_declarations/</guid><description>
+&lt;h2 id="intro">はじめに&lt;/h2>
+&lt;p>このページでは、拡張宣言とは何か、なぜ必要なのか、そしてどのように使用するのかについて詳しく説明します。&lt;/p>
+&lt;p>&lt;strong>注意:&lt;/strong> 拡張宣言は主に proto2 で使用され、proto3 は現時点では拡張をサポートしていません（&lt;a href="https://protobuf.dev/programming-guides/proto3/#customoptions">カスタムオプションの宣言&lt;/a>を除く）。&lt;/p>
+&lt;p>拡張についての導入が必要な場合は、この&lt;a href="https://protobuf.dev/programming-guides/proto2/#extensions">拡張ガイド&lt;/a>を参照してください。&lt;/p>
+&lt;h2 id="motivation">動機&lt;/h2>
+&lt;p>拡張宣言は通常のフィールドと拡張の中間を目指しています。拡張と同様に、フィールドのメッセージ型に依存関係を作成せず、未使用のメッセージを削除することが難しいか不可能な環境では、よりスリムなビルドグラフと小さなバイナリが生成されます。通常のフィールドと同様に、フィールド名/番号は包含メッセージに表示されるため、衝突を回避し、宣言されたフィールドの便利なリストを表示するのが簡単になります。&lt;/p>
+&lt;p>拡張宣言で占有された拡張番号をリストアップすることで、ユーザーが利用可能な拡張番号を選択し、衝突を回避するのが簡単になります。&lt;/p>
+&lt;h2 id="usage">使用法&lt;/h2>
+&lt;p>拡張宣言は拡張範囲のオプションです。C++の前方宣言のように、拡張フィールドのフィールドタイプ、フィールド名、および基数（単数または繰り返し）を宣言することができます。完全な拡張定義を含む &lt;code>.proto&lt;/code> ファイルをインポートすることなく、拡張フィールドを宣言できます：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">syntax&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;proto2&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">extensions&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">4&lt;/span> &lt;span style="color:#204a87;font-weight:bold">to&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1000&lt;/span> &lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">declaration&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">number&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">4&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">full_name&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;.my.package.event_annotations&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">type&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;.logs.proto.ValidationAnnotations&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">repeated&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#204a87;font-weight:bold">true&lt;/span> &lt;span style="color:#000;font-weight:bold">},&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">declaration&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">number&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">999&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">full_name&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;.foo.package.bar&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">type&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;int32&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">}];&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>この構文には次の意味があります：&lt;/p>
+&lt;ul>
+&lt;li>単一の拡張範囲内で異なる拡張番号を持つ複数の &lt;code>declaration&lt;/code> を定義できます（範囲のサイズが許可する場合）。&lt;/li>
+&lt;li>拡張範囲に対する宣言がある場合、その範囲の &lt;em>すべて&lt;/em> の拡張も宣言する必要があります。これにより、宣言されていない拡張が追加されるのを防ぎ、新しい拡張が範囲の宣言を使用することが強制されます。&lt;/li>
+&lt;li>指定されたメッセージ型（&lt;code>.logs.proto.ValidationAnnotations&lt;/code>）は事前に定義されている必要はありません。別の &lt;code>.proto&lt;/code> ファイルで定義される可能性のある有効な名前であるかどうかのみを確認します。&lt;/li>
+&lt;li>このメッセージ（&lt;code>Foo&lt;/code>）の拡張がこの名前または番号でこのフォワード宣言と一致する番号、タイプ、および完全な名前を持つ場合、このファイルまたは他の &lt;code>.proto&lt;/code> ファイルがこのメッセージの拡張を定義する場合、その拡張がフォワード宣言されたものと一致することを強制します。&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>警告:&lt;/strong> &lt;code>extensions 4, 999&lt;/code> のような拡張範囲グループの宣言を避けてください。これらの宣言が適用される拡張範囲が不明確であり、現在サポートされていません。&lt;/p>
+&lt;p>拡張宣言は、異なるパッケージを持つ2つの拡張フィールドを期待しています：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">package&lt;/span> &lt;span style="color:#000">my&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">package&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">extend&lt;/span> &lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">repeated&lt;/span> &lt;span style="color:#000">logs.proto.ValidationAnnotations&lt;/span> &lt;span style="color:#000">event_annotations&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">4&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">package&lt;/span> &lt;span style="color:#000">foo&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">package&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">extend&lt;/span> &lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">bar&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">999&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="reserved">予約済み宣言&lt;/h3>
+&lt;p>拡張宣言は &lt;code>reserved: true&lt;/code> とマークされることがあり、これはもはやアクティブに使用されておらず、拡張定義が削除されたことを示します。&lt;strong>拡張宣言を削除したり、&lt;code>type&lt;/code> や &lt;code>full_name&lt;/code> の値を編集したりしないでください&lt;/strong>。&lt;/p>
+&lt;p>この &lt;code>reserved&lt;/code> タグは、通常のフィールドのための予約キーワードとは別であり、&lt;strong>拡張範囲を分割する必要はありません&lt;/strong>。&lt;/p>
+&lt;div class="highlight" highlight="context:reserved">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">syntax&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;proto2&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">extensions&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">4&lt;/span> &lt;span style="color:#204a87;font-weight:bold">to&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1000&lt;/span> &lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">declaration&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">number&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">500&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">full_name&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;.my.package.event_annotations&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">type&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;.logs.proto.ValidationAnnotations&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000">reserved&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span> &lt;span style="color:#204a87;font-weight:bold">true&lt;/span> &lt;span style="color:#000;font-weight:bold">}];&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>宣言で &lt;code>reserved&lt;/code> とされた数値を使用する拡張フィールドの定義はコンパイルに失敗します。&lt;/p>
+&lt;h2 id="representation">descriptor.proto における表現&lt;/h2>
+&lt;p>拡張宣言は、&lt;code>proto2.ExtensionRangeOptions&lt;/code> のフィールドとして descriptor.proto に表現されます：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">ExtensionRangeOptions&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Declaration&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">number&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#204a87;font-weight:bold">string&lt;/span> &lt;span style="color:#000">full_name&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">2&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#204a87;font-weight:bold">string&lt;/span> &lt;span style="color:#000">type&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">3&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#204a87;font-weight:bold">bool&lt;/span> &lt;span style="color:#000">reserved&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">5&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#204a87;font-weight:bold">bool&lt;/span> &lt;span style="color:#204a87;font-weight:bold">repeated&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">6&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">repeated&lt;/span> &lt;span style="color:#000">Declaration&lt;/span> &lt;span style="color:#000">declaration&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">2&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="reflection">リフレクションフィールドの検索&lt;/h2>
+&lt;p>拡張宣言は通常のフィールド検索関数からは &lt;em>返されません&lt;/em>。&lt;code>Descriptor::FindFieldByName()&lt;/code> や &lt;code>Descriptor::FindFieldByNumber()&lt;/code> のような関数からは返されません。拡張と同様に、拡張検索ルーチンである &lt;code>DescriptorPool::FindExtensionByName()&lt;/code> のような方法で発見できます。これは、宣言が定義ではなく、十分な情報を持っていないため、完全な &lt;code>FieldDescriptor&lt;/code> を返すことができないという事実を反映した明示的な選択です。&lt;/p>
+&lt;p>宣言された拡張は、TextFormat や JSON の観点から通常の拡張と同様に振る舞います。これは、既存のフィールドを宣言された拡張に移行する場合、そのフィールドのリフレクティブな使用を最初に移行する必要があることを意味します。&lt;/p>
+&lt;h2 id="recommendation">数値の割り当てに拡張宣言を使用する&lt;/h2>
+&lt;p>拡張は通常のフィールドと同様にフィールド番号を使用するため、各拡張には親メッセージ内で一意の番号が割り当てられることが重要です。親メッセージ内のすべての拡張のフィールド番号とタイプを宣言するために、拡張宣言を使用することをお勧めします。拡張宣言は、親メッセージのすべての拡張の登録簿として機能し、protoc はフィールド番号の競合がないことを強制します。新しい拡張を追加する際には、以前に追加された拡張番号を単純に1つ増やして番号を選択してください。拡張を削除する際には、フィールド番号を &lt;code>reserved&lt;/code> としてマークして、誤って再利用されるリスクを排除してください。&lt;/p>
+&lt;p>この規約は単なる推奨事項であり、protobuf チームは誰もがそれに従うことを強制する能力や意欲を持っていません。拡張可能なメッセージに対して拡張番号を拡張宣言を通じて調整したくない場合は、他の手段を使って調整することを選択することができます。ただし、拡張番号の誤用は深刻な問題を引き起こす可能性があるため、非常に注意してください。&lt;/p>
+&lt;p>この問題を回避する方法の一つは、拡張機能を完全に避け、代わりに&lt;a href="https://protobuf.dev/programming-guides/proto3/#any">&lt;code>google.protobuf.Any&lt;/code>&lt;/a>を使用することです。これは、ストレージをフロントエンドとするAPIや、クライアントが proto の内容に関心を持ち、受信システムがそうでない場合に適した選択肢となるかもしれません。&lt;/p>
+&lt;h3 id="reusing">拡張番号の再利用の影響&lt;/h3>
+&lt;p>拡張は、コンテナメッセージの外で定義されたフィールドであり、通常は別々の .proto ファイルに定義されます。この定義の分散化により、2人の開発者が同じ拡張フィールド番号の異なる定義を誤って作成することが容易になります。&lt;/p>
+&lt;p>拡張定義を変更することの結果は、拡張と標準フィールドの場合と同じです。フィールド番号の再利用は、proto をワイヤ形式からデコードする際に曖昧さを導入します。protobuf のワイヤ形式はシンプルであり、1つの定義でエンコードされたフィールドと別の定義でデコードされたフィールドを検出するための良い方法を提供しません。&lt;/p>
+&lt;p>この曖昧さは、クライアントが1つの拡張定義を使用し、サーバーが別の拡張定義を使用して通信するなど、短期間内に現れる可能性があります。&lt;/p>
+&lt;p>この曖昧さは、データを1つの拡張定義でエンコードして保存し、後で2番目の拡張定義を使用して取得およびデコードする場合など、より長期間にわたって現れる可能性があります。最初の拡張定義がデータをエンコードして保存した後に削除された場合、この長期的なケースは診断が難しいかもしれません。&lt;/p>
+&lt;p>これによる結果は次のとおりです：&lt;/p>
+&lt;ol>
+&lt;li>パースエラー（最良のケース）。&lt;/li>
+&lt;li>PII / SPII の漏洩 - PII または SPII が1つの拡張定義を使用して書かれ、別の拡張定義を使用して読まれた場合。&lt;/li>
+&lt;li>データの破損 - データが「間違った」定義を使用して読み取られ、変更されて書き換えられた場合。&lt;/li>
+&lt;/ol>
+&lt;p>データ定義の曖昧さは、最低でもデバッグに時間を費やすことになるでしょう。それがデータ漏洩や破損を引き起こし、数ヶ月かかるクリーンアップを必要とする可能性もあります。&lt;/p>
+&lt;h2 id="使用上のヒント">使用上のヒント&lt;/h2>
+&lt;h3 id="never-delete">拡張宣言を削除しない&lt;/h3>
+&lt;p>拡張宣言を削除すると、将来の誤使用の可能性が生じます。拡張がもはや処理されなくなり、定義が削除された場合、拡張宣言は&lt;a href="#reserved">予約済みとしてマーク&lt;/a>される可能性があります。&lt;/p>
+&lt;h3 id="never-reuse-reserved">&lt;code>reserved&lt;/code> リストからのフィールド名や番号を新しい拡張宣言に使用しない&lt;/h3>
+&lt;p>予約された番号は、過去にフィールドや他の拡張で使用されている可能性があります。&lt;/p>
+&lt;p>予約されたフィールドの&lt;code>full_name&lt;/code>を使用することはお勧めできません。textprotoを使用する際に曖昧性が生じる可能性があるためです。&lt;/p>
+&lt;h3 id="never-change-type">既存の拡張宣言のタイプを変更しない&lt;/h3>
+&lt;p>拡張フィールドのタイプを変更すると、データの破損が発生する可能性があります。&lt;/p>
+&lt;p>拡張フィールドが列挙型またはメッセージ型であり、その列挙型またはメッセージ型が名前変更される場合、宣言名の更新が必要であり、安全です。破損を回避するためには、タイプの更新、拡張フィールドの定義、および拡張宣言のすべてが1つのコミットで行われるべきです。&lt;/p>
+&lt;h3 id="caution-renaming">拡張フィールドの名前変更には注意を払う&lt;/h3>
+&lt;p>拡張フィールドの名前変更はワイヤーフォーマットでは問題ありませんが、JSONやTextFormatの解析を壊す可能性があります。&lt;/p></description></item><item><title>Programming-Guides:</title><link>https://protobuf.dev/ja/programming-guides/field_presence/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/programming-guides/field_presence/</guid><description>
+&lt;h2 id="背景-examples">背景 {/examples}&lt;/h2>
+&lt;p>&lt;em>フィールドの存在&lt;/em> とは、protobuf フィールドに値があるかどうかの概念です。
+protobuf には、&lt;em>存在しない&lt;/em> プレゼンスと、生成されたメッセージ API がフィールド値のみを保存する &lt;em>明示的なプレゼンス&lt;/em> の 2 つの異なる表現があります。
+proto2 は主に &lt;em>明示的なプレゼンス&lt;/em> を採用してきましたが、proto3 は基本型の単数の proto3 フィールドについてのみ &lt;em>存在しない&lt;/em> プレゼンスのセマンティクスを公開しています。
+基本型（数値、文字列、バイト、および列挙型）の単数の proto3 フィールドは、&lt;code>optional&lt;/code> ラベルで定義されており、proto2 と同様に &lt;em>明示的なプレゼンス&lt;/em> を持っています（この機能はリリース 3.15 でデフォルトで有効になっています）。&lt;/p>
+&lt;h3 id="プレゼンスディシプリン-examples">プレゼンスディシプリン {/examples}&lt;/h3>
+&lt;p>&lt;em>プレゼンスディシプリン&lt;/em> は、&lt;em>API 表現&lt;/em> と &lt;em>シリアライズされた表現&lt;/em> の間の変換のセマンティクスを定義します。
+&lt;em>存在しない&lt;/em> ディシプリンは、(デ)シリアライズ時にフィールド値自体を使用して決定を行います。
+一方、&lt;em>明示的なプレゼンス&lt;/em> ディシプリンは、明示的なトラッキング状態に依存します。&lt;/p>
+&lt;h3 id="タグ値ストリームワイヤーフォーマットシリアライゼーションにおけるプレゼンス-examples">&lt;em>タグ値ストリーム&lt;/em>（ワイヤーフォーマット）シリアライゼーションにおけるプレゼンス {/examples}&lt;/h3>
+&lt;p>ワイヤーフォーマットは、タグ付きの &lt;em>自己区切り&lt;/em> 値のストリームです。
+ワイヤーフォーマットは、定義上 &lt;em>存在する&lt;/em> 値のシーケンスを表します。
+つまり、シリアライゼーション内のすべての値は &lt;em>存在する&lt;/em> フィールドを表し、さらに、シリアライゼーションには &lt;em>存在しない&lt;/em> 値に関する情報が含まれていません。&lt;/p>
+&lt;p>proto メッセージの生成された API には、API 型と定義上 &lt;em>存在する&lt;/em>（タグ、値）のペアのストリームとの間の変換を行う（デ）シリアライズ定義が含まれています。
+この変換は、メッセージ定義の変更に対して前方および後方互換性がありますが、この互換性は、ワイヤーフォーマットのメッセージをデシリアライズする際にいくつかの（おそらく驚くべき）考慮事項を導入します。&lt;/p>
+&lt;ul>
+&lt;li>シリアライズ時、&lt;em>存在しない&lt;/em> フィールドは、デフォルト値を持つ場合にはシリアライズされません。
+&lt;ul>
+&lt;li>数値型の場合、デフォルト値は0です。&lt;/li>
+&lt;li>列挙型の場合、デフォルト値はゼロ値の列挙子です。&lt;/li>
+&lt;li>文字列、バイト、繰り返しフィールドの場合、デフォルト値は長さゼロの値です。&lt;/li>
+&lt;li>メッセージの場合、デフォルト値は言語固有のnull値です。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&amp;ldquo;空&amp;quot;の長さ区切り値（空の文字列など）は、シリアライズされた値で有効に表現できます：フィールドはワイヤーフォーマットに現れるという意味で「存在します」。ただし、生成されたAPIが存在を追跡していない場合、これらの値は再度シリアライズされないかもしれません。つまり、空のフィールドはシリアライズラウンドトリップ後に「存在しない」かもしれません。&lt;/li>
+&lt;li>デシリアライズ時、重複するフィールド値は、フィールドの定義に応じて異なる方法で処理される場合があります。
+&lt;ul>
+&lt;li>重複する &lt;code>repeated&lt;/code> フィールドは通常、フィールドのAPI表現に追加されます。（&lt;em>packed&lt;/em> 繰り返しフィールドをシリアライズすると、タグストリームには1つの長さ区切り値のみが生成されることに注意してください。）&lt;/li>
+&lt;li>重複する &lt;code>optional&lt;/code> フィールド値は、「最後のものが勝つ」というルールに従います。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>oneof&lt;/code> フィールドは、APIレベルの不変条件を公開し、1つのフィールドのみが設定されていることを示します。ただし、ワイヤーフォーマットには複数の（タグ、値）ペアが含まれる場合があり、これらは概念的に &lt;code>oneof&lt;/code> に属しています。&lt;code>optional&lt;/code> フィールドと同様に、生成されたAPIは「最後のものが勝つ」ルールに従います。&lt;/li>
+&lt;li>proto2の生成APIでは、列挙型フィールドの範囲外の値は返されません。ただし、範囲外の値はAPI内で&lt;em>未知のフィールド&lt;/em>として保存される場合がありますが、ワイヤーフォーマットのタグが認識された場合でもです。&lt;/li>
+&lt;/ul>
+&lt;h3 id="named-field-mapping-フォーマットにおける存在">&lt;em>Named-field Mapping&lt;/em> フォーマットにおける存在&lt;/h3>
+&lt;p>Protobufは人間が読みやすいテキスト形式で表現することができます。2つの注目すべきフォーマットはTextFormat（生成されたメッセージの&lt;code>DebugString&lt;/code>メソッドによって生成される出力形式）とJSONです。&lt;/p>
+&lt;p>これらのフォーマットにはそれぞれ独自の正確性要件があり、一般的には&lt;em>tagged-value stream&lt;/em>フォーマットよりも厳格です。ただし、TextFormatはワイヤーフォーマットのセマンティクスにより密接に準拠し、一部のケースでは類似したセマンティクスを提供します（たとえば、繰り返し名前値マッピングを繰り返しフィールドに追加する）。特に、ワイヤーフォーマットと同様に、TextFormatには存在するフィールドのみが含まれます。&lt;/p>
+&lt;p>JSONははるかに厳格な形式ですが、ワイヤ形式やTextFormatの一部の意味を正しく表現できません。&lt;/p>
+&lt;ul>
+&lt;li>JSONの&lt;em>要素&lt;/em>は意味的に順不同であり、各メンバーは一意の名前を持たなければなりません。これは、繰り返しフィールドのTextFormatのルールとは異なります。&lt;/li>
+&lt;li>JSONには他の形式の&lt;em>存在しない&lt;/em>ディシプリンとは異なり、&amp;ldquo;存在しない&amp;quot;フィールドを含めることができます。
+&lt;ul>
+&lt;li>JSONは&lt;code>null&lt;/code>値を定義しており、これは&lt;em>定義されているが存在しないフィールド&lt;/em>を表すために使用できます。&lt;/li>
+&lt;li>繰り返しフィールドの値は、デフォルト値（空のリスト）と等しい場合でも、フォーマットされた出力に含めることができます。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>JSONの要素が順不同であるため、「最後に来たものが勝つ」ルールを曖昧さなく解釈する方法はありません。
+&lt;ul>
+&lt;li>ほとんどの場合、これは問題ありません：JSONの要素は一意の名前を持たなければならないため、繰り返しフィールドの値は有効なJSONではないため、TextFormatのように解決する必要はありません。&lt;/li>
+&lt;li>ただし、これは&lt;code>oneof&lt;/code>フィールドを曖昧さなく解釈することができない可能性があることを意味します：複数のケースが存在する場合、それらは順不同です。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>理論上、JSONは存在を意味を保持する方法で表現できます。しかし、実際には、実装の選択によって存在の正確性が異なる場合があります、特にJSONがprotobufを使用していないクライアントとの相互運用性を確保する手段として選択された場合。&lt;/p>
+&lt;h3 id="proto2-apiにおける存在">Proto2 APIにおける存在&lt;/h3>
+&lt;p>この表は、proto2 APIのフィールドに対して存在が追跡されるかどうかを示しています（生成されたAPIと動的リフレクションを使用する場合の両方）：&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>フィールドの種類&lt;/th>
+&lt;th>明示的な存在&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>単一の数値（整数または浮動小数点）&lt;/td>
+&lt;td>✔️&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>単一の列挙型&lt;/td>
+&lt;td>✔️&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>単一の文字列またはバイト列&lt;/td>
+&lt;td>✔️&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>単一のメッセージ&lt;/td>
+&lt;td>✔️&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>繰り返し&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Oneof&lt;/td>
+&lt;td>✔️&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>マップ&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>単一のフィールド（すべてのタイプ）は、生成されたAPIで明示的に存在を追跡します。生成されたメッセージインターフェースには、フィールドの存在をクエリするためのメソッドが含まれています。例えば、フィールド&lt;code>foo&lt;/code>には対応する&lt;code>has_foo&lt;/code>メソッドがあります。（具体的な名前は、フィールドアクセサと同じ言語固有の命名規則に従います。）これらのメソッドは、protobufの実装内で「hazzers」と呼ばれることがあります。&lt;/p>
+&lt;p>同様に、単一のフィールドと同様に、&lt;code>oneof&lt;/code> フィールドは明示的に、どのメンバーが値を含んでいるかを追跡します。例えば、次の &lt;code>oneof&lt;/code> の例を考えてみてください：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-protobuf" data-lang="protobuf">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">oneof&lt;/span> &lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">a&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">float&lt;/span> &lt;span style="color:#000">b&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">2&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>ターゲット言語によっては、生成された API には通常、いくつかのメソッドが含まれます：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>oneof&lt;/code> の hazzer: &lt;code>has_foo&lt;/code>&lt;/li>
+&lt;li>&lt;em>oneof case&lt;/em> メソッド: &lt;code>foo&lt;/code>&lt;/li>
+&lt;li>メンバーの hazzer: &lt;code>has_a&lt;/code>, &lt;code>has_b&lt;/code>&lt;/li>
+&lt;li>メンバーのゲッター: &lt;code>a&lt;/code>, &lt;code>b&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;p>繰り返しフィールドやマップは存在を追跡しません：&lt;em>空の&lt;/em>繰り返しフィールドと&lt;em>存在しない&lt;/em>繰り返しフィールドの区別はありません。&lt;/p>
+&lt;h3 id="proto3-api-における存在">Proto3 API における存在&lt;/h3>
+&lt;p>この表は、proto3 API においてフィールドの存在が追跡されるかどうかを概説しています（生成された API および動的リフレクションを使用した場合の両方）：&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>フィールドの種類&lt;/th>
+&lt;th>&lt;code>optional&lt;/code>&lt;/th>
+&lt;th>明示的な存在&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>単一の数値（整数または浮動小数点）&lt;/td>
+&lt;td>いいえ&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>単一の数値（整数または浮動小数点）&lt;/td>
+&lt;td>はい&lt;/td>
+&lt;td>✔️&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>単一の列挙型&lt;/td>
+&lt;td>いいえ&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>単一の列挙型&lt;/td>
+&lt;td>はい&lt;/td>
+&lt;td>✔️&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>単一の文字列またはバイト列&lt;/td>
+&lt;td>いいえ&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>単一の文字列またはバイト列&lt;/td>
+&lt;td>はい&lt;/td>
+&lt;td>✔️&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>単一のメッセージ&lt;/td>
+&lt;td>いいえ&lt;/td>
+&lt;td>✔️&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>単一のメッセージ&lt;/td>
+&lt;td>はい&lt;/td>
+&lt;td>✔️&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>繰り返し&lt;/td>
+&lt;td>N/A&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Oneof&lt;/td>
+&lt;td>N/A&lt;/td>
+&lt;td>✔️&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>マップ&lt;/td>
+&lt;td>N/A&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>proto2 API と同様に、proto3 では繰り返しフィールドの存在を明示的に追跡しません。&lt;code>optional&lt;/code> ラベルがない場合、proto3 API では基本型（数値、文字列、バイト列、列挙型）の存在を追跡しません。Oneof フィールドは存在を明示的に公開しますが、proto2 API と同様の hazzer メソッドのセットが生成されない場合もあります。&lt;/p>
+&lt;p>&lt;em>存在しない&lt;/em> ディシプリンの下では、デフォルト値はシリアル化の目的において &amp;ldquo;存在しない&amp;rdquo; と同義です。フィールドを概念的に &amp;ldquo;クリア&amp;rdquo; するために（シリアル化されないようにするために）、API ユーザーはそれをデフォルト値に設定するでしょう。&lt;/p>
+&lt;p>デフォルト値は、&lt;em>存在しない&lt;/em>状態の列挙型フィールドに対して、対応する0値の列挙子です。proto3構文のルールによると、すべての列挙型は、0にマップされる列挙子値を持つ必要があります。慣習として、これは &lt;code>UNKNOWN&lt;/code> または同様の名前の列挙子です。ゼロ値がアプリケーションの有効な値のドメイン外にある場合、この動作は事実上 &lt;em>明示的な存在&lt;/em> と見なすことができます。&lt;/p>
+&lt;h2 id="意味の違い">意味の違い&lt;/h2>
+&lt;p>&lt;em>存在しない&lt;/em> シリアライゼーション規律は、デフォルト値が設定された場合に &lt;em>明示的な存在&lt;/em> 追跡規律とは異なる見える違いをもたらします。数値、列挙型、または文字列型の単一フィールドに対して:&lt;/p>
+&lt;ul>
+&lt;li>&lt;em>存在しない&lt;/em> 規律:
+&lt;ul>
+&lt;li>デフォルト値はシリアライズされません。&lt;/li>
+&lt;li>デフォルト値は &lt;em>マージされません&lt;/em>。&lt;/li>
+&lt;li>フィールドを &amp;ldquo;クリア&amp;rdquo; するには、デフォルト値に設定します。&lt;/li>
+&lt;li>デフォルト値は次の意味を持つ可能性があります:
+&lt;ul>
+&lt;li>フィールドが明示的にデフォルト値に設定されたことを意味し、それがアプリケーション固有の値のドメインで有効である;&lt;/li>
+&lt;li>フィールドがデフォルトに設定することで事実上 &amp;ldquo;クリア&amp;rdquo; された; または&lt;/li>
+&lt;li>フィールドが設定されていない。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;em>明示的な存在&lt;/em> 規律:
+&lt;ul>
+&lt;li>明示的に設定された値は常にシリアライズされ、デフォルト値も含まれます。&lt;/li>
+&lt;li>設定されていないフィールドはマージされません。&lt;/li>
+&lt;li>明示的に設定されたフィールド &amp;ndash; デフォルト値を含む &amp;ndash; はマージされます。&lt;/li>
+&lt;li>生成された &lt;code>has_foo&lt;/code> メソッドは、フィールド &lt;code>foo&lt;/code> が設定されたかどうか (およびクリアされていないか) を示します。&lt;/li>
+&lt;li>クリア (つまり、設定を解除) するには、生成された &lt;code>clear_foo&lt;/code> メソッドを使用する必要があります。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="マージに関する考慮事項">マージに関する考慮事項&lt;/h3>
+&lt;p>&lt;em>存在しない&lt;/em> 規則に従うと、ターゲットフィールドがデフォルト値からマージされることは事実上不可能です (protobuf の API マージ関数を使用して)。これは、デフォルト値がスキップされるためであり、&lt;em>存在しない&lt;/em> シリアライゼーション規律と同様です。マージは、マージ先メッセージのみが更新され、更新元メッセージからスキップされない値を使用して行われます。&lt;/p>
+&lt;p>マージ動作の違いは、部分的な &amp;ldquo;パッチ&amp;rdquo; 更新に依存するプロトコルにさらなる影響を与えます。フィールドの存在が追跡されていない場合、更新パッチだけではデフォルト値への更新を表現できません。なぜなら、デフォルト値以外の値だけがマージされるからです。&lt;/p>
+&lt;p>更新してこの場合にデフォルト値を設定するには、&lt;code>FieldMask&lt;/code>などの外部メカニズムが必要です。ただし、存在が追跡されている場合、すべての明示的に設定された値（デフォルト値も含む）がターゲットにマージされます。&lt;/p>
+&lt;h3 id="変更互換性の考慮事項">変更互換性の考慮事項&lt;/h3>
+&lt;p>フィールドを&lt;em>明示的な存在&lt;/em>と&lt;em>存在しない&lt;/em>の間で変更することは、ワイヤ形式のシリアライズされた値にとってバイナリ互換の変更です。ただし、メッセージのシリアライズに使用されたバージョンによって、メッセージのシリアライズされた表現が異なる場合があります。特に、&amp;ldquo;送信者&amp;quot;がフィールドをデフォルト値に明示的に設定した場合：&lt;/p>
+&lt;ul>
+&lt;li>&lt;em>存在しない&lt;/em>の規律に従うシリアル化された値には、明示的に設定されたデフォルト値は含まれません。&lt;/li>
+&lt;li>&lt;em>明示的な存在&lt;/em>の規律に従うシリアル化された値には、デフォルト値を含むすべての&amp;quot;存在する&amp;quot;フィールドが含まれます。&lt;/li>
+&lt;/ul>
+&lt;p>この変更は、アプリケーションのセマンティクスによって安全であるかどうかが異なります。たとえば、メッセージ定義の異なるバージョンを使用する2つのクライアントを考えてみてください。&lt;/p>
+&lt;p>クライアントAは、フィールド&lt;code>foo&lt;/code>に対して&lt;em>明示的な存在&lt;/em>のシリアライズ規律に従うこのメッセージの定義を使用します：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-protobuf" data-lang="protobuf">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">syntax&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;proto3&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Msg&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>クライアントBは、同じメッセージの定義を使用しますが、&lt;em>存在しない&lt;/em>の規律に従います：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-protobuf" data-lang="protobuf">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">syntax&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;proto3&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Msg&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>今、クライアントAがクライアントが繰り返し&amp;quot;同じ&amp;quot;メッセージを逆シリアル化および再シリアル化することで&lt;code>foo&lt;/code>の存在を観察するシナリオを考えてみてください：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-protobuf" data-lang="protobuf">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">// Client A:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000">Msg&lt;/span> &lt;span style="color:#000">m_a&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000">m_a.set_foo&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// non-default value
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000">assert&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m_a.has_foo&lt;/span>&lt;span style="color:#000;font-weight:bold">());&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// OK
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000">Send&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m_a.SerializeAsString&lt;/span>&lt;span style="color:#000;font-weight:bold">());&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// to client B
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#8f5902;font-style:italic">// Client B:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000">Msg&lt;/span> &lt;span style="color:#000">m_b&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000">m_b.ParseFromString&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">Receive&lt;/span>&lt;span style="color:#000;font-weight:bold">());&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// from client A
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000">assert&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m_b.foo&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">==&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// OK
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000">Send&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m_b.SerializeAsString&lt;/span>&lt;span style="color:#000;font-weight:bold">());&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// to client A
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#8f5902;font-style:italic">// Client A:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000">m_a.ParseFromString&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">Receive&lt;/span>&lt;span style="color:#000;font-weight:bold">());&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// from client B
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000">assert&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m_a.foo&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">==&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// OK
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000">assert&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m_a.has_foo&lt;/span>&lt;span style="color:#000;font-weight:bold">());&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// OK
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000">m_a.set_foo&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// default value
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000">Send&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m_a.SerializeAsString&lt;/span>&lt;span style="color:#000;font-weight:bold">());&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// to client B
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#8f5902;font-style:italic">// Client B:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000">Msg&lt;/span> &lt;span style="color:#000">m_b&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000">m_b.ParseFromString&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">Receive&lt;/span>&lt;span style="color:#000;font-weight:bold">());&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// from client A
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000">assert&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m_b.foo&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">==&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// OK
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000">Send&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m_b.SerializeAsString&lt;/span>&lt;span style="color:#000;font-weight:bold">());&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// to client A
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#8f5902;font-style:italic">// Client A:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000">m_a.ParseFromString&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">Receive&lt;/span>&lt;span style="color:#000;font-weight:bold">());&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// from client B
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000">assert&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m_a.foo&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">==&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// OK
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000">assert&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m_a.has_foo&lt;/span>&lt;span style="color:#000;font-weight:bold">());&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// FAIL
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>クライアントAが&lt;code>foo&lt;/code>に&lt;em>明示的な存在&lt;/em>を依存している場合、クライアントBを経由する&amp;quot;ラウンドトリップ&amp;quot;は、クライアントAの観点から見ると損失が発生します。この例では、これは安全な変更ではありません：クライアントAは、フィールドが存在することを（&lt;code>assert&lt;/code>によって）要求しており、APIを介しての変更がなくても、その要件は値とピアに依存する場合に失敗します。&lt;/p>
+&lt;h2 id="proto3で明示的な存在を有効にする方法">Proto3で&lt;em>明示的な存在&lt;/em>を有効にする方法&lt;/h2>
+&lt;p>これは、proto3のフィールド追跡サポートを使用する一般的な手順です。&lt;/p>
+&lt;ol>
+&lt;li>&lt;code>.proto&lt;/code>ファイルに&lt;code>optional&lt;/code>フィールドを追加します。&lt;/li>
+&lt;li>&lt;code>protoc&lt;/code>を実行します（少なくともv3.15、または&lt;code>--experimental_allow_proto3_optional&lt;/code>フラグを使用してv3.12）。&lt;/li>
+&lt;li>アプリケーションコードで生成された &amp;ldquo;hazzer&amp;quot;メソッドと &amp;ldquo;clear&amp;quot;メソッドを使用し、デフォルト値を比較または設定する代わりに。&lt;/li>
+&lt;/ol>
+&lt;h3 id="protoファイルの変更">&lt;code>.proto&lt;/code>ファイルの変更&lt;/h3>
+&lt;p>これは、&lt;em>存在しない&lt;/em>と&lt;em>明示的な存在&lt;/em>セマンティクスの両方に従うフィールドを持つproto3メッセージの例です：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-protobuf" data-lang="protobuf">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">syntax&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;proto3&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">package&lt;/span> &lt;span style="color:#000">example&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">MyMessage&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// No presence:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">not_tracked&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// Explicit presence:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">tracked&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">2&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="protocの呼び出し">&lt;code>protoc&lt;/code>の呼び出し&lt;/h3>
+&lt;p>proto3メッセージの存在追跡は、デフォルトで有効になっています
+&lt;a href="https://github.com/protocolbuffers/protobuf/releases/tag/v3.15.0">v3.15.0&lt;/a>
+リリース以降、以前は
+&lt;a href="https://github.com/protocolbuffers/protobuf/releases/tag/v3.12.0">v3.12.0&lt;/a> で
+protocを使用する際に存在追跡を行うために&lt;code>--experimental_allow_proto3_optional&lt;/code>フラグが必要でした。&lt;/p>
+&lt;h3 id="生成されたコードの使用">生成されたコードの使用&lt;/h3>
+&lt;p>&lt;em>明示的な存在&lt;/em>（&lt;code>optional&lt;/code>ラベル）を持つproto3フィールドの生成されたコードは、proto2ファイルであるかのようになります。&lt;/p>
+&lt;p>これは、&amp;ldquo;存在しない&amp;quot;例で使用される定義です：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-protobuf" data-lang="protobuf">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">syntax&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;proto3&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">package&lt;/span> &lt;span style="color:#000">example&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Msg&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>これは、&amp;ldquo;明示的な存在&amp;quot;例で使用される定義です：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-protobuf" data-lang="protobuf">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">syntax&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;proto3&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">package&lt;/span> &lt;span style="color:#000">example&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">Msg&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#204a87;font-weight:bold">optional&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int32&lt;/span> &lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>例では、&lt;code>GetProto&lt;/code>関数が未指定の内容を持つ&lt;code>Msg&lt;/code>型のメッセージを構築して返します。&lt;/p>
+&lt;h4 id="cの例">C++の例&lt;/h4>
+&lt;p>存在しない：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-c++" data-lang="c++">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">Msg&lt;/span> &lt;span style="color:#000">m&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">GetProto&lt;/span>&lt;span style="color:#000;font-weight:bold">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">foo&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">!=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// &amp;#34;Clear&amp;#34; the field:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">set_foo&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span> &lt;span style="color:#204a87;font-weight:bold">else&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// Default value: field may not have been present.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">set_foo&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>明示的な存在：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-c++" data-lang="c++">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">Msg&lt;/span> &lt;span style="color:#000">m&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">GetProto&lt;/span>&lt;span style="color:#000;font-weight:bold">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">has_foo&lt;/span>&lt;span style="color:#000;font-weight:bold">())&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// Clear the field:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">clear_foo&lt;/span>&lt;span style="color:#000;font-weight:bold">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span> &lt;span style="color:#204a87;font-weight:bold">else&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// Field is not present, so set it.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">set_foo&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h4 id="cの例-1">C#の例&lt;/h4>
+&lt;p>存在しない：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-c#" data-lang="c#">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">var&lt;/span> &lt;span style="color:#000">m&lt;/span> &lt;span style="color:#000;font-weight:bold">=&lt;/span> &lt;span style="color:#000">GetProto&lt;/span>&lt;span style="color:#000;font-weight:bold">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">!=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// &amp;#34;Clear&amp;#34; the field:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span> &lt;span style="color:#204a87;font-weight:bold">else&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// Default value: field may not have been present.&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>明示的な存在：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-c#" data-lang="c#">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">var&lt;/span> &lt;span style="color:#000">m&lt;/span> &lt;span style="color:#000;font-weight:bold">=&lt;/span> &lt;span style="color:#000">GetProto&lt;/span>&lt;span style="color:#000;font-weight:bold">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">HasFoo&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// Clear the field:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">ClearFoo&lt;/span>&lt;span style="color:#000;font-weight:bold">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span> &lt;span style="color:#204a87;font-weight:bold">else&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// Field is not present, so set it.&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h4 id="goの例">Goの例&lt;/h4>
+&lt;p>存在しない：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">m&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">:=&lt;/span> &lt;span style="color:#000">GetProto&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">!=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// &amp;#34;Clear&amp;#34; the field:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span> &lt;span style="color:#204a87;font-weight:bold">else&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// Default value: field may not have been present.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>明示的な存在：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">m&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">:=&lt;/span> &lt;span style="color:#000">GetProto&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">!=&lt;/span> &lt;span style="color:#204a87;font-weight:bold">nil&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// Clear the field:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">=&lt;/span> &lt;span style="color:#204a87;font-weight:bold">nil&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span> &lt;span style="color:#204a87;font-weight:bold">else&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// Field is not present, so set it.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Foo&lt;/span> &lt;span style="color:#000;font-weight:bold">=&lt;/span> &lt;span style="color:#000">proto&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Int32&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h4 id="javaの例">Javaの例&lt;/h4>
+&lt;p>これらの例では、&lt;code>Builder&lt;/code>を使用してクリアリングをデモンストレーションします。&lt;code>Builder&lt;/code>からの存在の確認と値の取得は、メッセージ型と同じAPIに従います。&lt;/p>
+&lt;p>存在しない：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">Msg&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">Builder&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">m&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">GetProto&lt;/span>&lt;span style="color:#000;font-weight:bold">().&lt;/span>&lt;span style="color:#c4a000">toBuilder&lt;/span>&lt;span style="color:#000;font-weight:bold">();&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">if&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">getFoo&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">!=&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">0&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#8f5902;font-style:italic">// &amp;#34;Clear&amp;#34; the field:&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">setFoo&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">0&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">else&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#8f5902;font-style:italic">// Default value: field may not have been present.&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">setFoo&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">1&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>明示的な存在：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-java" data-lang="java">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">Msg&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">Builder&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">m&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">GetProto&lt;/span>&lt;span style="color:#000;font-weight:bold">().&lt;/span>&lt;span style="color:#c4a000">toBuilder&lt;/span>&lt;span style="color:#000;font-weight:bold">();&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">if&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">hasFoo&lt;/span>&lt;span style="color:#000;font-weight:bold">())&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#8f5902;font-style:italic">// Clear the field:&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">clearFoo&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#204a87;font-weight:bold">else&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#8f5902;font-style:italic">// Field is not present, so set it.&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline"> &lt;/span>&lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#c4a000">setFoo&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">1&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f8f8f8;text-decoration:underline">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#f8f8f8;text-decoration:underline">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h4 id="pythonの例">Pythonの例&lt;/h4>
+&lt;p>存在しない：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">m&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">example&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Msg&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">!=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>&lt;span style="color:#000;font-weight:bold">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># &amp;#34;Clear&amp;#34; the field:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">else&lt;/span>&lt;span style="color:#000;font-weight:bold">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># Default value: field may not have been present.&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>明示的な存在：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">m&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">example&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Msg&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">HasField&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#4e9a06">&amp;#39;foo&amp;#39;&lt;/span>&lt;span style="color:#000;font-weight:bold">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># Clear the field:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">ClearField&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#4e9a06">&amp;#39;foo&amp;#39;&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">else&lt;/span>&lt;span style="color:#000;font-weight:bold">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># Field is not present, so set it.&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h4 id="rubyの例">Rubyの例&lt;/h4>
+&lt;p>存在しない場合：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-ruby" data-lang="ruby">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">m&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">Msg&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">new&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">!=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># &amp;#34;Clear&amp;#34; the field:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">else&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># Default value: field may not have been present.&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">end&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>明示的な存在：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-ruby" data-lang="ruby">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">m&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000">Msg&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">new&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">has_foo?&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># Clear the field:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">clear_foo&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">else&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># Field is not present, so set it.&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">.&lt;/span>&lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">end&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h4 id="javascriptの例">Javascriptの例&lt;/h4>
+&lt;p>存在しない場合：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-js" data-lang="js">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">var&lt;/span> &lt;span style="color:#000">m&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#204a87;font-weight:bold">new&lt;/span> &lt;span style="color:#000">Msg&lt;/span>&lt;span style="color:#000;font-weight:bold">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">getFoo&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">!=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// &amp;#34;Clear&amp;#34; the field:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">setFoo&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span> &lt;span style="color:#204a87;font-weight:bold">else&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// Default value: field may not have been present.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">setFoo&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>明示的な存在：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-js" data-lang="js">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">var&lt;/span> &lt;span style="color:#000">m&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#204a87;font-weight:bold">new&lt;/span> &lt;span style="color:#000">Msg&lt;/span>&lt;span style="color:#000;font-weight:bold">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">hasFoo&lt;/span>&lt;span style="color:#000;font-weight:bold">())&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// Clear the field:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">clearFoo&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span> &lt;span style="color:#204a87;font-weight:bold">else&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// Field is not present, so set it.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">setFoo&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h4 id="objective-cの例">Objective-Cの例&lt;/h4>
+&lt;p>存在しない場合：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-objective-c" data-lang="objective-c">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">Msg&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">*&lt;/span>&lt;span style="color:#000">m&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000;font-weight:bold">[[&lt;/span>&lt;span style="color:#000">Msg&lt;/span> &lt;span style="color:#000">alloc&lt;/span>&lt;span style="color:#000;font-weight:bold">]&lt;/span> &lt;span style="color:#000">init&lt;/span>&lt;span style="color:#000;font-weight:bold">];&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">!=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// &amp;#34;Clear&amp;#34; the field:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">0&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span> &lt;span style="color:#204a87;font-weight:bold">else&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// Default value: field may not have been present.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">foo&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>明示的な存在：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-objective-c" data-lang="objective-c">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">Msg&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">*&lt;/span>&lt;span style="color:#000">m&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#000;font-weight:bold">[[&lt;/span>&lt;span style="color:#000">Msg&lt;/span> &lt;span style="color:#000">alloc&lt;/span>&lt;span style="color:#000;font-weight:bold">]&lt;/span> &lt;span style="color:#000">init&lt;/span>&lt;span style="color:#000;font-weight:bold">];&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">m&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">hasFoo&lt;/span>&lt;span style="color:#000;font-weight:bold">())&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// Clear the field:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#000">m&lt;/span> &lt;span style="color:#000">clearFoo&lt;/span>&lt;span style="color:#000;font-weight:bold">];&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span> &lt;span style="color:#204a87;font-weight:bold">else&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// Field is not present, so set it.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#000">m&lt;/span> &lt;span style="color:#f57900">setFoo&lt;/span>&lt;span style="color:#000;font-weight:bold">:&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">];&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="cheat">チートシート&lt;/h2>
+&lt;p>&lt;strong>Proto2:&lt;/strong>&lt;/p>
+&lt;p>フィールドの存在を追跡しますか？&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>フィールドの種類&lt;/th>
+&lt;th>追跡されますか？&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>単一のフィールド&lt;/td>
+&lt;td>はい&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>単一のメッセージフィールド&lt;/td>
+&lt;td>はい&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>oneof内のフィールド&lt;/td>
+&lt;td>はい&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>繰り返しフィールド &amp;amp; マップ&lt;/td>
+&lt;td>いいえ&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>&lt;strong>Proto3:&lt;/strong>&lt;/p>
+&lt;p>フィールドの存在を追跡しますか？&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>フィールドの種類&lt;/th>
+&lt;th>追跡されますか？&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;em>その他&lt;/em> 単一のフィールド&lt;/td>
+&lt;td>&lt;code>optional&lt;/code>として定義されている場合&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>単一のメッセージフィールド&lt;/td>
+&lt;td>はい&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>oneof内のフィールド&lt;/td>
+&lt;td>はい&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>繰り返しフィールド &amp;amp; マップ&lt;/td>
+&lt;td>いいえ&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>&lt;strong>Edition 2023:&lt;/strong>&lt;/p>
+&lt;p>フィールドの存在を追跡しますか？&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>フィールドの種類&lt;/th>
+&lt;th>追跡されますか？&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>デフォルト&lt;/td>
+&lt;td>はい&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>features.field_presence&lt;/code>が&lt;code>LEGACY_REQUIRED&lt;/code>に設定されている場合&lt;/td>
+&lt;td>はい&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>features.field_presence&lt;/code>が&lt;code>IMPLICIT&lt;/code>に設定されている場合&lt;/td>
+&lt;td>いいえ&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>繰り返しフィールド &amp;amp; マップ&lt;/td>
+&lt;td>いいえ&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Programming-Guides:</title><link>https://protobuf.dev/ja/programming-guides/serialization-not-canonical/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/programming-guides/serialization-not-canonical/</guid><description>
+&lt;p>多くの人々が、シリアライズされた proto がその proto の内容を正確に表現することを望んでいます。使用例には次のものがあります:&lt;/p>
+&lt;ul>
+&lt;li>ハッシュテーブルのキーとしてシリアライズされた proto を使用する&lt;/li>
+&lt;li>シリアライズされた proto のフィンガープリントやチェックサムを取る&lt;/li>
+&lt;li>メッセージの等価性を確認する手段として、シリアライズされたペイロードを比較する&lt;/li>
+&lt;/ul>
+&lt;p>残念ながら、&lt;em>protobuf のシリアライゼーションは（かつてもなく、できない）正準的ではありません&lt;/em>。MapReduce などのいくつかの例外はありますが、一般的には proto のシリアライゼーションを不安定と考えるべきです。このページではその理由を説明します。&lt;/p>
+&lt;h2 id="決定論的は正準的ではない">決定論的は正準的ではない&lt;/h2>
+&lt;p>決定論的なシリアライゼーションは正準的ではありません。シリアライザは、次の変更など、多くの理由により異なる出力を生成することができます:&lt;/p>
+&lt;ol>
+&lt;li>protobuf スキーマがいかなる方法でも変更された場合&lt;/li>
+&lt;li>構築中のアプリケーションがいかなる方法でも変更された場合&lt;/li>
+&lt;li>バイナリが異なるフラグ（例: opt と debug）でビルドされた場合&lt;/li>
+&lt;li>protobuf ライブラリが更新された場合&lt;/li>
+&lt;/ol>
+&lt;p>これは、シリアライズされた proto のハッシュが壊れやすく、時間や空間を超えて安定していないことを意味します。&lt;/p>
+&lt;p>シリアライズされた出力が変更される理由は多岐にわたります。上記のリストはすべてを網羅しているわけではありません。いくつかは、問題の領域に固有の難しさであり、正準的なシリアライゼーションを保証することが非効率的または不可能になる可能性があるものです。他のものは、最適化の機会を許すために意図的に未定義のままにしているものです。&lt;/p>
+&lt;h2 id="安定したシリアライゼーションへの固有の障壁">安定したシリアライゼーションへの固有の障壁&lt;/h2>
+&lt;p>Protobuf オブジェクトは、前方および後方互換性を提供するために未知のフィールドを保持します。未知のフィールドは正準的にシリアライズすることができません:&lt;/p>
+&lt;ol>
+&lt;li>未知のフィールドは、バイトとサブメッセージを区別できません。両方とも同じワイヤータイプを持っています。これにより、未知のフィールドに格納されたメッセージを正準化することが不可能になります。正準化する場合、未知のサブメッセージに再帰してフィールド番号でフィールドをソートする必要がありますが、これを行うための十分な情報がありません。&lt;/li>
+&lt;li>効率のために、未知のフィールドは常に既知のフィールドの後にシリアライズされます。しかし、正準的なシリアライゼーションには、未知のフィールドをフィールド番号で既知のフィールドと交互に挿入する必要があります。これにより、その機能を使用していない人々にも効率とコードサイズのオーバーヘッドが発生します。&lt;/li>
+&lt;/ol>
+&lt;h2 id="明示的に未定義とされた事柄">明示的に未定義とされた事柄&lt;/h2>
+&lt;p>正準シリアル化が実現可能であったとしても（つまり、未知のフィールド問題を解決できるとしても）、より多くの最適化の機会を許すために、意図的にシリアル化順序を未定義のままにしています：&lt;/p>
+&lt;ol>
+&lt;li>バイナリでフィールドが使用されていないことを証明できれば、スキーマから完全に削除し、未知のフィールドとして処理することができます。これにより、コードサイズとCPUサイクルを大幅に節約できます。&lt;/li>
+&lt;li>同じフィールドのベクトルを一緒にシリアル化することで最適化の機会があるかもしれませんが、これはフィールド番号の順序を壊すことになります。&lt;/li>
+&lt;/ol>
+&lt;p>このような最適化の余地を残すために、いくつかの構成で意図的にフィールドの順序を入れ替え、アプリケーションが適切でない順序に依存しないようにします。&lt;/p></description></item><item><title>Programming-Guides:</title><link>https://protobuf.dev/ja/programming-guides/techniques/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/programming-guides/techniques/</guid><description>
+&lt;h2 id="suffixes">一般的なファイル名の接尾辞&lt;/h2>
+&lt;p>異なる形式でファイルにメッセージを書き込むことはかなり一般的です。これらのファイルには、以下のファイル拡張子の使用を推奨します。&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>内容&lt;/th>
+&lt;th>拡張子&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;a href="https://protobuf.dev/reference/protobuf/textformat-spec">テキスト形式&lt;/a>&lt;/td>
+&lt;td>&lt;code>.txtpb&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;a href="https://protobuf.dev/programming-guides/encoding">ワイヤ形式&lt;/a>&lt;/td>
+&lt;td>&lt;code>.binpb&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;a href="https://protobuf.dev/programming-guides/proto3#json">JSON形式&lt;/a>&lt;/td>
+&lt;td>&lt;code>.json&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>特にテキスト形式の場合、&lt;code>.textproto&lt;/code> もかなり一般的ですが、簡潔さのために &lt;code>.txtpb&lt;/code> を推奨します。&lt;/p>
+&lt;h2 id="streaming">複数のメッセージをストリーミングする&lt;/h2>
+&lt;p>1 つのファイルやストリームに複数のメッセージを書き込みたい場合、1 つのメッセージが終わり、次のメッセージが始まる場所を追跡する必要があります。Protocol Buffer ワイヤ形式は自己区切りではないため、プロトコルバッファパーサーはメッセージの終わりを自動的に判断できません。この問題を解決する最も簡単な方法は、メッセージを書き込む前に各メッセージのサイズを書き込むことです。メッセージを読み込む際には、サイズを読み取り、その後バイトを別のバッファに読み込み、そのバッファから解析します。（バイトを別のバッファにコピーするのを避けたい場合は、特定のバイト数に読み取りを制限できる &lt;code>CodedInputStream&lt;/code> クラス（C++ および Java の両方に存在）を確認してください。）&lt;/p>
+&lt;h2 id="large-data">大規模なデータセット&lt;/h2>
+&lt;p>Protocol Buffers は大きなメッセージを処理するために設計されていません。一般的な指針として、1 メガバイトを超えるメッセージを扱う場合は、別の戦略を検討する時期かもしれません。&lt;/p>
+&lt;p>ただし、Protocol Buffers は大規模なデータセット内の個々のメッセージを処理するのに適しています。通常、大規模なデータセットは小さな部分のコレクションであり、各小さな部分が構造化されたデータです。Protocol Buffers は一度に全体のセットを処理できなくても、各部分をエンコードするために使用すると、問題が大幅に簡素化されます。これで、構造体のセットではなくバイト文字列のセットを処理する必要があります。&lt;/p>
+&lt;p>Protocol Buffersには大規模なデータセットをサポートする組み込み機能が含まれていないため、異なる状況には異なる解決策が求められます。時には単純なレコードのリストが適している場合もありますが、他の場合にはデータベースのようなものが必要になることもあります。各解決策は別々のライブラリとして開発されるべきであり、必要な人だけがそのコストを支払う必要があります。&lt;/p>
+&lt;h2 id="self-description">自己記述メッセージ&lt;/h2>
+&lt;p>Protocol Buffersには自身の型の説明が含まれていないため、対応する&lt;code>.proto&lt;/code>ファイルで型を定義していない生のメッセージだけが与えられた場合、有用なデータを抽出することが難しいです。&lt;/p>
+&lt;p>ただし、.protoファイルの内容自体もプロトコルバッファを使用して表現することができます。ソースコードパッケージ内の&lt;code>src/google/protobuf/descriptor.proto&lt;/code>ファイルは関連するメッセージ型を定義しています。&lt;code>protoc&lt;/code>は&lt;code>--descriptor_set_out&lt;/code>オプションを使用して、.protoファイルのセットを表す&lt;code>FileDescriptorSet&lt;/code>を出力できます。これにより、次のように自己記述プロトコルメッセージを定義できます：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-proto" data-lang="proto">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">syntax&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;proto3&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">import&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;google/protobuf/any.proto&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">import&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;google/protobuf/descriptor.proto&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#000">SelfDescribingMessage&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// Set of FileDescriptorProtos which describe the type and its dependencies.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#000">google.protobuf.FileDescriptorSet&lt;/span> &lt;span style="color:#000">descriptor_set&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// The message and its type, encoded as an Any message.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#000">google.protobuf.Any&lt;/span> &lt;span style="color:#204a87;font-weight:bold">message&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">2&lt;/span>&lt;span style="color:#000;font-weight:bold">;&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>&lt;span style="color:#a40000">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>C++やJavaで利用可能な&lt;code>DynamicMessage&lt;/code>などのクラスを使用することで、&lt;code>SelfDescribingMessage&lt;/code>を操作できるツールを作成できます。&lt;/p>
+&lt;p>以上のように、この機能がProtocol Bufferライブラリに含まれていない理由は、Google内でそのような機能が必要とされたことがないからです。&lt;/p>
+&lt;p>このテクニックには、記述子を使用した動的メッセージのサポートが必要です。自己記述メッセージを使用する前に、プラットフォームがこの機能をサポートしているか確認してください。&lt;/p></description></item></channel></rss>

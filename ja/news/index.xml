@@ -1,0 +1,95 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Protocol Buffers Documentation – ニュース</title><link>https://protobuf.dev/ja/news/</link><description>Recent content in ニュース on Protocol Buffers Documentation</description><generator>Hugo -- gohugo.io</generator><language>ja</language><atom:link href="https://protobuf.dev/ja/news/index.xml" rel="self" type="application/rss+xml"/><item><title>News:</title><link>https://protobuf.dev/ja/news/2022-05-06/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/news/2022-05-06/</guid><description>
+&lt;h2 id="versioning">バージョニング&lt;/h2>
+&lt;p>言語固有の部分をより柔軟に更新できるようにするために、バージョニング方式を変更しました。新しい方式では、各言語に独自のメジャーバージョンがあり、他の言語とは独立して増やすことができます。ただし、マイナーおよびパッチバージョンは連動したままです。これにより、一部の言語に破壊的な変更を導入することができ、破壊的な変更がない言語ではメジャーバージョンを上げる必要がありません。&lt;/p>
+&lt;p>この新しいバージョニング方式の最初のインスタンスは、Python APIの新しいバージョンである4.21.0です。これは、前のバージョンである3.20.1に続きます。他の言語APIは3.21.0としてリリースされます。&lt;/p>
+&lt;h2 id="python-updates">Pythonの更新&lt;/h2>
+&lt;p>Protocol BuffersのPython言語サポートにいくつかの変更を加えました。バージョン4.21.0は、3.20.1に続く新しいメジャーバージョンです。新しいバージョンは、&lt;a href="https://github.com/protocolbuffers/upb">upbライブラリ&lt;/a>に基づいており、以前のリリースよりも大きなペイロードに対して特に優れたパース性能を提供します。また、Appleシリコン向けの事前ビルドされたバイナリモジュールも含まれており、手動ビルドなしでパフォーマンスが向上します。&lt;/p>
+&lt;p>新しいリリースにはいくつかの破壊的な変更が含まれています。具体的には次のとおりです：&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://googleapis.dev/python/protobuf/3.17.0/google/protobuf/message.html#google.protobuf.message.Message.UnknownFields">&lt;code>UnknownFields()&lt;/code>&lt;/a> メソッドは、暗黙的に作成されたクラスに依存していたが、明示的に作成された &lt;code>UnknownFieldSet&lt;/code> クラスに置き換えられました。&lt;/li>
+&lt;li>特定の文字列やエラーメッセージの形式など、非コアの特性が変更されている可能性があります。これらは破壊的な変更とは見なされませんが、既存のコードベースに影響を与える可能性があります。&lt;/li>
+&lt;li>PythonとC++間でメッセージを共有するアプリケーションは、新しいバージョンで壊れます。ほとんどの開発者は影響を受けませんが、&lt;a href="https://github.com/google/nucleus">Nucleus&lt;/a> および他のライブラリのユーザーは影響を受けるかもしれません。回避策として、互換性を維持するために&lt;a href="https://protobuf.dev/reference/python/python-generated#sharing-messages">環境変数を設定&lt;/a>することができます。&lt;/li>
+&lt;li>Python upb は、protoc 3.19.0以降で生成された生成コードが必要です。&lt;/li>
+&lt;/ul>
+&lt;h2 id="javascript">JavaScript サポート&lt;/h2>
+&lt;p>Protocol Buffer の JavaScript サポートのためにいくつかの変更を行いました。これにより、JavaScript がメインリポジトリとは独立して進化しリリースされることが可能になりました。具体的には、言語サポートをメインプロジェクトから切り離し、&lt;a href="https://github.com/protocolbuffers/protobuf">メインプロジェクト&lt;/a> から独自のリポジトリに移動しました。&lt;a href="https://github.com/protocolbuffers/protobuf-javascript">独自のリポジトリ&lt;/a> に移動しました。&lt;/p>
+&lt;p>Protocol Buffers の JavaScript サポートに関連するプルリクエストを作成している場合、引き続きマージしたいものがあれば、JavaScript リポジトリに対して複製してください。GitHub の問題は自動的に移行されます。&lt;/p></description></item><item><title>News:</title><link>https://protobuf.dev/ja/news/2023-07-06/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/news/2023-07-06/</guid><description>
+&lt;h2 id="2023年7月6日に発表された変更">2023年7月6日に発表された変更&lt;/h2>
+&lt;p>&lt;a href="https://cloud.google.com/php/getting-started/supported-php-versions">PHPサポートポリシー&lt;/a>に従い、PHP 7.4およびそれ以下のバージョンのサポートを終了します。これにより、サポートされる最小のPHPバージョンは8.0になります。&lt;/p>
+&lt;p>古いバージョンのPHPを実行している場合は、&lt;code>pecl install protobuf-3.23.3&lt;/code>を実行して、以前のリリースのprotobuf PHP拡張機能をインストールできます。&lt;/p>
+&lt;h2 id="ruby-26のサポート終了">Ruby 2.6のサポート終了&lt;/h2>
+&lt;p>&lt;a href="https://cloud.google.com/ruby/getting-started/supported-ruby-versions">公式のRubyサポートポリシー&lt;/a>に従い、Ruby 2.6およびそれ以下のバージョンのサポートを終了します。これにより、サポートされる最小のRubyバージョンは2.7になります。&lt;/p>
+&lt;h2 id="python-37のサポート終了">Python 3.7のサポート終了&lt;/h2>
+&lt;p>&lt;a href="https://cloud.google.com/python/docs/supported-python-versions">公式のPythonサポートポリシー&lt;/a>に従い、Python 3.7およびそれ以下のバージョンのサポートを終了します。これにより、サポートされる最小のPythonバージョンは3.8になります。&lt;/p></description></item><item><title>News:</title><link>https://protobuf.dev/ja/news/2023-08-09/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/news/2023-08-09/</guid><description>
+&lt;h2 id="net-サポートポリシー-examples">.NET サポートポリシー {/examples}&lt;/h2>
+&lt;p>Protobuf チームは、.NET を以下の2つの方法でサポートしています:&lt;/p>
+&lt;ul>
+&lt;li>protoc による C# コードの生成&lt;/li>
+&lt;li>&lt;a href="https://www.nuget.org/packages/Google.Protobuf">Google.Protobuf NuGet パッケージ&lt;/a> は、生成されたコードのランタイムサポート、リフレクション、およびその他の機能を提供します&lt;/li>
+&lt;/ul>
+&lt;p>これらのサポートポリシーは以前は不明瞭であり、特にどの .NET ランタイムがサポートされているかについてはっきりしていませんでした。2023年8月以降、サポートは &lt;a href="https://opensource.google/documentation/policies/dotnet-support">Google の .NET オープンソースサポートポリシー&lt;/a> に従って提供されます。これにより、&lt;code>Google.Protobuf&lt;/code> パッケージからいくつかの古い .NET バージョンが新しいメジャーバージョンを取らずに削除されることが予想されます。&lt;/p>
+&lt;p>Protobuf は Google プロジェクト内で比較的珍しい点が2つあります。まず第一に、顧客がコンパイルすることを期待している C# の生成をサポートしているため、言語バージョンだけでなくランタイムバージョンも考慮する必要があります。現行のポリシーはこのサポートの側面をカバーしていないため、この点については別途ポリシーを公開します。第二に、Unity はファーストクラスのサポートプラットフォームではありませんが、Protobuf が Unity で一般的に使用されていることを理解しており、その使用を可能な限り壊さないようにする意向です。&lt;/p>
+&lt;p>新しい &lt;code>Google.Protobuf&lt;/code> のターゲットプラットフォームが決定された際に詳細が公開されます。これは、コミュニティフィードバックの時間を確保するために、有効になるリリースの少なくとも1か月前に行われます。現時点では、ユーザーには &lt;a href="https://opensource.google/documentation/policies/dotnet-support">サポートポリシー&lt;/a> を確認することをお勧めします。&lt;/p></description></item><item><title>News:</title><link>https://protobuf.dev/ja/news/2023-08-15/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/news/2023-08-15/</guid><description>
+&lt;h2 id="python-breaking-change-examples">Python Breaking Change {/examples}&lt;/h2>
+&lt;p>v25 では、&lt;a href="https://googleapis.dev/python/protobuf/latest/google/protobuf/message.html#google.protobuf.message.Message.UnknownFields">&lt;code>message.UnknownFields()&lt;/code>&lt;/a> が純粋な Python および C++ 拡張機能で非推奨となります。v26 で削除されます。代わりに &lt;code>unknown_fields.py&lt;/code> での新しい &lt;a href="https://googleapis.dev/python/protobuf/latest/google/protobuf/unknown_fields.html">&lt;code>UnknownFieldSet(message)&lt;/code>&lt;/a> サポートを使用してください。&lt;/p></description></item><item><title>News:</title><link>https://protobuf.dev/ja/news/2023-09-15/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/news/2023-09-15/</guid><description>
+&lt;h2 id="2023年9月15日に発表された変更">2023年9月15日に発表された変更&lt;/h2>
+&lt;p>v25リリースから、μpbは今後、&lt;a href="https://github.com/protocolbuffers/protobuf">protobufリポジトリ&lt;/a>にあり、
+&lt;a href="https://github.com/protocolbuffers/upb">以前の場所&lt;/a>にあった別のリポジトリではなくなりました。今後のすべてのμpb開発は新しい場所でのみ行われます。&lt;/p>
+&lt;p>両方のリポジトリの統合により、protobufとμpbのピン留めバージョンの依存関係を更新する必要がなくなり、開発プロセスが簡素化され、スピードアップされます。μpbの変更はprotobufコードに即座に反映され、その逆も同様に、手動でのアップグレード手順が不要になります。&lt;/p>
+&lt;p>ほとんどのユーザーが変更に対応するためにほとんど何もする必要がないと予想しています。μpbは、Ruby、PHP、およびPythonの実装のエンジンですが、μpbを直接参照するコードがない限り、変更に気づかないでしょう。&lt;/p>
+&lt;p>Bazelプロジェクトからμpbを参照している場合は、μpbの参照をprotobufに変更する必要があります（たとえば、&lt;code>@upb&lt;/code>を&lt;code>@com_google_protobuf&lt;/code>に置き換えます）。μpbのファイルパスとBazelターゲットは同じままにして、追加の変更が必要ないようにしていますが、2つの例外があります：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>upbc&lt;/code>ディレクトリが&lt;code>upb_generator&lt;/code>に名前が変更されました。&lt;/li>
+&lt;li>μpbのトップレベルの&lt;code>BUILD&lt;/code>ファイルが&lt;code>upb&lt;/code>ディレクトリに移動しました。したがって、例えば、&lt;code>@upb//:reflection&lt;/code>への参照は、&lt;code>@com_google_protobuf//upb:reflection&lt;/code>と書かれるようになりました。&lt;/li>
+&lt;/ul></description></item><item><title>News:</title><link>https://protobuf.dev/ja/news/2023-12-27/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/news/2023-12-27/</guid><description>
+&lt;h2 id="2023年12月27日に発表された変更">2023年12月27日に発表された変更&lt;/h2>
+&lt;h3 id="rubyの互換性のない変更">Rubyの互換性のない変更&lt;/h3>
+&lt;p>26.xラインで以下の変更が計画されています：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>RepeatedField#each_index&lt;/code>を正しいセマンティクスに修正します。
+(&lt;a href="https://github.com/protocolbuffers/protobuf/pull/11767">#11767&lt;/a>)&lt;/li>
+&lt;li>4月に発表された&lt;a href="https://protobuf.dev/news/2023-04-20">移行&lt;/a>を完了するため、Ruby DSLと関連する互換性コードを削除します。&lt;/li>
+&lt;li>&lt;code>Message#to_h&lt;/code>の修正：
+&lt;ul>
+&lt;li>unsetのoneofフィールドを削除します。
+(&lt;a href="https://github.com/protocolbuffers/protobuf/issues/6167">#6167&lt;/a>)&lt;/li>
+&lt;li>unsetのサブメッセージフィールドを削除します。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;a href="https://github.com/protocolbuffers/protobuf/blob/2fb0b93d9de226ea96f2dc2b4779eb4712d01d5c/ruby/ext/google/protobuf_c/message.c#L1118">&lt;code>encode_json&lt;/code>&lt;/a>/&lt;a href="https://github.com/protocolbuffers/protobuf/blob/2fb0b93d9de226ea96f2dc2b4779eb4712d01d5c/ruby/ext/google/protobuf_c/message.c#L1004">&lt;code>decode_json&lt;/code>&lt;/a>にメッセージのプールを使用します。&lt;/li>
+&lt;li>廃止された構文アクセサー&lt;code>FileDescriptor.syntax&lt;/code>を削除し、代わりに意味的なチェックを追加します：
+&lt;ul>
+&lt;li>フィールドが存在するかをテストする&lt;code>FieldDescriptor.has_presence&lt;/code>。&lt;/li>
+&lt;li>繰り返しフィールドがパックされているかをテストする&lt;code>FieldDescriptor.is_packed&lt;/code>。&lt;/li>
+&lt;li>文字列フィールドがUTF-8検証を必要とするかをテストする&lt;code>FieldDescriptor.requires_utf8_validation&lt;/code>。&lt;/li>
+&lt;li>列挙型が閉じているかをテストする&lt;code>EnumDescriptor.is_closed&lt;/code>。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="phpの互換性のない変更">PHPの互換性のない変更&lt;/h2>
+&lt;p>26.xラインで以下の変更が計画されています：&lt;/p>
+&lt;ul>
+&lt;li>セッターで文字列フィールドのUTF-8を検証します。&lt;/li>
+&lt;li>汎用サービスを削除します。
+(&lt;a href="https://github.com/protocolbuffers/protobuf/commit/40ad3fac603ba3c96e52a1266cd785a7adb8e3e4">commit 40ad3fa&lt;/a>)&lt;/li>
+&lt;/ul>
+&lt;h2 id="pythonの互換性のない変更">Pythonの互換性のない変更&lt;/h2>
+&lt;p>26.xラインで以下の変更が計画されています：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>str(msg)&lt;/code>で文字列フィールドの無効なUTF-8をエスケープします。&lt;/li>
+&lt;li>&lt;code>text_format.MessageToString()&lt;/code>は、無効なUTF-8シーケンスをエスケープしながら、デフォルトで生のUTF-8を出力するようにします。&lt;/li>
+&lt;li>タイムスタンプの境界を修正します（&lt;a href="https://github.com/protocolbuffers/protobuf/commit/1250d5f6cccb0a45f959c7219980a0aad5060ee5">commit 1250d5f&lt;/a>).&lt;/li>
+&lt;/ul>
+&lt;p>{/&lt;em>examples&lt;/em>/}&lt;/p>
+&lt;h2 id="upb-breaking-changes-examples">upb Breaking Changes {/examples}&lt;/h2>
+&lt;p>26.x ラインには、次の変更が計画されています:&lt;/p>
+&lt;ul>
+&lt;li>修正
+&lt;a href="https://github.com/protocolbuffers/protobuf/blob/2f7b2832b6a62fec88efacbb97bf0a91b6a3670e/upb/conformance/conformance_upb_failures.txt">&lt;code>IgnoreUnknownEnumString&lt;/code> が有効になっているときの JSON パースの非適合&lt;/a> を修正しました。&lt;/li>
+&lt;/ul></description></item><item><title>News:</title><link>https://protobuf.dev/ja/news/2024-06-26/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://protobuf.dev/ja/news/2024-06-26/</guid><description>
+&lt;h2 id="2024年6月26日に発表された変更">2024年6月26日に発表された変更&lt;/h2>
+&lt;p>Protocol Buffersに関する2024年6月26日の変更が発表されました。&lt;/p>
+&lt;h2 id="mavenを使用してprotobuf-javaをソースからビルドするサポートの廃止">Mavenを使用してProtobuf Javaをソースからビルドするサポートの廃止&lt;/h2>
+&lt;p>Protobuf Java 4.28リリースで、Mavenビルドシステムを使用してProtobuf Java OSSをソースからビルドするサポートを廃止する予定です。これは4.27リリースで非推奨とマークされています。&lt;/p>
+&lt;p>この時点以降、Bazelや他のビルドシステムを使用してProtobufをビルドすることができます。ソースからのビルドについて詳しくは、&lt;a href="https://github.com/protocolbuffers/protobuf/tree/main/java">Protobuf Java README&lt;/a>をご覧ください。&lt;/p>
+&lt;p>この変更は、ソースからprotobufをビルドするProtobuf Javaの貢献者に影響を与える可能性があります。これは、リポジトリから事前にコンパイルされたprotobuf-javaやprotobuf-javaliteのアーティファクトを使用しているほとんどのユーザーには影響しません。特に、Mavenを使用してジェネレートコードをコンパイルする機能をサポートを停止する予定はありません。また、Maven Centralリポジトリで事前にビルドされたアーティファクトを引き続き利用できるようにする予定です。&lt;/p></description></item></channel></rss>
