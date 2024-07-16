@@ -1,88 +1,52 @@
 +++
-title = "News"
+title = "ニュース"
 weight = 20
-description = "Get the latest news about Protocol Buffers."
+description = "Protocol Buffersに関する最新ニュースを入手します。"
 type = "docs"
 no_list = "true"
 +++
 
-News topics provide information about past events and changes with Protocol
-Buffers, and plans for upcoming changes. The information is available both
-chronologically and per-release. Note that not everything is included in the
-per-release topics, as some content is not tied to a version.
+ニューストピックは、Protocol Buffersに関する過去のイベントや変更、今後の変更の計画に関する情報を提供します。情報は、時系列順およびリリースごとに利用可能です。リリースごとのトピックにはすべてが含まれているわけではなく、一部のコンテンツはバージョンに結び付いていないことに注意してください。
 
-New news topics will also be published to the
-[protobuf@](https://groups.google.com/g/protobuf) mailing list under the subject
-\[Announcement\].
+新しいニューストピックは、\[Announcement\]の件名で、[protobuf@](https://groups.google.com/g/protobuf) メーリングリストにも掲載されます。
 
-## Chronological {#chronological}
+## 時系列 {#chronological}
 
-The following news topics provide information in the reverse order in which it
-was released.
+以下のニューストピックは、リリースされた逆順で情報を提供します。
 
-*   [June 26, 2024](/news/2024-06-26) - Dropping support
-    for building Protobuf Java from source with Maven
-*   [February 27, 2024](/news/2024-02-27) - Dropping
-    support for older versions of Ruby
-*   [February 5, 2024](/news/2024-02-05) - Breaking
-    changes in Java, C++, and Python in the 26.x line.
-*   [January 31, 2024](/news/2024-01-31) - Breaking
-    changes in the 26.x line for Python
-*   [January 5, 2024](/news/2024-01-05) - Breaking
-    changes in the 26.x line for Ruby and Python
-*   [December 27, 2023](/news/2023-12-27) - Breaking
-    changes in the 26.x line for Ruby, PHP, Python, and upb
-*   [December 13, 2023](/news/2023-12-13) - Breaking
-    Python and C++ changes in the 26.x line
-*   [December 5, 2023](/news/2023-12-05) - Breaking Java
-    changes in the 26.x line
-*   [October 10, 2023](/news/2023-10-10) - Documentation
-    for Protobuf Editions features is published
-*   [September 15, 2023](/news/2023-09-15) - μpb Moving
-    to the Protobuf GitHub repository
-*   [August 15, 2023](/news/2023-08-15) - Breaking Python
-    change with the replacement of `message.UnknownFields()`
-*   [August 9, 2023](/news/2023-08-09) - Support policy
-    for .NET
-*   [July 17, 2023](/news/2023-07-17) - Dropping support
-    for older versions of Bazel
-*   [July 6, 2023](/news/2023-07-06) - Dropping support
-    for older versions of PHP, Ruby, and Python
-*   [June 29, 2023](/news/2023-06-29) - Protobuf Editions
-    announcement
-*   [April 28, 2023](/news/2023-04-28) - Null no longer
-    allowed in `json_name` field options
-*   [April 20, 2023](/news/2023-04-20) - Update to Ruby
-    code generator
-*   [April 11, 2023](/news/2023-04-11) - Removing syntax
-    reflection, releasing C++ CORD support for singular `bytes` fields to OSS,
-    option retention, and dropping support for Bazel <5.3
-*   [August 3, 2022](/news/2022-08-03) - Platform Support
-    Changes and Upcoming Changes in the C++ 22.x Line
-*   [July 6, 2022](/news/2022-07-06) - Library Breaking
-    Change Policy
-*   [May 6, 2022](/news/2022-05-06) - Versioning, Python
-    Updates, and JavaScript Support
+*   [2024年6月26日](/news/2024-06-26) - MavenでProtobuf Javaをソースからビルドするサポートの廃止
+*   [2024年2月27日](/news/2024-02-27) - 古いバージョンのRubyのサポートの廃止
+*   [2024年2月5日](/news/2024-02-05) - 26.xラインのJava、C++、Pythonでの互換性のない変更
+*   [2024年1月31日](/news/2024-01-31) - Pythonの26.xラインでの互換性のない変更
+*   [2024年1月5日](/news/2024-01-05) - RubyとPythonの26.xラインでの互換性のない変更
+*   [2023年12月27日](/news/2023-12-27) - Ruby、PHP、Python、upbの26.xラインでの互換性のない変更
+*   [2023年12月13日](/news/2023-12-13) - 26.xラインでのPythonとC++の互換性のない変更
+*   [2023年12月5日](/news/2023-12-05) - 26.xラインでのJavaの互換性のない変更
+*   [2023年10月10日](/news/2023-10-10) - Protobuf Editionsの機能に関するドキュメントが公開されました
+*   [2023年9月15日](/news/2023-09-15) - μpbがProtobuf GitHubリポジトリに移行
+*   [2023年8月15日](/news/2023-08-15) - `message.UnknownFields()`の置換によるPythonの互換性のない変更
+*   [2023年8月9日](/news/2023-08-09) - .NETのサポートポリシー
+*   [2023年7月17日](/news/2023-07-17) - 古いバージョンのBazelのサポートの廃止
+*   [2023年7月6日](/news/2023-07-06) - 古いバージョンのPHP、Ruby、Pythonのサポートの廃止
+*   [2023年6月29日](/news/2023-06-29) - Protobuf Editionsの発表
+*   [2023年4月28日](/news/2023-04-28) - `json_name`フィールドオプションでのNullの使用が不可に
+*   [2023年4月20日](/news/2023-04-20) - Rubyコードジェネレータの更新
+*   [2023年4月11日](/news/2023-04-11) - 構文リフレクションの削除、単数の`bytes`フィールドに対するC++ CORDサポートのOSSへのリリース、オプションの保持、およびBazel <5.3のサポートの廃止
+*   [2022年8月3日](/news/2022-08-03) - C++ 22.xラインのプラットフォームサポート変更および今後の変更
+*   [2022年7月6日](/news/2022-07-06) - ライブラリの互換性のない変更ポリシー
+*   [2022年5月6日](/news/2022-05-06) - バージョニング、Pythonの更新、およびJavaScriptのサポート
 
-## Per Release {#per-release}
+## リリースごと {#per-release}
 
-<!-- Protobuf team: Add individual sections to a topic below when the section is
-specific to a particular release, rather than a general update. -->
+以下の新しいトピックはリリースごとの情報を提供します。すべてのニュースエントリーは前のセクションの年代順リストに表示されますが、特定のバージョンに固有のエントリーのみがこのセクションにリストされます。
 
-The following new topics provide per-release information. All News entries
-appear in the chronological listing in the previous section, but only entries
-that are specific to a particular version appear in the pages listed in this
-section.
+これらのページは[リリースノート](https://github.com/protocolbuffers/protobuf/releases)を置き換えるものではありません。リリースノートの方がより完全です。また、年代順リストからすべての内容がこれらのトピックに含まれるわけではありません。特定のリリースに固有でないコンテンツもあります。
 
-These pages do not replace the
-[release notes](https://github.com/protocolbuffers/protobuf/releases), as the
-release notes will be more complete. Also, not everything from the chronological
-listing will be in these topics, as some content is not specific to a particular
-release.
+- [バージョン 26.x](/news/v26)
+- [バージョン 25.x](/news/v25)
+- [バージョン 24.x](/news/v24)
+- [バージョン 23.x](/news/v23)
+- [バージョン 22.x](/news/v22)
+- [バージョン 21.x](/news/v21) 
 
-*   [Version 26.x](/news/v26)
-*   [Version 25.x](/news/v25)
-*   [Version 24.x](/news/v24)
-*   [Version 23.x](/news/v23)
-*   [Version 22.x](/news/v22)
-*   [Version 21.x](/news/v21)
+{/*examples*/}

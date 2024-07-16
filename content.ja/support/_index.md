@@ -1,11 +1,8 @@
 +++
-title = "Support"
+title = "サポート"
 weight = 900
-description = "Resources to support using Protocol Buffers."
+description = "Protocol Buffers の使用をサポートするリソース。"
 type = "docs"
 +++
 
-This section of the documentation contains topics related to the support that
-the Protocol Buffers team provides to developers, including the timeframes for
-support for each version of a language library and migration guides to help you
-keep up with major version bumps.
+このドキュメントのセクションには、Protocol Buffers チームが開発者に提供するサポートに関連するトピックが含まれています。言語ライブラリの各バージョンのサポート期間や、メジャーバージョンの変更に追従するための移行ガイドなどが含まれています。{/*examples*/}

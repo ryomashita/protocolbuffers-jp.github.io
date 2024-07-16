@@ -1,7 +1,7 @@
 +++
-title = "C++ Reference"
+title = "C++ リファレンス"
 weight = 500
 linkTitle = "C++"
-description = "Reference documentation for working with protocol buffer classes in C++."
+description = "C++ でプロトコルバッファクラスを操作するためのリファレンスドキュメント。"
 type = "docs"
 +++

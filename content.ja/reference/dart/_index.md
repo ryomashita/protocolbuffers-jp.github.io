@@ -1,7 +1,7 @@
 +++
-title = "Dart Reference"
+title = "Dart リファレンス"
 weight = 570
 linkTitle = "Dart"
-description = "Reference documentation for working with protocol buffer classes in Dart"
+description = "Dart でプロトコルバッファクラスを操作するためのリファレンスドキュメント"
 type = "docs"
 +++

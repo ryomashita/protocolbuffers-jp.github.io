@@ -4,6 +4,6 @@
 
 [JVM] abstract class [DslProxy]()
 
-A type meaningful only for its existence, never intended to be instantiated. For
-example, a DslList<Int, FooProxy> can be given different extension methods than
-a DslList<Int, BarProxy>.
+その存在だけが意味を持つ型であり、インスタンス化することを意図していません。たとえば、DslList<Int, FooProxy> と DslList<Int, BarProxy> には異なる拡張メソッドが与えられる可能性があります。
+
+{/*examples*/}

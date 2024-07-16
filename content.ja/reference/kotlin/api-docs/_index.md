@@ -1,13 +1,14 @@
 +++
-title = "Kotlin Reference"
+title = "Kotlin リファレンス"
 weight = 670
 linkTitle = "Kotlin"
-description = "This section contains reference documentation for working with protocol buffers in Kotlin."
+description = "このセクションには、Kotlin でプロトコルバッファを使用するためのリファレンスドキュメントが含まれています。"
 type = "docs"
 +++
 
-## Packages
+## パッケージ
 
 Name |
 ---- |
 <a name="com.google.protobuf.kotlin////PointingToDeclaration/"></a>[com.google.protobuf.kotlin](protobuf-kotlin/com.google.protobuf.kotlin/) |
+

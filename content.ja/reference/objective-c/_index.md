@@ -1,7 +1,7 @@
 +++
-title = "Objective-C Reference"
+title = "Objective-C リファレンス"
 weight = 700
 linkTitle = "Objective-C"
-description = "Reference documentation for working with protocol buffer classes in Objective-C."
+description = "Objective-C でプロトコルバッファクラスを操作するためのリファレンスドキュメント。"
 type = "docs"
 +++

@@ -1,7 +1,7 @@
 +++
-title = "PHP Reference"
+title = "PHP リファレンス"
 weight = 720
 linkTitle = "PHP"
-description = "Reference documentation for working with protocol buffer classes in PHP."
+description = "PHP でプロトコルバッファクラスを操作するためのリファレンスドキュメント。"
 type = "docs"
 +++

@@ -7,21 +7,15 @@ type = "docs"
 no_list = "true"
 +++
 
-## What Are Protocol Buffers?
+## プロトコルバッファとは何ですか？
 
-Protocol buffers are Google's language-neutral, platform-neutral, extensible
-mechanism for serializing structured data – think XML, but smaller, faster, and
-simpler. You define how you want your data to be structured once, then you can
-use special generated source code to easily write and read your structured data
-to and from a variety of data streams and using a variety of languages.
+プロトコルバッファは、Googleの言語に依存しない、プラットフォームに依存しない、拡張可能なメカニズムで、構造化されたデータをシリアライズするためのものです。XMLのようなものですが、より小さく、高速で、シンプルです。データの構造を一度定義し、特別に生成されたソースコードを使用して、構造化されたデータをさまざまなデータストリームやさまざまな言語を使用して簡単に書き込んだり読み取ったりできます。
 
-## Pick Your Favorite Language
+## お好きな言語を選択してください
 
-Protocol buffers support generated code in C++, C#, Dart, Go, Java,
-Kotlin,
-Objective-C, Python, and Ruby. With proto3, you can also work with PHP.
+プロトコルバッファは、C++、C#、Dart、Go、Java、Kotlin、Objective-C、Python、およびRubyで生成されたコードをサポートしています。proto3を使用すると、PHPでも作業できます。
 
-## Example Implementation
+## 実装例
 
 ```proto
 message Person {
@@ -31,7 +25,7 @@ message Person {
 }
 ```
 
-**Figure 1.** A proto definition.
+**図1.** protoの定義。
 
 ```java
 // Java code
@@ -44,7 +38,7 @@ output = new FileOutputStream(args[0]);
 john.writeTo(output);
 ```
 
-**Figure 2.** Using a generated class to persist data.
+**図2.** 生成されたクラスを使用してデータを永続化する。
 
 ```cpp
 // C++ code
@@ -57,23 +51,20 @@ name = john.name();
 email = john.email();
 ```
 
-**Figure 3.** Using a generated class to parse persisted data.
+**図3.** 生成されたクラスを使用して永続化されたデータを解析する。
 
-## How Do I Start?
+## どうやって始めればいいですか？
 
 <ol>
 
   <li>
-    <a href="https://github.com/protocolbuffers/protobuf#protobuf-compiler-installation">Download
-    and install</a> the protocol buffer compiler.
+    <a href="https://github.com/protocolbuffers/protobuf#protobuf-compiler-installation">プロトコルバッファコンパイラをダウンロードしてインストール</a>してください。
   </li>
 
   <li>
-    Read the
-    <a href="/overview">overview</a>.
+    <a href="/overview">概要</a>を読んでください。
   </li>
   <li>
-    Try the <a href="/getting-started">tutorial</a> for your
-    chosen language.
+    選択した言語の<a href="/getting-started">チュートリアル</a>を試してみてください。
   </li>
 </ol>

@@ -1,7 +1,7 @@
 +++
-title = "Protocol Buffers Reference"
+title = "プロトコルバッファリファレンス"
 weight = 790
-linkTitle = "Protocol Buffers"
-description = "Language-agnostic information about how to use protocol buffers."
+linkTitle = "プロトコルバッファ"
+description = "プロトコルバッファの使用方法に関する言語に依存しない情報。"
 type = "docs"
 +++

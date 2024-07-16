@@ -1,7 +1,7 @@
 +++
-title = "Ruby Reference"
+title = "Ruby リファレンス"
 weight = 770
 linkTitle = "Ruby"
-description = "Reference documentation for working with protocol buffer classes in Ruby."
+description = "Ruby でプロトコルバッファクラスを操作するためのリファレンスドキュメント。"
 type = "docs"
 +++

@@ -1,7 +1,7 @@
 +++
-title = "Kotlin Reference"
+title = "Kotlin リファレンス"
 weight = 670
 linkTitle = "Kotlin"
-description = "Reference documentation for working with protocol buffer classes in Kotlin."
+description = "Kotlin でプロトコルバッファクラスを操作するためのリファレンスドキュメント。"
 type = "docs"
 +++

@@ -1,6 +1,6 @@
 +++
-title = "Programming Guides"
+title = "プログラミングガイド"
 weight = 27
-description = "Learn how to use Protocol Buffers in your projects."
+description = "プロジェクトで Protocol Buffers を使用する方法を学びます。"
 type = "docs"
 +++

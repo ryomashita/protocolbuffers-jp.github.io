@@ -2,29 +2,24 @@
 
 # DslList
 
-[JVM] class [DslList]()<[E](), [P]() :
+[JVM] クラス [DslList]()<[E](), [P]() :
 [DslProxy](../-dsl-proxy)>constructor(**delegate**:
 [List](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)<[E]()>) :
 [List](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)<[E]()>
 
-A simple wrapper around a
-[List](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)
-with an extra generic parameter that can be used to disambiguate extension
-methods.
+[List](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html) の単純なラッパーで、拡張メソッドを区別するために使用できる追加のジェネリックパラメータを持っています。
 
-<p>This class is used by Kotlin protocol buffer extensions, and its constructor
-is public only because generated message code is in a different compilation
-unit. Others should not use this class directly in any way.
+<p>このクラスは、Kotlinプロトコルバッファ拡張で使用され、そのコンストラクタは生成されたメッセージコードが異なるコンパイルユニットにあるためにのみ公開されています。他の人はこのクラスを直接どのような方法でも使用すべきではありません。
 
-## Constructors
+## コンストラクタ
 
-Name | Summary
+名前 | 概要
 --- | ---
 [DslList]() | [JVM] fun <[E]()> [DslList]()(delegate: [List](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)<[E]()>)
 
-## Functions
+## 関数
 
-Name                                                                                                                                                                                                                                 | Summary
+名前                                                                                                                                                                                                                                 | 概要
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------
 <a name="kotlin.collections/List/contains/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/"></a>[contains](../-extension-list/#765883978%2FFunctions%2F-246181541)                                                    | <a name="kotlin.collections/List/contains/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/"></a>[JVM] <br>Content <br>open operator override fun [contains](../-extension-list/#765883978%2FFunctions%2F-246181541)(element: [E]()): [Boolean](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html) <br><br><br>
 <a name="kotlin.collections/List/containsAll/#kotlin.collections.Collection[TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/"></a>[containsAll](../-extension-list/#-225903147%2FFunctions%2F-246181541)              | <a name="kotlin.collections/List/containsAll/#kotlin.collections.Collection[TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/"></a>[JVM] <br>Content <br>open override fun [containsAll](../-extension-list/#-225903147%2FFunctions%2F-246181541)(elements: [Collection](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-collection/index.html)<[E]()>): [Boolean](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html) <br><br><br>
@@ -44,8 +39,9 @@ Name                                                                            
 <a name="kotlin.collections/Collection/toArray/#java.util.function.IntFunction[kotlin.Array[TypeParam(bounds=[kotlin.Any])]]/PointingToDeclaration/"></a>[toArray](../-extension-list/#-1215154575%2FFunctions%2F-246181541) | <a name="kotlin.collections/Collection/toArray/#java.util.function.IntFunction[kotlin.Array[TypeParam(bounds=[kotlin.Any])]]/PointingToDeclaration/"></a>[JVM] <br>Content <br>~~open~~ ~~fun~~ ~~<~~[T](../-extension-list/#-1215154575%2FFunctions%2F-246181541) : [Any](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)~~>~~ [~~toArray~~](../-extension-list/#-1215154575%2FFunctions%2F-246181541)~~(~~~~p0~~~~:~~ [IntFunction](https://docs.oracle.com/javase/8/docs/api/java/util/function/IntFunction.html)<[Array](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html)<[T](../-extension-list/#-1215154575%2FFunctions%2F-246181541)>>~~)~~~~:~~ [Array](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html)<[T](../-extension-list/#-1215154575%2FFunctions%2F-246181541)> <br><br><br>
 <a name="com.google.protobuf.kotlin/DslList/toString/#/PointingToDeclaration/"></a>[toString](to-string)                                                                                                                          | <a name="com.google.protobuf.kotlin/DslList/toString/#/PointingToDeclaration/"></a>[JVM] <br>Content <br>open override fun [toString](to-string)(): [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) <br><br><br>
 
-## Properties
+## プロパティ
 
 Name                                                                                                                                 | Summary
 ------------------------------------------------------------------------------------------------------------------------------------ | -------
 <a name="com.google.protobuf.kotlin/DslList/size/#/PointingToDeclaration/"></a>[size](#1874448885%2FProperties%2F-246181541) | <a name="com.google.protobuf.kotlin/DslList/size/#/PointingToDeclaration/"></a> [JVM] open override val [size](#1874448885%2FProperties%2F-246181541): [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html) <br>
+{/*examples*/}

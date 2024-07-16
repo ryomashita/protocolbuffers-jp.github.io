@@ -1,7 +1,7 @@
 +++
-title = "Python Reference"
+title = "Python リファレンス"
 weight = 740
 linkTitle = "Python"
-description = "Reference documentation for working with protocol buffer classes in Python."
+description = "Python でプロトコルバッファクラスを操作するためのリファレンスドキュメント。"
 type = "docs"
 +++

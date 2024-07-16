@@ -1,7 +1,7 @@
 +++
-title = "Java Reference"
+title = "Java リファレンス"
 weight = 640
 linkTitle = "Java"
-description = "Reference documentation for working with protocol buffer classes in Java."
+description = "Java でプロトコルバッファクラスを操作するためのリファレンスドキュメント。"
 type = "docs"
 +++

@@ -1,7 +1,7 @@
 +++
-title = "Go Reference"
+title = "Goリファレンス"
 weight = 600
 linkTitle = "Go"
-description = "Reference documentation for working with protocol buffer classes in Go"
+description = "Goでプロトコルバッファクラスを操作するためのリファレンスドキュメント"
 type = "docs"
 +++

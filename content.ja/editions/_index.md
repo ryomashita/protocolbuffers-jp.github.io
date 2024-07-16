@@ -1,10 +1,10 @@
 +++
 title = "Protobuf Editions"
 weight = 41
-description = "Topics related to the Protobuf Editions functionality."
+description = "Protobuf Editions 機能に関連するトピック。"
 type = "docs"
 +++
 
-*   [Protocol Buffers Overview](/editions/overview)
-*   [Feature Settings for Editions](/editions/features)
-*   [Implementing Editions Support](/editions/implementation)
+*   [Protocol Buffers の概要](/editions/overview)
+*   [Editions の機能設定](/editions/features)
+*   [Editions サポートの実装](/editions/implementation)
