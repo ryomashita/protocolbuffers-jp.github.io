@@ -1,9 +1,10 @@
-//[protobuf-kotlin](/reference/kotlin/api-docs/)/[com.google.protobuf.kotlin](/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/)/set
+
+#[protobuf-kotlin](/reference/kotlin/api-docs/)/[com.google.protobuf.kotlin](/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/)/set
 
 # set
 
 [JVM] \
-Content \
+コンテンツ \
 operator fun <[M]() :
 [GeneratedMessageV3.ExtendableMessage](https://github.com/protocolbuffers/protobuf/blob/master/java/core/src/main/java/com/google/protobuf/GeneratedMessageV3.java)<[M]()>,
 [B]() :
@@ -15,5 +16,4 @@ operator fun <[M]() :
 [T]()>, value: [T]()) 
 
 このビルダー内のプロト拡張の現在の値を設定します。
-
-{/*examples*/}
+```  

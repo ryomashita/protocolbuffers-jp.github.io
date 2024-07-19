@@ -1,5 +1,4 @@
 
-
 +++
 title = "type_resolver_util.h"
 toc_hide = "true"

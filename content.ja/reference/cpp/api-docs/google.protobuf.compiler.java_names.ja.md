@@ -1,4 +1,3 @@
-```markdown
 +++
 title = "java_names.h"
 toc_hide = "true"
@@ -12,8 +11,7 @@ type = "docs"
 ```
 
 ```markdown
-<pre>完全修飾されたJavaクラス名。</pre>
-</div> <hr><h3 id="ClassName.details"><code>std::string java::ClassName(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const <a href='google.protobuf.descriptor#EnumDescriptor'>EnumDescriptor</a> * descriptor)</code></h3><div style="margin-left: 16px"><p>Requires: </p><pre>descriptor != NULL</pre>
+<div> <hr><h3 id="ClassName.details"><code>std::string java::ClassName(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const <a href='google.protobuf.descriptor#EnumDescriptor'>EnumDescriptor</a> * descriptor)</code></h3><div style="margin-left: 16px"><p>Requires: </p><pre>descriptor != NULL</pre>
 
 <p>Returns: </p>
 
@@ -40,4 +38,4 @@ type = "docs"
 <pre>大文字で始まるキャメルケースのフィールド名。</pre>
 
 </div>
-```
+```  

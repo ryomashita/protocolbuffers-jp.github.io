@@ -1,4 +1,4 @@
-# DslMap { /*examples*/ }
+# DslMap {#examples}
 
 [JVM] \
 コンテンツ \

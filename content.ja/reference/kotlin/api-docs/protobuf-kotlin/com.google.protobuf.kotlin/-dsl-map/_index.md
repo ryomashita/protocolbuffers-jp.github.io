@@ -9,9 +9,9 @@
 [Map](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html)<[K](),
 [V]()>
 
-[Map](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html) の周りにシンプルなラッパーで、拡張メソッドを区別するために使用できる追加のジェネリックパラメータがあります。
+[Map](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html) をラップするシンプルなラッパーで、拡張メソッドを区別するために使用できる追加のジェネリックパラメータを持っています。
 
-<p>このクラスは、Kotlinプロトコルバッファの拡張で使用され、そのコンストラクタは生成されたメッセージコードが異なるコンパイルユニットにあるため、他の人はこのクラスを直接どのような方法でも使用すべきではありません。
+<p>このクラスは、Kotlinプロトコルバッファ拡張で使用され、そのコンストラクタは生成されたメッセージコードが異なるコンパイルユニットにあるため、他の人はこのクラスを直接どのような方法でも使用すべきではありません。
 
 ## コンストラクタ
 
@@ -40,6 +40,4 @@ Name                                                                            
 <a name="com.google.protobuf.kotlin/DslMap/entries/#/PointingToDeclaration/"></a>[entries](entries)                               | <a name="com.google.protobuf.kotlin/DslMap/entries/#/PointingToDeclaration/"></a> [JVM] open override val [entries](entries): [Set](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html)<[Map.Entry](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/-entry/index.html)<[K](), [V]()>> <br>
 <a name="com.google.protobuf.kotlin/DslMap/keys/#/PointingToDeclaration/"></a>[keys](keys)                                        | <a name="com.google.protobuf.kotlin/DslMap/keys/#/PointingToDeclaration/"></a> [JVM] open override val [keys](keys): [Set](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html)<[K]()> <br>
 <a name="com.google.protobuf.kotlin/DslMap/size/#/PointingToDeclaration/"></a>[size](#-2063973537%2FProperties%2F-246181541) | <a name="com.google.protobuf.kotlin/DslMap/size/#/PointingToDeclaration/"></a> [JVM] open override val [size](#-2063973537%2FProperties%2F-246181541): [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html) <br>
-<a name="com.google.protobuf.kotlin/DslMap/values/#/PointingToDeclaration/"></a>[values](values)                                  | <a name="com.google.protobuf.kotlin/DslMap/values/#/PointingToDeclaration/"></a> [JVM] open override val [values](values): [Collection](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-collection/index.html)<[V]()> <br> 
-
-{/*examples*/}
+<a name="com.google.protobuf.kotlin/DslMap/values/#/PointingToDeclaration/"></a>[values](values)                                  | <a name="com.google.protobuf.kotlin/DslMap/values/#/PointingToDeclaration/"></a> [JVM] open override val [values](values): [Collection](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-collection/index.html)<[V]()> <br>

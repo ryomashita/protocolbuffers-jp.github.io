@@ -1,9 +1,8 @@
-```markdown
 +++
 title = "type_resolver.h"
 toc_hide = "true"
 linkTitle = "C++"
-description = "このセクションには、C++でプロトコルバッファクラスを使用するためのリファレンスドキュメントが含まれています。"
+description = "このセクションには、C++でプロトコルバッファクラスを操作するためのリファレンスドキュメントが含まれています。"
 type = "docs"
 +++
 
@@ -12,4 +11,4 @@ type = "docs"
 <table><tr><th colspan="2"><h3 style="margin-top: 4px">メンバー</h3></th></tr><tr><td style="border-right-width: 0px; text-align: right;"><code></code></td><td style="border-left-width: 0px"id="TypeResolver.TypeResolver"><div style="padding-left: 16px; text-indent: -16px"><code><b>TypeResolver</b>()</code></div></td></tr><tr><td style="border-right-width: 0px; text-align: right;"><code>virtual </code></td><td style="border-left-width: 0px"id="TypeResolver.~TypeResolver"><div style="padding-left: 16px; text-indent: -16px"><code><b>~TypeResolver</b>()</code></div></td></tr><tr><td style="border-right-width: 0px; text-align: right;"><code>virtual util::Status</code></td><td style="border-left-width: 0px"id="TypeResolver.ResolveMessageType"><div style="padding-left: 16px; text-indent: -16px"><code><b>ResolveMessageType</b>(const std::string &amp; type_url, google::protobuf::Type * message_type)  = 0</code></div><div style="font-style: italic; margin-top: 4px; margin-left: 16px;">メッセージタイプのためのタイプURLを解決します。</div></td></tr><tr><td style="border-right-width: 0px; text-align: right;"><code>virtual util::Status</code></td><td style="border-left-width: 0px"id="TypeResolver.ResolveEnumType"><div style="padding-left: 16px; text-indent: -16px"><code><b>ResolveEnumType</b>(const std::string &amp; type_url, google::protobuf::Enum * enum_type)  = 0</code></div><div style="font-style: italic; margin-top: 4px; margin-left: 16px;">列挙型のためのタイプURLを解決します。</div></td></tr></table>
 ```
 
-Please paste the Markdown content that you would like me to translate into Japanese.
+Please provide the Markdown content that you would like me to translate into Japanese.

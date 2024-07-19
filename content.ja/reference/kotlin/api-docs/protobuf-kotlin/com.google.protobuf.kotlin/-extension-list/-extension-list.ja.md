@@ -1,9 +1,10 @@
+
 //[protobuf-kotlin](/reference/kotlin/api-docs/)/[com.google.protobuf.kotlin](/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/)/[ExtensionList]()/ExtensionList
 
 # ExtensionList
 
 [JVM] \
-Content \
+コンテンツ \
 fun <[E](), [M]() :
 [MessageLite](/reference/java/api-docs/com/google/protobuf/MessageLite.html)>
 [ExtensionList]()(extension:
@@ -11,5 +12,4 @@ fun <[E](), [M]() :
 [List](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)<[E]()>>,
 delegate:
 [List](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)<[E]()>)
-
-{/*examples*/}
+```  

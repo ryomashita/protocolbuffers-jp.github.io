@@ -7,9 +7,9 @@
 [List](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)<[E]()>) :
 [List](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)<[E]()>
 
-[List](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html) の単純なラッパーで、拡張メソッドを区別するために使用できる追加のジェネリックパラメータを持っています。
+[List](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html) の周りにシンプルなラッパーで、拡張メソッドを区別するために使用できる追加のジェネリックパラメータがあります。
 
-<p>このクラスは、Kotlinプロトコルバッファ拡張で使用され、そのコンストラクタは生成されたメッセージコードが異なるコンパイルユニットにあるためにのみ公開されています。他の人はこのクラスを直接どのような方法でも使用すべきではありません。
+<p>このクラスは、Kotlinプロトコルバッファの拡張で使用され、そのコンストラクタは生成されたメッセージコードが異なるコンパイルユニットにあるため、他の人はこのクラスを直接どのような方法でも使用すべきではありません。
 
 ## コンストラクタ
 
@@ -44,4 +44,3 @@
 Name                                                                                                                                 | Summary
 ------------------------------------------------------------------------------------------------------------------------------------ | -------
 <a name="com.google.protobuf.kotlin/DslList/size/#/PointingToDeclaration/"></a>[size](#1874448885%2FProperties%2F-246181541) | <a name="com.google.protobuf.kotlin/DslList/size/#/PointingToDeclaration/"></a> [JVM] open override val [size](#1874448885%2FProperties%2F-246181541): [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html) <br>
-{/*examples*/}

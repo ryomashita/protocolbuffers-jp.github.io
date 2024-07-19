@@ -1,6 +1,8 @@
----
-title: "Go API"
-manualLink: "https://pkg.go.dev/google.golang.org/protobuf/proto"
-manualLinkTarget: "_blank"
-weight: 640
----
+
++++
+title = "Go API"
+manualLink = "https://pkg.go.dev/google.golang.org/protobuf/proto"
+manualLinkTarget = "_blank"
+weight = 640
++++
+```

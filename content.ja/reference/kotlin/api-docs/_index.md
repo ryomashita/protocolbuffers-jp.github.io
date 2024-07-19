@@ -11,4 +11,3 @@ type = "docs"
 Name |
 ---- |
 <a name="com.google.protobuf.kotlin////PointingToDeclaration/"></a>[com.google.protobuf.kotlin](protobuf-kotlin/com.google.protobuf.kotlin/) |
-

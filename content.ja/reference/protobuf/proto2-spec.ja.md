@@ -1,8 +1,8 @@
 +++
-title = "Protocol Buffers Version 2 言語仕様"
+title = "プロトコルバッファバージョン2言語仕様"
 weight = 800
-linkTitle = "Version 2 言語仕様"
-description = "Protocol Buffers 言語（proto2）のバージョン2の言語仕様リファレンス。"
+linkTitle = "バージョン2言語仕様"
+description = "プロトコルバッファ言語（proto2）のバージョン2の言語仕様リファレンス。"
 type = "docs"
 +++
 
@@ -15,7 +15,7 @@ type = "docs"
 {}  repetition (any number of times)
 ```
 
-proto2 の使用に関する詳細は、[言語ガイド](/programming-guides/proto2)を参照してください。
+proto2の使用に関する詳細は、[言語ガイド](/programming-guides/proto2)を参照してください。
 
 ## 字句要素 {#lexical_elements}
 
@@ -101,7 +101,7 @@ constant = fullIdent | ( [ "-" | "+" ] intLit ) | ( [ "-" | "+" ] floatLit ) |
 
 ## 構文
 
-構文文は、protobuf バージョンを定義するために使用されます。
+構文文は、protobufバージョンを定義するために使用されます。
 
 ```
 syntax = "syntax" "=" ("'" "proto2" "'" | '"' "proto2" '"') ";"
@@ -137,15 +137,14 @@ package foo.bar;
 
 ## オプション
 
-オプションは、proto ファイル、メッセージ、列挙型、サービスで使用できます。オプションは、protobuf で定義されたオプションまたはカスタムオプションであることができます。詳細については、[Options](/programming-guides/proto2#options)を言語ガイドで参照してください。
+オプションは、protoファイル、メッセージ、列挙型、サービスで使用できます。オプションは、protobufで定義されたオプションまたはカスタムオプションであることができます。詳細については、[オプション](/programming-guides/proto2#options)を言語ガイドで参照してください。
 
 ```
-option = "option" optionName  "=" constant ";"
+option = "option" optionName "=" constant ";"
 optionName = ( ident | bracedFullIdent ) { "." ( ident | bracedFullIdent ) }
 bracedFullIdent = "(" ["."] fullIdent ")"
-```
 
-たとえば：
+For examples:
 
 ```proto
 option java_package = "com.example.foo";
@@ -168,12 +167,12 @@ fieldNumber = intLit;
 各フィールドにはラベル、タイプ、名前、およびフィールド番号があります。フィールドオプションを持つことができます。
 
 ```
-field = label type fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";"
-fieldOptions = fieldOption { ","  fieldOption }
+field = label type fieldName "=" fieldNumber "[" fieldOptions "]" ";"
+fieldOptions = fieldOption { "," fieldOption }
 fieldOption = optionName "=" constant
 ```
 
-例：
+例:
 
 ```proto
 optional foo.bar nested_message = 2;
@@ -190,7 +189,7 @@ repeated int32 samples = 4 [packed=true];
 group = label "group" groupName "=" fieldNumber messageBody
 ```
 
-例：
+例:
 
 ```proto
 repeated group Result = 1 {
@@ -200,16 +199,16 @@ repeated group Result = 1 {
 }
 ```
 
-### Oneof および oneof フィールド {#oneof_and_oneof_field}
+### Oneofおよびoneofフィールド {#oneof_and_oneof_field}
 
-oneof は oneof フィールドと oneof 名から構成されます。oneof フィールドにはラベルがありません。
+oneofはoneofフィールドとoneof名から構成されます。oneofフィールドにはラベルがありません。
 
 ```
 oneof = "oneof" oneofName "{" { option | oneofField } "}"
-oneofField = type fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";"
+oneofField = type fieldName "=" fieldNumber "[" fieldOptions "]" ";"
 ```
 
-例：
+例:
 
 ```proto
 oneof foo {
@@ -223,12 +222,12 @@ oneof foo {
 マップフィールドにはキータイプ、値タイプ、名前、およびフィールド番号があります。キータイプは整数型または文字列型である必要があります。キータイプは列挙型であってはいけません。
 
 ```
-mapField = "map" "<" keyType "," type ">" mapName "=" fieldNumber [ "[" fieldOptions "]" ] ";"
+mapField = "map" "<" keyType "," type ">" mapName "=" fieldNumber "[" fieldOptions "]" ";"
 keyType = "int32" | "int64" | "uint32" | "uint64" | "sint32" | "sint64" |
           "fixed32" | "fixed64" | "sfixed32" | "sfixed64" | "bool" | "string"
 ```
 
-例：
+例:
 
 ```proto
 map<string, Project> projects = 3;
@@ -240,7 +239,7 @@ map<string, Project> projects = 3;
 
 ### 拡張
 
-拡張は、メッセージ内のフィールド番号の範囲がサードパーティの拡張用に利用可能であることを宣言します。他の人は、元のファイルを編集せずに、自分の.protoファイルでそれらの数値タグを使用してメッセージタイプに新しいフィールドを宣言できます。
+拡張は、メッセージ内のフィールド番号の範囲がサードパーティの拡張用に利用可能であることを宣言します。他の人は、自分自身の .proto ファイルでそれらの数値タグを使用して、メッセージタイプに新しいフィールドを宣言できます。元のファイルを編集する必要はありません。
 
 ```
 extensions = "extensions" ranges ";"
@@ -257,7 +256,7 @@ extensions 4, 20 to max;
 
 ### 予約
 
-予約は、メッセージ内のフィールド番号またはフィールド名の範囲を使用できないことを宣言します。
+予約は、メッセージ内のフィールド番号またはフィールド名の範囲を宣言し、使用できないことを示します。
 
 ```
 reserved = "reserved" ( ranges | strFieldNames ) ";"
@@ -274,9 +273,9 @@ reserved "foo", "bar";
 
 ## トップレベルの定義 {#top_level_definitions}
 
-### Enumの定義 {#enum_definition}
+### Enum 定義 {#enum_definition}
 
-Enumの定義は名前とEnum本体で構成されます。Enum本体には、オプション、Enumフィールド、および予約ステートメントが含まれることがあります。
+Enum 定義は名前と Enum 本体で構成されます。Enum 本体には、オプション、Enum フィールド、および予約ステートメントが含まれることがあります。
 
 ```
 enum = "enum" enumName enumBody
@@ -296,9 +295,9 @@ enum EnumAllowingAlias {
 }
 ```
 
-### メッセージの定義 {#message_definition}
+### Message 定義 {#message_definition}
 
-メッセージはメッセージ名とメッセージ本体で構成されます。メッセージ本体には、フィールド、ネストされたEnum定義、ネストされたメッセージ定義、拡張ステートメント、拡張、グループ、オプション、Oneof、Mapフィールド、および予約ステートメントが含まれることがあります。メッセージスキーマ内の同じメッセージで同じ名前のフィールドを2つ含めることはできません。
+メッセージはメッセージ名とメッセージ本体で構成されます。メッセージ本体には、フィールド、ネストされた Enum 定義、ネストされたメッセージ定義、拡張ステートメント、拡張、グループ、オプション、OneOf、Map フィールド、および予約ステートメントが含まれることがあります。メッセージスキーマ内の同じメッセージで同じ名前のフィールドを2つ含めることはできません。
 
 ```
 message = "message" messageName messageBody
@@ -351,7 +350,7 @@ message MyMessage {
 
 ### 拡張
 
-同じ.protoファイルまたはインポートされた.protoファイル内のメッセージが拡張用の範囲を予約している場合、そのメッセージを拡張することができます。
+同じまたはインポートされた .proto ファイル内のメッセージが拡張用の範囲を予約している場合、そのメッセージを拡張することができます。
 
 ```
 extend = "拡張" messageType "{" {field | group} "}"
@@ -368,7 +367,7 @@ extend Foo {
 ### サービス定義 {#service_definition}
 
 ```
-service = "サービス" serviceName "{" { option | rpc | emptyStatement } "}"
+service = "service" serviceName "{" { option | rpc | emptyStatement } "}"
 rpc = "rpc" rpcName "(" [ "stream" ] messageType ")" "returns" "(" [ "stream" ]
 messageType ")" (( "{" { option | emptyStatement } "}" ) | ";" )
 ```
@@ -381,7 +380,7 @@ service SearchService {
 }
 ```
 
-## Protoファイル {#proto_file}
+## Proto ファイル {#proto_file}
 
 ```
 proto = [syntax] { import | package | option | topLevelDef | emptyStatement }

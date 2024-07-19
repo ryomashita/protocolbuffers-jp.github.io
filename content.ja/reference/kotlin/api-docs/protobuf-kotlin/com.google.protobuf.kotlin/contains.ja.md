@@ -1,9 +1,10 @@
+
 //[protobuf-kotlin](/reference/kotlin/api-docs/)/[com.google.protobuf.kotlin](/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/)/contains
 
-# contains
+# contains {#examples}
 
 [JVM] \
-内容 \
+Content \
 operator fun <[M]() :
 [GeneratedMessageV3.ExtendableMessage](https://github.com/protocolbuffers/protobuf/blob/master/java/core/src/main/java/com/google/protobuf/GeneratedMessageV3.java)<[M]()>,
 [MorBT]() :
@@ -13,4 +14,5 @@ operator fun <[M]() :
 *>):
 [Boolean](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html)
 
-このビルダーに指定された拡張が設定されている場合はtrueを返します。
+Returns true if the specified extension is set on this builder.
+```

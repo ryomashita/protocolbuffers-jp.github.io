@@ -1,17 +1,22 @@
-## ダウンロード
++++
+title = "ダウンロード"
+weight = 1000
+description = "Protocol Buffers のダウンロードページ。"
+type = "docs"
++++
+
+## リリースパッケージ
 
 ### 最新バージョン
 
-Protocol Buffersの最新リリースは、[リリースページ](https://github.com/protocolbuffers/protobuf/releases/latest) で見つけることができます。
+Protocol Buffers の最新リリースは、[リリースページ](https://github.com/protocolbuffers/protobuf/releases/latest) で入手できます。
 
 ### 旧バージョン
 
-過去のバージョンは、当社の歴史的なリリースで入手可能です。[GitHub](https://github.com/protocolbuffers/protobuf/releases) でご覧いただけます。
+過去のバージョンは、当社の歴史的なリリースページ [GitHub](https://github.com/protocolbuffers/protobuf/releases) で入手できます。
 
 ## ソースコード
 
-### GitHubリポジトリ
+### GitHub リポジトリ
 
-Protocol Buffersのソースコードは、[GitHub](https://github.com/protocolbuffers/protobuf) にホストされています。 
-
-{/*examples*/}
+Protocol Buffers のソースコードは [GitHub](https://github.com/protocolbuffers/protobuf) にホスティングされています。

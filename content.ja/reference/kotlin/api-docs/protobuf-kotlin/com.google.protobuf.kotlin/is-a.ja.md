@@ -1,9 +1,10 @@
+
 //[protobuf-kotlin](/reference/kotlin/api-docs/)/[com.google.protobuf.kotlin](/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/)/[isA]()
 
 # isA
 
 [JVM] \
-Content \
+コンテンツ \
 inline fun <[T]() :
 [Message](/reference/java/api-docs/com/google/protobuf/Message.html)>
 [Any](/reference/java/api-docs/com/google/protobuf/Any.html).[isA]()():
@@ -13,5 +14,4 @@ inline fun <[T]() :
 この
 [com.google.protobuf.Any](/reference/java/api-docs/com/google/protobuf/Any.html)
 が型Tのメッセージを含む場合、trueを返します。
-
-{/*examples*/}
+```  

@@ -1,4 +1,4 @@
-```markdown
+
 +++
 title = "csharp_names.h"
 toc_hide = "true"
@@ -11,6 +11,7 @@ type = "docs"
 <p>戻り値: </p>
 ```
 
+```markdown
 <pre>指定されたファイル記述子に使用する名前空間。</pre>
 </div> <hr><h3 id="GetClassName.details"><code>std::string csharp::GetClassName(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const <a href='google.protobuf.descriptor#Descriptor'>Descriptor</a> * descriptor)</code></h3><div style="margin-left: 16px"><p>必要条件: </p><pre>descriptor != NULL</pre>
 
@@ -22,7 +23,7 @@ type = "docs"
 <p>戻り値: </p>
 
 <pre>ファイル記述子にアクセスするための C# クラスの完全修飾名。Proto コンパイラは、処理される各 .proto ファイルに対してこのようなクラスを生成します。</pre>
-</div> <hr><h3 id="GetOutputFile.details"><code>std::string csharp::GetOutputFile(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const <a href='google.protobuf.descriptor#FileDescriptor'>FileDescriptor</a> * descriptor,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const std::string file_extension,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const bool generate_directories,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const std::string base_namespace,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::string * error)</code></h3><div style="margin-left: 16px"><p>指定されたファイル記述子の出力ファイル名を生成します。</p><p>generate_directories が true の場合、出力ファイルはファイルの名前空間に対応するディレクトリに配置されます。base_namespace は、トップレベルのディレクトリの一部を削除するために使用できます。たとえば、名前空間が "Bar.Foo" のファイルで base_namespace が "Bar" の場合、結果として得られるファイルはディレクトリ "Foo" に配置されます（"Bar/Foo" ではありません）。</p>
+</div> <hr><h3 id="GetOutputFile.details"><code>std::string csharp::GetOutputFile(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const <a href='google.protobuf.descriptor#FileDescriptor'>FileDescriptor</a> * descriptor,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const std::string file_extension,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const bool generate_directories,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const std::string base_namespace,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;std::string * error)</code></h3><div style="margin-left: 16px"><p>指定されたファイル記述子の出力ファイル名を生成します。</p><p>generate_directories が true の場合、出力ファイルはファイルの名前空間に対応するディレクトリに配置されます。base_namespace は、トップレベルのディレクトリの一部を削除するために使用できます。たとえば、名前空間が "Bar.Foo" であり、base_namespace が "Bar" の場合、生成されるファイルは "Foo" ディレクトリに配置されます（"Bar/Foo" ではありません）。</p>
 <p>必要条件: </p>
 <pre>descriptor != NULL
 error != NULL</pre>
@@ -30,5 +31,6 @@ error != NULL</pre>
 <p>戻り値: </p>
 
 <pre>指定されたファイル記述子に対する出力ファイルとして使用するファイル名。失敗した場合、この関数は空の文字列を返し、エラー パラメータにエラーメッセージが含まれます。</pre>
+```
 
 </div>

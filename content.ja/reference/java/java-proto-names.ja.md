@@ -1,18 +1,18 @@
 +++
 title = "Java Proto Names"
 weight = 655
-linkTitle = "生成されたProto名"
-description = "イミュータブルAPIによって生成される名前に関する情報です。"
+linkTitle = "生成された Proto 名"
+description = "イミュータブル API によって生成される名前に関する情報が含まれています。"
 type = "docs"
 +++
 
-このドキュメントには、異なるProtoオプションに基づいて、Protoの完全修飾Java名が何であるかに関する情報が含まれています。この名前は、そのメッセージを使用するためにインポートする必要があるパッケージに対応しています。
+このドキュメントには、異なる proto オプションに基づいて、proto の完全修飾 Java 名が何であるかに関する情報が含まれています。この名前は、そのメッセージを使用するためにインポートする必要があるパッケージに対応しています。
 
-**注意:** `java_package`および`java_alt_api_package`オプションは、`java_api_version`で示されるAPIに対して相対的に解釈されます。たとえば、`java_api_version`が1の場合、proto1パッケージは`java_package`となり、proto2パッケージ（"alternative" API）は`java_alt_api_package`となります。そして、`java_api_version`が2の場合、`java_package`がproto2パッケージを決定し、`java_alt_api_package`がproto1パッケージを決定します。
+**注意:** `java_package` および `java_alt_api_package` オプションは、`java_api_version` で示される API に対して相対的に解釈されます。たとえば、`java_api_version` が 1 の場合、proto1 パッケージは `java_package` となり、proto2 パッケージ（"alternative" API）は `java_alt_api_package` となります。そして、`java_api_version` が 2 の場合、`java_package` が proto2 パッケージを決定し、`java_alt_api_package` が proto1 パッケージを決定します。
 
-## イミュータブルAPIメッセージ名 { #immutable-api-message-names }
+## イミュータブル API メッセージ名 {#immutable-api-message-names}
 
-イミュータブルAPI（`java_proto_library` BUILDターゲット）によって生成されたProtoの名前は、次の表にリストされています。
+イミュータブル API（`java_proto_library` BUILD ターゲット）によって生成された proto の名前は、次の表にリストされています。
 
 java_api_version | java_multiple_files | java_alt_api_package | java_package | java_outer_classname | 生成された完全メッセージ名
 :--------------: | :-----------------: | -------------------- | ------------ | -------------------- | ---------------------------
@@ -34,18 +34,18 @@ java_api_version | java_multiple_files | java_alt_api_package | java_package | j
 
 **凡例**
 
-- `-` は、オプションを設定するかしないかで生成されるフルメッセージ名が変わらないことを意味します。
+- `-` は、オプションの設定または設定しない場合でも、生成されるメッセージの完全な名前に変更を加えないことを意味します。
 - `$message` は、実際の proto メッセージの名前です。
-- `$package` は、proto パッケージの名前です。これは、通常ファイルの先頭にある `package` ディレクティブで指定される名前です。
-- `$derived_outer_class` は、proto ファイル名から生成される名前です。一般的には、ファイル名から句読点を削除し、CamelCase に変換して計算されます。例えば、proto ファイルが `foo_bar.proto` の場合、`$derived_outer_class` の値は `FooBar` になります。
+- `$package` は、proto パッケージの名前です。これは、通常、ファイルの先頭にある `package` ディレクティブで指定される名前です。
+- `$derived_outer_class` は、proto ファイル名から生成される名前です。一般的には、ファイル名から句読点を削除し、CamelCase に変換して計算されます。たとえば、proto ファイルが `foo_bar.proto` の場合、`$derived_outer_class` の値は `FooBar` です。
 
-    生成されるクラス名が proto ファイルで定義されたメッセージの1つと同じ場合、`derived_outer_class` に `OuterClass` が追加されます。例えば、proto が `foo_bar.proto` で `FooBar` メッセージを含む場合、`$derived_outer_class` の値は `FooBarOuterClass` になります。クラス名が同じであるかどうかに関わらず、v1 API を使用する場合も同様です。
+    生成されるクラス名が proto ファイルで定義されたメッセージの1つと同じ場合、`derived_outer_class` に `OuterClass` が追加されます。たとえば、proto が `foo_bar.proto` で `FooBar` メッセージを含む場合、`$derived_outer_class` の値は `FooBarOuterClass` です。クラス名が同じであるかどうかに関係なく、v1 API を使用する場合も同様です。
 
 - その他の `$names` は、proto ファイルで定義された対応する proto2 ファイルオプションの値です。
 
-### 推奨事項 { #recommendation }
+### 推奨事項 {#recommendation}
 
-推奨されるオプションは次の通りです:
+推奨されるオプションは次のとおりです:
 
 ```proto
 option java_multiple_files = true;

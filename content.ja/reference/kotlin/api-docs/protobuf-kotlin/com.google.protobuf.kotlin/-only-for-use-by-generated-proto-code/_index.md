@@ -1,6 +1,7 @@
+
 //[protobuf-kotlin](/reference/kotlin/api-docs/)/[com.google.protobuf.kotlin](/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/)/OnlyForUseByGeneratedProtoCode
 
-# OnlyForUseByGeneratedProtoCode {/examples}
+# OnlyForUseByGeneratedProtoCode {#examples}
 
 [JVM]
 @[Target](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.annotation/-target/index.html)(allowedTargets =
@@ -9,10 +10,11 @@
 
 アノテーションクラス [OnlyForUseByGeneratedProtoCode]()
 
-誤って使用されることを防ぐためのオプトインアノテーション、proto生成コードでのみ使用することを意図したAPIを誤って使用することを困難にします。このAPIの動作についての詳細は、https://kotlinlang.org/docs/reference/opt-in-requirements.html を参照してください。
+proto 生成コードのみで使用することを意図した API を誤って使用するのを困難にするためのオプトインアノテーション。この API の動作についての詳細は、https://kotlinlang.org/docs/reference/opt-in-requirements.html を参照してください。
 
-## Constructors {/examples}
+## Constructors {#examples}
 
 Name | Summary
 --- | ---
 [OnlyForUseByGeneratedProtoCode]() | [JVM] fun [OnlyForUseByGeneratedProtoCode]()() <br>
+```  

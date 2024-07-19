@@ -1,3 +1,4 @@
+
 //[protobuf-kotlin](/reference/kotlin/api-docs/)/[com.google.protobuf.kotlin](/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/)/[ProtoDslMarker]()
 
 # ProtoDslMarker
@@ -17,3 +18,4 @@ Indicates an API that is part of a DSL to generate protocol buffer messages.
 Name | Summary
 --- | ---
 [ProtoDslMarker]() | [JVM] fun [ProtoDslMarker]()()
+```  

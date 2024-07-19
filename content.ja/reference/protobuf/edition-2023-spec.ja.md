@@ -135,14 +135,14 @@ package foo.bar;
 
 ## オプション
 
-オプションは、proto ファイル、メッセージ、列挙型、およびサービスで使用できます。オプションは、protobuf で定義されたオプションまたはカスタムオプションであることができます。詳細については、[Options](/programming-guides/proto2#options) を参照してください。オプションは、[Feature Settings](/editions/features) を制御するためにも使用されます。
+オプションは、proto ファイル、メッセージ、列挙型、およびサービスで使用できます。オプションは、protobuf で定義されたオプションまたはカスタムオプションであることができます。詳細については、言語ガイドの[オプション](/programming-guides/proto2#options)を参照してください。オプションは、[機能設定](/editions/features)を制御するためにも使用されます。
 
 ```
 option = "option" optionName  "=" constant ";"
 optionName = ( ident | "(" ["."] fullIdent ")" )
 ```
 
-For examples:
+例:
 
 ```proto
 option java_package = "com.example.foo";
@@ -151,7 +151,7 @@ option features.enum_type = CLOSED;
 
 ## フィールド
 
-フィールドはプロトコルバッファメッセージの基本要素です。フィールドには通常のフィールド、グループフィールド、oneofフィールド、またはマップフィールドがあります。フィールドにはラベル、タイプ、フィールド番号があります。
+フィールドはプロトコルバッファメッセージの基本要素です。フィールドには通常のフィールド、グループフィールド、oneofフィールド、またはマップフィールドがあります。フィールドにはラベル、タイプ、およびフィールド番号があります。
 
 ```
 label = "required" | "optional" | "repeated"
@@ -163,7 +163,7 @@ fieldNumber = intLit;
 
 ### 通常のフィールド {#normal_field}
 
-各フィールドにはラベル、タイプ、名前、フィールド番号があります。フィールドにはフィールドオプションがある場合があります。
+各フィールドにはラベル、タイプ、名前、およびフィールド番号があります。フィールドオプションを持つことができます。
 
 ```
 field = label type fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";"
@@ -178,9 +178,9 @@ optional foo.bar nested_message = 2;
 repeated int32 samples = 4 [packed=true];
 ```
 
-### Oneofフィールドとoneof {#oneof_and_oneof_field}
+### Oneofおよびoneofフィールド {#oneof_and_oneof_field}
 
-oneofはoneofフィールドとoneof名で構成されます。oneofフィールドにはラベルがありません。
+oneofはoneofフィールドとoneof名から構成されます。oneofフィールドにはラベルがありません。
 
 ```
 oneof = "oneof" oneofName "{" { option | oneofField } "}"
@@ -198,7 +198,7 @@ oneof foo {
 
 ### マップフィールド {#map_field}
 
-マップフィールドにはキータイプ、値タイプ、名前、フィールド番号があります。キータイプは整数型または文字列型である必要があります。キータイプは列挙型であってはいけません。
+マップフィールドにはキータイプ、値タイプ、名前、およびフィールド番号があります。キータイプは整数型または文字列型である必要があります。キータイプは列挙型であってはいけません。
 
 ```
 mapField = "map" "<" keyType "," type ">" mapName "=" fieldNumber [ "[" fieldOptions "]" ] ";"
@@ -214,11 +214,11 @@ map<string, Project> projects = 3;
 
 ## 拡張と予約 {#extensions_and_reserved}
 
-拡張と予約は、一連のフィールド番号またはフィールド名の範囲を宣言するメッセージ要素です。
+拡張と予約は、一連のフィールド番号またはフィールド名を宣言するメッセージ要素です。
 
 ### 拡張
 
-拡張は、メッセージ内の一連のフィールド番号がサードパーティの拡張用に利用可能であることを宣言します。他の人は、元のファイルを編集せずに、自分自身の .proto ファイルでそれらの数値タグを使用してメッセージタイプの新しいフィールドを宣言できます。
+拡張は、メッセージ内の一連のフィールド番号がサードパーティの拡張用に利用可能であることを宣言します。他の人は、元のファイルを編集せずに、自分自身の .proto ファイルでそれらの数値タグを使用して、メッセージタイプに新しいフィールドを宣言できます。
 
 ```
 extensions = "拡張" ranges ";"
@@ -229,13 +229,13 @@ range =  intLit [ "to" ( intLit | "max" ) ]
 Examples:
 
 ```proto
-extensions 100 to 199;
-extensions 4, 20 to max;
+拡張 100 to 199;
+拡張 4, 20 to max;
 ```
 
-### 予約済み {#top_level_definitions}
+### 予約済み
 
-Reservedは、使用できないメッセージまたは列挙型のフィールド番号または名前の範囲を宣言します。
+Reserved は、使用できないメッセージや列挙型のフィールド番号または名前の範囲を宣言します。
 
 ```
 reserved = "予約済み" ( ranges | reservedIdent ) ";"
@@ -245,15 +245,15 @@ fieldNames = fieldName { "," fieldName }
 Examples:
 
 ```proto
-reserved 2, 15, 9 to 11;
-reserved foo, bar;
+予約済み 2, 15, 9 to 11;
+予約済み foo, bar;
 ```
 
-## トップレベル定義 {#top_level_definitions}
+## トップレベルの定義 {#top_level_definitions}
 
-### 列挙型定義 {#enum_definition}
+### 列挙型の定義 {#enum_definition}
 
-列挙型定義は名前と列挙体から構成されます。列挙体にはオプション、列挙フィールド、および予約ステートメントが含まれます。
+列挙型の定義は名前と列挙体から構成されます。列挙体にはオプション、列挙フィールド、および予約ステートメントが含まれます。
 
 ```
 enum = "enum" enumName enumBody
@@ -273,14 +273,13 @@ enum EnumAllowingAlias {
 }
 ```
 
-### メッセージ定義 {#message_definition}
+### メッセージの定義 {#message_definition}
 
-メッセージはメッセージ名とメッセージ本体から構成されます。メッセージ本体にはフィールド、ネストされた列挙型定義、ネストされたメッセージ定義、拡張ステートメント、拡張、グループ、オプション、oneofs、マップフィールド、および予約ステートメントが含まれます。メッセージスキーマ内の同じ名前を持つ2つのフィールドを含めることはできません。
+メッセージはメッセージ名とメッセージ本体から構成されます。メッセージ本体にはフィールド、ネストされた列挙型の定義、ネストされたメッセージの定義、拡張ステートメント、拡張、グループ、オプション、oneof、マップフィールド、および予約ステートメントが含まれます。メッセージスキーマ内の同じ名前のフィールドを2つ含めることはできません。
 
 ```
 message = "メッセージ" messageName messageBody
-messageBody = "{" { field | enum | message | extend | extensions | group |
-option | oneof | mapField | reserved | emptyStatement } "}"
+messageBody = "{" { field | enum | message | extend | extensions | group | option | oneof | mapField | reserved | emptyStatement } "}"
 ```
 
 Example:
@@ -296,7 +295,7 @@ message Outer {
 }
 ```
 
-メッセージ内で宣言されたエンティティの名前が競合してはいけません。以下のすべてが禁止されています。
+メッセージ内で宣言されたエンティティの名前が競合してはいけません。以下のすべてが禁止されています:
 
 ```
 message MyMessage {
@@ -328,7 +327,7 @@ message MyMessage {
 
 ### 拡張
 
-同じ.protoファイルまたはインポートされたファイル内のメッセージが拡張のための範囲を予約している場合、そのメッセージを拡張できます。
+もし同じ.protoファイル内またはインポートされたファイル内のメッセージが拡張のための範囲を予約している場合、そのメッセージは拡張できます。
 
 ```
 extend = "拡張" messageType "{" {field | group} "}"
@@ -342,12 +341,11 @@ extend Foo {
 }
 ```
 
-### サービス定義 {#service_definition}
+### サービスの定義 {#service_definition}
 
 ```
 service = "サービス" serviceName "{" { option | rpc | emptyStatement } "}"
-rpc = "rpc" rpcName "(" [ "stream" ] messageType ")" "returns" "(" [ "stream" ]
-messageType ")" (( "{" { option | emptyStatement } "}" ) | ";" )
+rpc = "rpc" rpcName "(" [ "stream" ] messageType ")" "returns" "(" [ "stream" ] messageType ")" (( "{" { option | emptyStatement } "}" ) | ";" )
 ```
 
 ```proto
@@ -356,14 +354,14 @@ service SearchService {
 }
 ```
 
-## Proto ファイル {#proto_file}
+## Proto file {#proto_file}
 
 ```
 proto = [syntax] { import | package | option | topLevelDef | emptyStatement }
 topLevelDef = message | enum | extend | service
 ```
 
-例としての .proto ファイル:
+An example .proto file:
 
 ```proto
 edition = "2023";

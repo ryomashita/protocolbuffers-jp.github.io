@@ -1,12 +1,12 @@
 +++
-title = "Protocol Buffers Version 3 言語仕様"
+title = "Protocol Buffers バージョン 3 言語仕様"
 weight = 810
-linkTitle = "Version 3 言語仕様"
-description = "Protocol Buffers 言語（proto3）のバージョン3の言語仕様リファレンス。"
+linkTitle = "バージョン 3 言語仕様"
+description = "Protocol Buffers 言語（proto3）のバージョン 3 の言語仕様リファレンス。"
 type = "docs"
 +++
 
-構文は、[拡張バッカス・ナウア形式（EBNF）](https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_Form)を使用して指定されています：
+構文は、[拡張バッカス・ナウア形式（EBNF）](https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_Form) を使用して指定されています：
 
 ```
 |   alternation
@@ -15,7 +15,7 @@ type = "docs"
 {}  repetition (any number of times)
 ```
 
-proto3の使用に関する詳細は、[言語ガイド](/programming-guides/proto3)を参照してください。
+proto3 の使用に関する詳細は、[言語ガイド](/programming-guides/proto3) を参照してください。
 
 ## 字句要素 {#lexical_elements}
 
@@ -94,11 +94,11 @@ constant = fullIdent | ( [ "-" | "+" ] intLit ) | ( [ "-" | "+" ] floatLit ) |
                 strLit | boolLit | MessageValue
 ```
 
-`MessageValue` は、[テキスト形式言語仕様](/reference/protobuf/textformat-spec#fields)で定義されています。
+`MessageValue` は、[テキスト形式言語仕様](/reference/protobuf/textformat-spec#fields) で定義されています。
 
 ## 構文
 
-構文ステートメントは、protobufのバージョンを定義するために使用されます。
+構文文は、protobuf バージョンを定義するために使用されます。
 
 ```
 syntax = "syntax" "=" ("'" "proto3" "'" | '"' "proto3" '"') ";"
@@ -110,9 +110,9 @@ syntax = "syntax" "=" ("'" "proto3" "'" | '"' "proto3" '"') ";"
 syntax = "proto3";
 ```
 
-## インポートステートメント {#import_statement}
+## インポート文 {#import_statement}
 
-インポートステートメントは、別の .proto の定義をインポートするために使用されます。
+インポート文は、別の .proto の定義をインポートするために使用されます。
 
 ```
 import = "import" [ "weak" | "public" ] strLit ";"
@@ -138,9 +138,9 @@ package = "package" fullIdent ";"
 package foo.bar;
 ```
 
-## オプション {#options}
+## オプション {#examples}
 
-オプションは、protoファイル、メッセージ、列挙型、およびサービスで使用できます。オプションは、protobufで定義されたオプションまたはカスタムオプションであることができます。詳細については、[Options](/programming-guides/proto3#options)を言語ガイドでご覧ください。
+オプションは、protoファイル、メッセージ、列挙型、およびサービスで使用できます。オプションは、protobufで定義されたオプションまたはカスタムオプションであることができます。詳細については、[Options](/programming-guides/proto3#options)を参照してください。
 
 ```
 option = "option" optionName  "=" constant ";"
@@ -155,9 +155,9 @@ optionNamePart = { ident | "(" ["."] fullIdent ")" }
 option java_package = "com.example.foo";
 ```
 
-## フィールド {#fields}
+## フィールド {#examples}
 
-フィールドは、プロトコルバッファメッセージの基本要素です。フィールドには通常のフィールド、oneofフィールド、またはマップフィールドがあります。フィールドには型とフィールド番号があります。
+フィールドは、プロトコルバッファメッセージの基本要素です。フィールドには通常のフィールド、oneofフィールド、またはmapフィールドがあります。フィールドには型とフィールド番号があります。
 
 ```
 type = "double" | "float" | "int32" | "int64" | "uint32" | "uint64"
@@ -168,7 +168,7 @@ fieldNumber = intLit;
 
 ### 通常のフィールド {#normal_field}
 
-各フィールドには、型、名前、およびフィールド番号があります。フィールドにはフィールドオプションがある場合があります。
+各フィールドには、型、名前、およびフィールド番号があります。フィールドオプションを持つことができます。
 
 ```
 field = [ "repeated" ] type fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";"
@@ -201,9 +201,9 @@ oneof foo {
 }
 ```
 
-### マップフィールド {#map_field}
+### Mapフィールド {#map_field}
 
-マップフィールドには、キーの型、値の型、名前、およびフィールド番号があります。キーの型は、整数型または文字列型であることができます。
+マップフィールドには、キーの型、値の型、名前、およびフィールド番号があります。キーの型は、整数型または文字列型のいずれかであることができます。
 
 ```
 mapField = "map" "<" keyType "," type ">" mapName "=" fieldNumber [ "[" fieldOptions "]" ] ";"
@@ -217,7 +217,7 @@ keyType = "int32" | "int64" | "uint32" | "uint64" | "sint32" | "sint64" |
 map<string, Project> projects = 3;
 ```
 
-## 予約 {#reserved}
+## 予約 {#examples}
 
 予約ステートメントは、このメッセージで使用できないフィールド番号またはフィールド名の範囲を宣言します。
 

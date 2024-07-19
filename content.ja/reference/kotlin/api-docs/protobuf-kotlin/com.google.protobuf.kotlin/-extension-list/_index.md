@@ -1,10 +1,11 @@
+
 //[protobuf-kotlin](/reference/kotlin/api-docs/)/[com.google.protobuf.kotlin](/reference/kotlin/api-docs/protobuf-kotlin/com.google.protobuf.kotlin/)/ExtensionList
 
 # ExtensionList
 
 [JVM] クラス [ExtensionList]()<[E](), [M]() : [MessageLite](/reference/java/api-docs/com/google/protobuf/MessageLite.html)>コンストラクタ(**extension**: [ExtensionLite](/reference/java/api-docs/com/google/protobuf/ExtensionLite.html)<[M](), [List](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)<[E]()>>, **delegate**: [List](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)<[E]()>) : [List](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)<[E]()>
 
-ExtensionListおよびExtensionListLiteの実装。[DslList](../-dsl-list/)のように、繰り返しプロトフィールド（この場合は拡張フィールド）の変更不可ビューを表し、拡張のクエリをサポートします。
+ExtensionListおよびExtensionListLiteの実装。[DslList](../-dsl-list/)のように、繰り返しプロトフィールド（この場合は拡張フィールド）の変更不可ビューを表しますが、拡張機能のクエリをサポートします。
 
 ## コンストラクタ
 
@@ -34,10 +35,11 @@ ExtensionListおよびExtensionListLiteの実装。[DslList](../-dsl-list/)の�
 <a name="kotlin.collections/List/subList/#kotlin.Int#kotlin.Int/PointingToDeclaration/"></a>[subList](#423386006%2FFunctions%2F-246181541) | <a name="kotlin.collections/List/subList/#kotlin.Int#kotlin.Int/PointingToDeclaration/"></a>[JVM] <br>Content <br>open override fun [subList](#423386006%2FFunctions%2F-246181541)(fromIndex: [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html), toIndex: [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)): [List](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)<[E]()> <br><br><br>
 <a name="kotlin.collections/Collection/toArray/#java.util.function.IntFunction[kotlin.Array[TypeParam(bounds=[kotlin.Any])]]/PointingToDeclaration/"></a>[toArray](#-1215154575%2FFunctions%2F-246181541) | <a name="kotlin.collections/Collection/toArray/#java.util.function.IntFunction[kotlin.Array[TypeParam(bounds=[kotlin.Any])]]/PointingToDeclaration/"></a>[JVM] <br>Content <br>~~open~~ ~~fun~~ ~~<~~[T](#-1215154575%2FFunctions%2F-246181541) : [Any](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html)~~>~~ [~~toArray~~](#-1215154575%2FFunctions%2F-246181541)~~(~~~~p0~~~~:~~ [IntFunction](https://docs.oracle.com/javase/8/docs/api/java/util/function/IntFunction.html)<[Array](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html)<[T](#-1215154575%2FFunctions%2F-246181541)>>~~)~~~~:~~ [Array](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html)<[T](#-1215154575%2FFunctions%2F-246181541)> <br><br><br>
 <a name="com.google.protobuf.kotlin/ExtensionList/toString/#/PointingToDeclaration/"></a>[toString](to-string) | <a name="com.google.protobuf.kotlin/ExtensionList/toString/#/PointingToDeclaration/"></a>[JVM] <br>Content <br>open override fun [toString](to-string)(): [String](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html) <br><br><br>
+```
 
 ## プロパティ
 
-名前                                                                                                                              | 概要
+Name                                                                                                                              | Summary
 --------------------------------------------------------------------------------------------------------------------------------- | -------
 <a name="com.google.protobuf.kotlin/ExtensionList/extension/#/PointingToDeclaration/"></a>[extension](extension)                  | <a name="com.google.protobuf.kotlin/ExtensionList/extension/#/PointingToDeclaration/"></a> [JVM] val [extension](extension): [ExtensionLite](/reference/java/api-docs/com/google/protobuf/ExtensionLite.html)<[M](), [List](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html)<[E]()>> <br>
 <a name="com.google.protobuf.kotlin/ExtensionList/size/#/PointingToDeclaration/"></a>[size](#648753719%2FProperties%2F-246181541) | <a name="com.google.protobuf.kotlin/ExtensionList/size/#/PointingToDeclaration/"></a> [JVM] open override val [size](#648753719%2FProperties%2F-246181541): [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html) <br>

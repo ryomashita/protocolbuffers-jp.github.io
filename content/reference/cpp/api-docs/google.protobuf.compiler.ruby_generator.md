@@ -1,5 +1,4 @@
 
-
 +++
 title = "ruby_generator.h"
 toc_hide = "true"
